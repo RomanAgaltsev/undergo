@@ -19,6 +19,13 @@ linters:
         - fmt.Fprintln
 
   exclusions:
+    rules:
+      # A task stub declares the parameters the solver has to use; its body is a
+      # panic until they do. Unused parameters there are the exercise, not a defect.
+      - path: tasks/
+        linters: [revive]
+        text: unused-parameter
+
     paths:
       - work
       - _solution

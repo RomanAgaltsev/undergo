@@ -1,0 +1,20 @@
+name: release
+
+on:
+  push: { branches: [main] }
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # release-please keeps a release PR open, accumulating Conventional Commits
+  # since the last tag. Merging that PR creates the tag, so cutting a release is
+  # a deliberate merge rather than a side effect of a push.
+  #
+  # No binaries are published: undergo is used by cloning it and running
+  # `go run ./cmd/undergo`, so a release is the tag and the changelog.
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v5

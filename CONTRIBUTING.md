@@ -48,3 +48,20 @@ than faking one. Its sealed blob carries `HINT.md` and `EXPLANATION.md` but no
 `solution/`, CI gate 2 skips it and reports how many it skipped, and `go vet` is
 never run over a review drill — a vet diagnostic on planted-defect code *is* the
 answer, and CI logs are public.
+
+## Releases
+
+Releases are cut by release-please: it keeps a PR open that accumulates
+Conventional Commits since the last tag, and merging that PR creates the tag.
+Adding tasks or tracks is a **minor**; changing the CLI or the `task.yaml`
+schema is a **major** (see the SemVer contract in the design spec).
+
+Two traps specific to this repo:
+
+- Merges are **squash-only and take the PR title**, so a PR title that is not a
+  Conventional Commit drops the change from the changelog. The `pr-title` check
+  enforces this.
+- An `import:` commit shows up in the changelog but **does not bump the version
+  by itself** — release-please bumps on `feat` and `fix` only. An import that
+  adds tasks is a minor, so title its PR `feat(tasks): import <source>` and keep
+  `import:` for the commit inside it.

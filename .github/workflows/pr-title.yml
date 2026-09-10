@@ -1,0 +1,32 @@
+name: pr-title
+
+# Merges into main are squash-only, and the squash commit takes the PR title.
+# release-please reads Conventional Commits, so a PR title that is not one
+# silently drops the change from the changelog and can mis-version the release.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            refactor
+            test
+            build
+            ci
+            perf
+            revert
+            import

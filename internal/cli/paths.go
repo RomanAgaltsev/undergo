@@ -57,3 +57,19 @@ func FindRoot(start string) (string, error) {
 		dir = parent
 	}
 }
+
+// splitID separates the single positional task id from flag arguments, so that
+// `undergo reveal <id> --stuck` works as well as `undergo reveal --stuck <id>`.
+// Go's flag package stops parsing at the first non-flag argument, so without
+// this the documented argument order is rejected. Only safe for commands whose
+// flags are all boolean, which is every command that takes an id.
+func splitID(args []string) (id string, flags []string) {
+	for _, a := range args {
+		if id == "" && !strings.HasPrefix(a, "-") {
+			id = a
+			continue
+		}
+		flags = append(flags, a)
+	}
+	return id, flags
+}

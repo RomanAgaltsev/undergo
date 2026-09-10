@@ -60,13 +60,13 @@ func Reveal(e Env, args []string) error {
 	fs := flag.NewFlagSet("reveal", flag.ContinueOnError)
 	fs.SetOutput(e.Err)
 	stuck := fs.Bool("stuck", false, "reveal even though the task is not passing")
-	if err := fs.Parse(args); err != nil {
+	id, flags := splitID(args)
+	if err := fs.Parse(flags); err != nil {
 		return err
 	}
-	if fs.NArg() != 1 {
+	if id == "" || fs.NArg() != 0 {
 		return fmt.Errorf("usage: undergo reveal <id> [--stuck]")
 	}
-	id := fs.Arg(0)
 
 	rec, err := progress.Load(e.ProgressPath())
 	if err != nil {

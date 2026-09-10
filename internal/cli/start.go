@@ -20,14 +20,15 @@ func Start(e Env, args []string) error {
 	fs2 := flag.NewFlagSet("start", flag.ContinueOnError)
 	fs2.SetOutput(e.Err)
 	force := fs2.Bool("force", false, "overwrite existing work")
-	if err := fs2.Parse(args); err != nil {
+	id, flags := splitID(args)
+	if err := fs2.Parse(flags); err != nil {
 		return err
 	}
-	if fs2.NArg() != 1 {
+	if id == "" || fs2.NArg() != 0 {
 		return fmt.Errorf("usage: undergo start <id> [--force]")
 	}
 
-	t, err := find(e, fs2.Arg(0))
+	t, err := find(e, id)
 	if err != nil {
 		return err
 	}

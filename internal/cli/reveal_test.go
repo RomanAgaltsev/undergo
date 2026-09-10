@@ -119,3 +119,34 @@ func TestRevealIsFreeOnceSolved(t *testing.T) {
 		t.Error("reading the solution after solving must not be recorded as a peek")
 	}
 }
+
+// The usage line and the refusal message both document `reveal <id> --stuck`.
+// Go's flag package stops at the first positional, so this order has to be
+// handled explicitly or the tool rejects its own advertised command.
+func TestRevealAcceptsTheFlagAfterTheID(t *testing.T) {
+	e := sealedRepo(t)
+	e.Out, e.Err = &bytes.Buffer{}, &bytes.Buffer{}
+
+	if err := Reveal(e, []string{"layout/01-struct-padding", "--stuck"}); err != nil {
+		t.Fatalf("Reveal <id> --stuck: %v", err)
+	}
+	if _, err := os.Stat(e.RevealDir("layout/01-struct-padding")); err != nil {
+		t.Errorf("nothing extracted: %v", err)
+	}
+}
+
+func TestStartAcceptsTheFlagAfterTheID(t *testing.T) {
+	e := sealedRepo(t)
+	e.Out, e.Err = &bytes.Buffer{}, &bytes.Buffer{}
+	if err := os.WriteFile(filepath.Join(e.TaskDir("layout/01-struct-padding"), "README.md"),
+		[]byte("# x\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := Start(e, []string{"layout/01-struct-padding"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := Start(e, []string{"layout/01-struct-padding", "--force"}); err != nil {
+		t.Fatalf("Start <id> --force: %v", err)
+	}
+}

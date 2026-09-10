@@ -40,3 +40,11 @@ and an `_solution/` directory. Then:
 The test is whether a solver can be *vaguely right*. "Does this allocate?" is a
 coin flip; "how many allocations, and which line causes each" is a task. Prefer
 questions where the mechanism is the answer.
+
+## Self-graded tasks
+
+A `review` or `design` task has no machine grader, and the repo says so rather
+than faking one. Its sealed blob carries `HINT.md` and `EXPLANATION.md` but no
+`solution/`, CI gate 2 skips it and reports how many it skipped, and `go vet` is
+never run over a review drill — a vet diagnostic on planted-defect code *is* the
+answer, and CI logs are public.

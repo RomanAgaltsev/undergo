@@ -12,6 +12,8 @@ git clone https://github.com/RomanAgaltsev/undergo
 cd undergo
 go run ./cmd/undergo list
 go run ./cmd/undergo start layout/01-struct-padding
+go run ./cmd/undergo list --track review-concurrency
+go run ./cmd/undergo start design/01-rate-limiter
 ```
 
 No install, no account, no network after the clone — dependencies are vendored.
@@ -25,6 +27,12 @@ No install, no account, no network after the clone — dependencies are vendored
 | **optimize** | a faster or smaller implementation | benchmark against the baseline, same machine, same run |
 | **review** | findings | you, against the sealed key |
 | **design** | a design document | you, against the sealed rubric |
+
+174 tasks ship today: 3 machine-graded exemplars, 135 review drills across 15
+categories, and 36 system-design katas. The review and design tracks are
+**self-graded** — the seal holds an answer key or a grading checklist, and you
+score yourself against it. `undergo verify` says so rather than pretending to
+grade prose.
 
 `predict` stores no answer anywhere. The truth is computed when you verify, so
 the task cannot be cheated and cannot rot when Go changes. Grading tells you

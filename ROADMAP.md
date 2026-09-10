@@ -2,7 +2,8 @@
 
 ## Tracks
 
-Shipped: `layout`, `alloc`, `reflect` (one exemplar task each).
+Shipped: `layout`, `alloc`, `reflect` (one exemplar each), 15 `review-*` tracks
+(135 drills, imported from loupe), and `design` (36 katas, imported from keystone).
 
 Planned, in rough order:
 
@@ -22,8 +23,8 @@ Planned, in rough order:
 | `compiler` | predict/optimize | inlining budget, bounds-check elimination, PGO, binary size |
 | `asm` | build/optimize | Plan9 syntax, register ABI, `//go:noescape`, SIMD |
 | `edges` | mixed | cgo cost, `defer` tiers, panic/recover, `unsafe.Pointer` rules |
-| `review` | review | imported from loupe |
-| `design` | design | imported from keystone |
+| `review-*` | review | 15 categories × 3 tiers × 3 drills — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
+| `design` | design | 36 system-design katas across 8 tracks |
 | `concurrency` | build | imported from go-concurrency |
 
 ## Candidate pool

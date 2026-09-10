@@ -1,0 +1,16 @@
+schema: 1
+id: layout/01-struct-padding
+title: "Padding, alignment, and the trailing zero-size field"
+mode: predict
+track: layout
+difficulty: 2
+estimate: 25m
+tags: [unsafe, alignment, layout]
+requires:
+  go: "1.27"
+  arch: [amd64, arm64]
+verify: "go test ./..."
+predict:
+  slots: [sizeof_header, sizeof_reordered, sizeof_trailing, offset_kind, align_header]
+inspired_by: "https://go.dev/ref/spec#Size_and_alignment_guarantees"
+deprecated: false

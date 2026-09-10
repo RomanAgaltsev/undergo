@@ -1,0 +1,13 @@
+schema: 1
+id: design/09-circuit-breaker
+title: "Circuit breaker"
+mode: design
+track: design
+difficulty: 4
+estimate: 90m
+tags: [design, system-design]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/keystone"
+deprecated: false

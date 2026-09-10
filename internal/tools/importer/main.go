@@ -31,6 +31,8 @@ func main() {
 	switch *source {
 	case "loupe":
 		n, err = importLoupe(*from, root)
+	case "keystone":
+		n, err = importKeystone(*from, root)
 	default:
 		err = fmt.Errorf("unknown source %q", *source)
 	}

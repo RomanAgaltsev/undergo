@@ -23,13 +23,16 @@ func CIVerify(e Env, _ []string) error {
 	}
 
 	var failed []string
+	var proven, skipped int
 	for _, t := range tasks {
 		if t.Mode == manifest.ModeReview || t.Mode == manifest.ModeDesign {
 			fmt.Fprintf(e.Out, "skip  %s (%s is graded by a person)\n", t.ID, t.Mode)
+			skipped++
 			continue
 		}
 		if ok, why := manifest.Gradeable(t, manifest.CurrentEnv()); !ok {
 			fmt.Fprintf(e.Out, "skip  %s: %s\n", t.ID, why)
+			skipped++
 			continue
 		}
 		if err := proveOne(e, t); err != nil {
@@ -37,12 +40,16 @@ func CIVerify(e Env, _ []string) error {
 			fmt.Fprintf(e.Out, "FAIL  %s: %v\n", t.ID, err)
 			continue
 		}
+		proven++
 		fmt.Fprintf(e.Out, "ok    %s\n", t.ID)
 	}
 	if len(failed) > 0 {
 		return fmt.Errorf("%d reference solution(s) did not pass: %v", len(failed), failed)
 	}
-	fmt.Fprintf(e.Out, "\nall %d reference solutions proven\n", len(tasks))
+	// Count what was actually proven, not what was looked at: a summary that
+	// reports the whole catalogue when it verified three of it is the kind of
+	// green that hides an empty run.
+	fmt.Fprintf(e.Out, "\n%d reference solutions proven, %d skipped\n", proven, skipped)
 	return nil
 }
 

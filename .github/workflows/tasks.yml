@@ -1,0 +1,26 @@
+name: tasks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  seals:
+    name: Gate 2 — every reference solution is proven
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+      # Reference solutions must never reach a public log: ci-verify captures
+      # all test output and prints only a verdict per task.
+      - run: go run ./cmd/undergo ci-verify

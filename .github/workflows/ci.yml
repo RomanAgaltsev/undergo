@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+      - name: Unit tests
+        run: go test ./cmd/... ./internal/...
+      - name: Gate 1 — stubs build and vet clean
+        run: |
+          go build ./tasks/...
+          go vet ./tasks/...
+      - name: Gate 3 — manifests valid
+        run: go run ./cmd/undergo validate
+      - name: Vendor is in sync
+        run: |
+          go mod vendor
+          git diff --exit-code -- vendor go.mod go.sum
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          # Must be built with Go >= the go directive in go.mod, or the linter
+          # refuses to load the config.
+          version: v2.13.2

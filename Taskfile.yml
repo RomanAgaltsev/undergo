@@ -24,6 +24,20 @@ tasks:
     cmds:
       - task: test
       - task: lint
+      - task: stubs
+      - task: validate
+      - task: seals
+
+  stubs:
+    desc: Gate 1 — every task stub builds and vets clean
+    cmds:
+      - go build ./tasks/...
+      - go vet ./tasks/...
+
+  seals:
+    desc: Gate 2 — every sealed reference solution compiles and passes
+    cmds:
+      - go run ./cmd/undergo ci-verify
 
   validate:
     desc: Gate 3 — every task manifest is valid

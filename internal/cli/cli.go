@@ -66,6 +66,8 @@ func Run(args []string, stdout, stderr io.Writer) int {
 		runErr = SealCmd(env, rest)
 	case "validate":
 		runErr = Validate(env, rest)
+	case "ci-verify":
+		runErr = CIVerify(env, rest)
 	case "doctor":
 		runErr = Doctor(env, rest)
 	case "help", "-h", "--help":

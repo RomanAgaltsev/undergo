@@ -1,0 +1,17 @@
+schema: 1
+id: alloc/01-zero-alloc-join
+title: "Join strings without allocating"
+mode: optimize
+track: alloc
+difficulty: 3
+estimate: 30m
+tags: [allocation, append, escape-analysis]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+optimize:
+  baseline: BenchmarkBaseline
+  target_metric: allocs
+  target: 0
+inspired_by: "https://go.dev/doc/effective_go#append"
+deprecated: false

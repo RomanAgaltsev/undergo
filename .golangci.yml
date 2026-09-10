@@ -22,9 +22,11 @@ linters:
     rules:
       # A task stub declares the parameters the solver has to use; its body is a
       # panic until they do. Unused parameters there are the exercise, not a defect.
+      # Nor does a task package stutter: nothing imports it — the CLI copies it
+      # into work/, so its names read as the exercise names, e.g. join.JoinInto.
       - path: tasks/
         linters: [revive]
-        text: unused-parameter
+        text: unused-parameter|stutters
 
     paths:
       - work

@@ -1,0 +1,13 @@
+schema: 1
+id: review-typed-nil/03-interface-field-nil
+title: "Interface field nil"
+mode: review
+track: review-typed-nil
+difficulty: 3
+estimate: 30m
+tags: [review, typed-nil, subtle]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

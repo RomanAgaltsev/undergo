@@ -1,0 +1,13 @@
+schema: 1
+id: review-correctness/06-float-equality
+title: "Float equality"
+mode: review
+track: review-correctness
+difficulty: 3
+estimate: 30m
+tags: [review, correctness, subtle]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

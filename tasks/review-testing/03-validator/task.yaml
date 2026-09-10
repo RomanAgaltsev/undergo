@@ -1,0 +1,13 @@
+schema: 1
+id: review-testing/03-validator
+title: "Validator"
+mode: review
+track: review-testing
+difficulty: 4
+estimate: 45m
+tags: [review, testing, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

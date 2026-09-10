@@ -1,0 +1,13 @@
+schema: 1
+id: review-typed-nil/07-factory-nil
+title: "Factory nil"
+mode: review
+track: review-typed-nil
+difficulty: 2
+estimate: 20m
+tags: [review, typed-nil, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: review-generics/09-typed-pool
+title: "Typed pool"
+mode: review
+track: review-generics
+difficulty: 4
+estimate: 45m
+tags: [review, generics, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

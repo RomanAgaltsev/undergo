@@ -1,0 +1,13 @@
+schema: 1
+id: review-nil-safety/05-nil-callback
+title: "Nil callback"
+mode: review
+track: review-nil-safety
+difficulty: 2
+estimate: 20m
+tags: [review, nil-safety, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: review-api-design/01-value-receiver
+title: "Value receiver"
+mode: review
+track: review-api-design
+difficulty: 2
+estimate: 20m
+tags: [review, api-design, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

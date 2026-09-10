@@ -1,0 +1,13 @@
+schema: 1
+id: review-error-handling/07-custom-is
+title: "Custom is"
+mode: review
+track: review-error-handling
+difficulty: 3
+estimate: 30m
+tags: [review, error-handling, subtle]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: review-json/05-decode-handler
+title: "Decode handler"
+mode: review
+track: review-json
+difficulty: 4
+estimate: 45m
+tags: [review, json, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: review-typed-nil/06-result-wrapper
+title: "Result wrapper"
+mode: review
+track: review-typed-nil
+difficulty: 4
+estimate: 45m
+tags: [review, typed-nil, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: review-json/04-float64-id
+title: "Float64 id"
+mode: review
+track: review-json
+difficulty: 3
+estimate: 30m
+tags: [review, json, subtle]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

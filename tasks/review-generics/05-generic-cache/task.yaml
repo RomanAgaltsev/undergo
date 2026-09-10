@@ -1,0 +1,13 @@
+schema: 1
+id: review-generics/05-generic-cache
+title: "Generic cache"
+mode: review
+track: review-generics
+difficulty: 4
+estimate: 45m
+tags: [review, generics, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

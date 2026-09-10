@@ -1,0 +1,13 @@
+schema: 1
+id: review-correctness/08-stats
+title: "Stats"
+mode: review
+track: review-correctness
+difficulty: 4
+estimate: 45m
+tags: [review, correctness, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

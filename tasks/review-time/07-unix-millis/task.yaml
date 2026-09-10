@@ -1,0 +1,13 @@
+schema: 1
+id: review-time/07-unix-millis
+title: "Unix millis"
+mode: review
+track: review-time
+difficulty: 2
+estimate: 20m
+tags: [review, time, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: review-resource-leaks/03-ticker-rows
+title: "Ticker rows"
+mode: review
+track: review-resource-leaks
+difficulty: 4
+estimate: 45m
+tags: [review, resource-leaks, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: review-api-design/03-buffer-api
+title: "Buffer api"
+mode: review
+track: review-api-design
+difficulty: 4
+estimate: 45m
+tags: [review, api-design, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

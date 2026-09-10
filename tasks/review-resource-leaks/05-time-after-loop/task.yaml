@@ -1,0 +1,13 @@
+schema: 1
+id: review-resource-leaks/05-time-after-loop
+title: "Time after loop"
+mode: review
+track: review-resource-leaks
+difficulty: 2
+estimate: 20m
+tags: [review, resource-leaks, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

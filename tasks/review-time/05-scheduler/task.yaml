@@ -1,0 +1,13 @@
+schema: 1
+id: review-time/05-scheduler
+title: "Scheduler"
+mode: review
+track: review-time
+difficulty: 4
+estimate: 45m
+tags: [review, time, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

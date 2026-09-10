@@ -1,0 +1,13 @@
+schema: 1
+id: review-nil-safety/09-combine
+title: "Combine"
+mode: review
+track: review-nil-safety
+difficulty: 4
+estimate: 45m
+tags: [review, nil-safety, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

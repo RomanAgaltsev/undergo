@@ -1,0 +1,13 @@
+schema: 1
+id: review-testing/01-asserts-nothing
+title: "Asserts nothing"
+mode: review
+track: review-testing
+difficulty: 2
+estimate: 20m
+tags: [review, testing, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

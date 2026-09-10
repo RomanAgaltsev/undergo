@@ -1,0 +1,13 @@
+schema: 1
+id: review-http-client/04-no-context
+title: "No context"
+mode: review
+track: review-http-client
+difficulty: 3
+estimate: 30m
+tags: [review, http-client, subtle]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

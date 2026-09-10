@@ -24,3 +24,18 @@ tasks:
     cmds:
       - task: test
       - task: lint
+
+  validate:
+    desc: Gate 3 — every task manifest is valid
+    cmds:
+      - go run ./cmd/undergo validate
+
+  new:
+    desc: Scaffold a task, e.g. task new -- --id alloc/01-x --mode build --title "X"
+    cmds:
+      - go run ./cmd/undergo new {{.CLI_ARGS}}
+
+  seal:
+    desc: Seal a task's _solution/, e.g. task seal -- alloc/01-x
+    cmds:
+      - go run ./cmd/undergo seal {{.CLI_ARGS}}

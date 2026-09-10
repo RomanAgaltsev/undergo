@@ -58,6 +58,14 @@ func Run(args []string, stdout, stderr io.Writer) int {
 		runErr = Hint(env, rest)
 	case "reveal":
 		runErr = Reveal(env, rest)
+	case "progress":
+		runErr = Progress(env, rest)
+	case "new":
+		runErr = New(env, rest)
+	case "seal":
+		runErr = SealCmd(env, rest)
+	case "validate":
+		runErr = Validate(env, rest)
 	case "doctor":
 		runErr = Doctor(env, rest)
 	case "help", "-h", "--help":

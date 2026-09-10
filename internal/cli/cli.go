@@ -22,6 +22,7 @@ const usage = `undergo — Go katas beneath the surface
   seal      seal a task's _solution/ <id>
   validate  validate every manifest
   ci-verify unseal and prove every reference solution
+  ci-stubs  build every task, vet the machine-graded ones
 `
 
 // Run dispatches a command. It returns the process exit code.
@@ -68,6 +69,8 @@ func Run(args []string, stdout, stderr io.Writer) int {
 		runErr = Validate(env, rest)
 	case "ci-verify":
 		runErr = CIVerify(env, rest)
+	case "ci-stubs":
+		runErr = CIStubs(env, rest)
 	case "doctor":
 		runErr = Doctor(env, rest)
 	case "help", "-h", "--help":

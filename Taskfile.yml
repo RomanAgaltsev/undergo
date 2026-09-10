@@ -29,10 +29,9 @@ tasks:
       - task: seals
 
   stubs:
-    desc: Gate 1 — every task stub builds and vets clean
+    desc: Gate 1 — every task builds; machine-graded tasks also vet clean
     cmds:
-      - go build ./tasks/...
-      - go vet ./tasks/...
+      - go run ./cmd/undergo ci-stubs
 
   seals:
     desc: Gate 2 — every sealed reference solution compiles and passes

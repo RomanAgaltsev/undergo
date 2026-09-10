@@ -19,9 +19,7 @@ jobs:
       - name: Unit tests
         run: go test ./cmd/... ./internal/...
       - name: Gate 1 — stubs build and vet clean
-        run: |
-          go build ./tasks/...
-          go vet ./tasks/...
+        run: go run ./cmd/undergo ci-stubs
       - name: Gate 3 — manifests valid
         run: go run ./cmd/undergo validate
       - name: Vendor is in sync

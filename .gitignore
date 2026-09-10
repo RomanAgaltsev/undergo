@@ -1,0 +1,8 @@
+# The solver's workspace — never committed. The public repo is the etalon.
+/work/
+# The solver's local progress record and revealed solutions.
+/.undergo/
+# Plaintext solutions while authoring. Sealed by `task seal`, never committed.
+_solution/
+# Build output.
+/bin/

@@ -1,0 +1,26 @@
+version: '3'
+
+vars:
+  PKGS: ./cmd/... ./internal/...
+
+tasks:
+  build:
+    desc: Build the undergo CLI into ./bin
+    cmds:
+      - go build -o bin/undergo ./cmd/undergo
+
+  test:
+    desc: Unit-test the machinery (never the tasks themselves)
+    cmds:
+      - go test {{.PKGS}}
+
+  lint:
+    desc: golangci-lint v2
+    cmds:
+      - golangci-lint run
+
+  ci:
+    desc: Everything CI runs
+    cmds:
+      - task: test
+      - task: lint

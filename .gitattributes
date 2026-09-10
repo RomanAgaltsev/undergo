@@ -1,0 +1,7 @@
+# Working copies are LF on every platform. The seal tars the working tree, so
+# CRLF here would make an identical solution produce a different blob on
+# Windows than on Linux CI — see the determinism requirement in the design spec.
+* text=auto eol=lf
+
+# Sealed blobs are opaque; never let any filter touch their bytes.
+*.sealed -text

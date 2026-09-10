@@ -28,6 +28,24 @@ func Validate(e Env, _ []string) error {
 		if _, err := os.Stat(filepath.Join(t.Dir, "README.md")); err != nil {
 			return fmt.Errorf("%s: no README.md", t.ID)
 		}
+
+		entries, err := os.ReadDir(t.Dir)
+		if err != nil {
+			return err
+		}
+		for _, entry := range entries {
+			if entry.IsDir() || filepath.Ext(entry.Name()) != ".md" {
+				continue
+			}
+			body, err := os.ReadFile(filepath.Join(t.Dir, entry.Name()))
+			if err != nil {
+				return err
+			}
+			if broken := brokenRelPaths(t.Dir, string(body)); len(broken) > 0 {
+				return fmt.Errorf("%s: %s points at %v, which does not exist",
+					t.ID, entry.Name(), broken)
+			}
+		}
 	}
 	fmt.Fprintf(e.Out, "%d manifests valid\n", len(tasks))
 	return nil

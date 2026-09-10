@@ -54,6 +54,10 @@ func Run(args []string, stdout, stderr io.Writer) int {
 		runErr = Start(env, rest)
 	case "verify":
 		runErr = Verify(env, rest)
+	case "hint":
+		runErr = Hint(env, rest)
+	case "reveal":
+		runErr = Reveal(env, rest)
 	case "doctor":
 		runErr = Doctor(env, rest)
 	case "help", "-h", "--help":

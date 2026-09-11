@@ -1,0 +1,16 @@
+schema: 1
+id: layout/02-reorder-to-shrink
+title: "What field order costs across a million records"
+mode: predict
+track: layout
+difficulty: 2
+estimate: 20m
+tags: [unsafe, alignment, layout, memory]
+requires:
+  go: "1.27"
+  arch: [amd64, arm64]
+verify: "go test ./..."
+predict:
+  slots: [sizeof_event, sizeof_packed, offset_event_kind, waste_per_record, waste_mib]
+inspired_by: "https://go.dev/ref/spec#Size_and_alignment_guarantees"
+deprecated: false

@@ -1,0 +1,15 @@
+schema: 1
+id: alloc/04-boxing-cache
+title: "Why boxing 255 is free and boxing 256 is not"
+mode: predict
+track: alloc
+difficulty: 3
+estimate: 25m
+tags: [allocation, interfaces, runtime, boxing]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [allocs_0, allocs_255, allocs_256, allocs_100000, first_allocating]
+inspired_by: "https://go.dev/src/runtime/iface.go"
+deprecated: false

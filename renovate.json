@@ -2,5 +2,31 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "description": "One PR for all GitHub Actions bumps rather than five.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "The golangci-lint version passed to golangci-lint-action. The github-actions manager does not look inside a `with:` input, and a linter built with an older Go than the go directive refuses to load the config at all — which is how this repo's first CI run failed.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": ["golangci-lint-action@v\\d+[\\s\\S]*?version:\\s+(?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "golangci/golangci-lint",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "description": "The Go version pinned in setup-go, kept in step with the go directive in go.mod. A new Go release is also the release radar's trigger, so this PR is a work item, not just housekeeping.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": ["go-version:\\s*'(?<currentValue>\\d+\\.\\d+)'"],
+      "depNameTemplate": "golang",
+      "datasourceTemplate": "golang-version",
+      "versioningTemplate": "npm"
+    }
   ]
 }

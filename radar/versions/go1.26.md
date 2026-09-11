@@ -21,7 +21,9 @@ arm64, which is exactly the kind of dependency `requires` exists to record.
 ## The compiler stack-allocates slice backing stores in more cases
 → candidate | alloc
 "The compiler can now allocate the backing store for slices on the stack in more
-situations." This is the sharpest allocation task in the release because it comes
+situations." The same sentence appears in the 1.25 notes: the mechanism landed
+there and is extended here, so a task built on it must say which release it
+measured. This is the sharpest allocation task in the release because it comes
 with its own A/B: `-gcflags=all=-d=variablemakehash=n` disables the new stack
 allocations, and `bisect -compile=variablemake` finds the specific one. Predict
 which of several `make` calls reach the heap, then prove it.

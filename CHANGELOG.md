@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/RomanAgaltsev/undergo/compare/v0.5.0...v0.5.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **tasks:** layout/01-struct-padding attributes field order to gc, not to Go ([fc62330](https://github.com/RomanAgaltsev/undergo/commit/fc62330d91953d5ef2972a2912edf3e9b6030d1b))
+
 ## [0.5.0](https://github.com/RomanAgaltsev/undergo/compare/v0.4.0...v0.5.0) (2026-09-11)
 
 

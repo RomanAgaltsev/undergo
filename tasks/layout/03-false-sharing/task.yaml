@@ -1,0 +1,16 @@
+schema: 1
+id: layout/03-false-sharing
+title: "Which counters share a cache line"
+mode: predict
+track: layout
+difficulty: 3
+estimate: 30m
+tags: [layout, cache, false-sharing, concurrency]
+requires:
+  go: "1.27"
+  arch: [amd64, arm64]
+verify: "go test ./..."
+predict:
+  slots: [sizeof_naive, sizeof_padded, naive_per_line, naive_neighbours_share, padded_neighbours_share]
+inspired_by: "https://en.wikipedia.org/wiki/False_sharing"
+deprecated: false

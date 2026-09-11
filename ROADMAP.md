@@ -72,7 +72,7 @@ politeness.
 
 | Task | Release | What changed | Status |
 |---|---|---|---|
-| `layout/01-struct-padding` | [Go 1.23](https://go.dev/doc/go1.23) | `structs.HostLayout` exists because "struct layout order is not guaranteed by the language spec". The sealed explanation says "Go lays a struct out in declaration order", stating a gc implementation detail as a language guarantee. The five measured answers are unaffected. | open — correct the explanation |
+| `layout/01-struct-padding` | [Go 1.23](https://go.dev/doc/go1.23) | `structs.HostLayout` exists because "struct layout order is not guaranteed by the language spec". The sealed hint said "Go lays a struct out in declaration order", stating a gc implementation detail as a language guarantee. The five measured answers were unaffected. | **fixed 2026-09-11** — hint corrected, explanation gained a section on spec guarantees vs implementation, task re-sealed |
 
 ## Release radar
 

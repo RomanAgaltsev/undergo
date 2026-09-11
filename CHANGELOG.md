@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.0](https://github.com/RomanAgaltsev/undergo/compare/v0.5.1...v0.6.0) (2026-09-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* all 135 review task ids changed. Any progress record naming an old id no longer resolves to a task.
+
+### Features
+
+* nest review drills under tasks/review/ by category ([608696a](https://github.com/RomanAgaltsev/undergo/commit/608696ad34d32d20d659d26d03b4bf791432c784))
+
 ## [0.5.1](https://github.com/RomanAgaltsev/undergo/compare/v0.5.0...v0.5.1) (2026-09-11)
 
 

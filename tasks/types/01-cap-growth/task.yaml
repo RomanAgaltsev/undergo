@@ -1,0 +1,16 @@
+schema: 1
+id: types/01-cap-growth
+title: "The exact capacity sequence, and where doubling stops"
+mode: predict
+track: types
+difficulty: 3
+estimate: 30m
+tags: [slices, append, growth, allocation]
+requires:
+  go: "1.27"
+  arch: [amd64, arm64]
+verify: "go test ./..."
+predict:
+  slots: [first_cap, third_cap, cap_after_256, cap_after_512, distinct_caps]
+inspired_by: "https://go.dev/src/runtime/slice.go"
+deprecated: false

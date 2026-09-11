@@ -23,6 +23,7 @@ const usage = `undergo — Go katas beneath the surface
   validate  validate every manifest
   ci-verify unseal and prove every reference solution
   ci-stubs  build every task, vet the machine-graded ones
+  radar-check validate the release radar against the catalogue
 `
 
 // Run dispatches a command. It returns the process exit code.
@@ -71,6 +72,8 @@ func Run(args []string, stdout, stderr io.Writer) int {
 		runErr = CIVerify(env, rest)
 	case "ci-stubs":
 		runErr = CIStubs(env, rest)
+	case "radar-check":
+		runErr = RadarCheck(env, rest)
 	case "doctor":
 		runErr = Doctor(env, rest)
 	case "help", "-h", "--help":

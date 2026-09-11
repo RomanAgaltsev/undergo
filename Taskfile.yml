@@ -26,6 +26,7 @@ tasks:
       - task: lint
       - task: stubs
       - task: validate
+      - task: radar
       - task: seals
 
   stubs:
@@ -42,6 +43,11 @@ tasks:
     desc: Gate 3 — every task manifest is valid
     cmds:
       - go run ./cmd/undergo validate
+
+  radar:
+    desc: The release radar parses and every reference resolves
+    cmds:
+      - go run ./cmd/undergo radar-check
 
   new:
     desc: Scaffold a task, e.g. task new -- --id alloc/01-x --mode build --title "X"

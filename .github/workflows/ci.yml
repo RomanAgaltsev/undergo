@@ -22,6 +22,8 @@ jobs:
         run: go run ./cmd/undergo ci-stubs
       - name: Gate 3 — manifests valid
         run: go run ./cmd/undergo validate
+      - name: Radar is well formed
+        run: go run ./cmd/undergo radar-check
       - name: Vendor is in sync
         run: |
           go mod vendor

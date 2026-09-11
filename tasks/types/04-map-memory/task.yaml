@@ -1,0 +1,16 @@
+schema: 1
+id: types/04-map-memory
+title: "What a million-entry map actually costs"
+mode: predict
+track: types
+difficulty: 4
+estimate: 35m
+tags: [maps, memory, allocation, swisstable]
+requires:
+  go: "1.27"
+  arch: [amd64, arm64]
+verify: "go test ./..."
+predict:
+  slots: [bytes_per_entry_rounded, payload_bytes_per_entry]
+inspired_by: "https://go.dev/blog/swisstable"
+deprecated: false

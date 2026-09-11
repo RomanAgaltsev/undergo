@@ -1,0 +1,13 @@
+schema: 1
+id: review/performance/07-range-copy-large
+title: "Range copy large"
+mode: review
+track: review/performance
+difficulty: 3
+estimate: 30m
+tags: [review, performance, subtle]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -12,7 +12,7 @@ git clone https://github.com/RomanAgaltsev/undergo
 cd undergo
 go run ./cmd/undergo list
 go run ./cmd/undergo start layout/01-struct-padding
-go run ./cmd/undergo list --track review-concurrency
+go run ./cmd/undergo list --track review/concurrency
 go run ./cmd/undergo start design/01-rate-limiter
 ```
 
@@ -33,6 +33,10 @@ categories, and 36 system-design katas. The review and design tracks are
 **self-graded** — the seal holds an answer key or a grading checklist, and you
 score yourself against it. `undergo verify` says so rather than pretending to
 grade prose.
+
+Review drills are grouped by category under `tasks/review/`, so a task id carries
+one extra segment: `review/concurrency/01-request-counter`. `--track review`
+lists all 135, `--track review/concurrency` lists the nine in one category.
 
 `predict` stores no answer anywhere. The truth is computed when you verify, so
 the task cannot be cheated and cannot rot when Go changes. Grading tells you

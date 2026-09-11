@@ -3,6 +3,7 @@ package cli
 import (
 	"flag"
 	"fmt"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
@@ -32,7 +33,7 @@ func List(e Env, args []string) error {
 	w := tabwriter.NewWriter(e.Out, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "STATUS\tID\tMODE\tDIFF\tTITLE")
 	for _, t := range tasks {
-		if *track != "" && t.Track != *track {
+		if !trackMatches(t.Track, *track) {
 			continue
 		}
 		if *mode != "" && string(t.Mode) != *mode {
@@ -59,5 +60,20 @@ func statusOf(e *progress.Entry) string {
 		return "started"
 	default:
 		return "-"
+	}
+}
+
+// trackMatches reports whether a task's track satisfies a --track filter.
+// Tracks may be grouped, so the filter matches the whole track or a leading
+// group of it: --track review selects every review/<category>, and
+// --track review/concurrency selects one of them.
+func trackMatches(track, filter string) bool {
+	switch {
+	case filter == "":
+		return true
+	case track == filter:
+		return true
+	default:
+		return strings.HasPrefix(track, filter+"/")
 	}
 }

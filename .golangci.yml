@@ -31,7 +31,7 @@ linters:
     paths:
       # Planted defects live here. Linting them would print the answer, which is
       # exactly the spoiler the seal exists to prevent.
-      - tasks/review-
+      - tasks/review/
       - work
       - _solution
       - vendor

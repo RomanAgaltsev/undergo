@@ -1,0 +1,13 @@
+schema: 1
+id: review/error-handling/09-retry
+title: "Retry"
+mode: review
+track: review/error-handling
+difficulty: 4
+estimate: 45m
+tags: [review, error-handling, multi-bug]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

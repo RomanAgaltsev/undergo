@@ -1,0 +1,13 @@
+schema: 1
+id: review/concurrency/05-waitgroup-negative
+title: "Waitgroup negative"
+mode: review
+track: review/concurrency
+difficulty: 2
+estimate: 20m
+tags: [review, concurrency, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

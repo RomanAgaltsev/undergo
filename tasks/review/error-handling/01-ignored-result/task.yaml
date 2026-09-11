@@ -1,0 +1,13 @@
+schema: 1
+id: review/error-handling/01-ignored-result
+title: "Ignored result"
+mode: review
+track: review/error-handling
+difficulty: 2
+estimate: 20m
+tags: [review, error-handling, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

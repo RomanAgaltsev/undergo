@@ -1,0 +1,13 @@
+schema: 1
+id: review/security/05-insecure-tls
+title: "Insecure tls"
+mode: review
+track: review/security
+difficulty: 2
+estimate: 20m
+tags: [review, security, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

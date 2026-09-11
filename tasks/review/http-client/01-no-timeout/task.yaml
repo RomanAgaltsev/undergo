@@ -1,0 +1,13 @@
+schema: 1
+id: review/http-client/01-no-timeout
+title: "No timeout"
+mode: review
+track: review/http-client
+difficulty: 2
+estimate: 20m
+tags: [review, http-client, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

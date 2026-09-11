@@ -1,0 +1,13 @@
+schema: 1
+id: review/context/04-background-in-handler
+title: "Background in handler"
+mode: review
+track: review/context
+difficulty: 2
+estimate: 20m
+tags: [review, context, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

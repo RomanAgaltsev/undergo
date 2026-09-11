@@ -1,0 +1,13 @@
+schema: 1
+id: review/context/02-leaked-cancel
+title: "Leaked cancel"
+mode: review
+track: review/context
+difficulty: 3
+estimate: 30m
+tags: [review, context, subtle]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: review/generics/07-any-instantiation
+title: "Any instantiation"
+mode: review
+track: review/generics
+difficulty: 2
+estimate: 20m
+tags: [review, generics, obvious]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

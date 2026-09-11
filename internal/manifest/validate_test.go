@@ -54,3 +54,41 @@ func TestValidateOptimizeMetric(t *testing.T) {
 		t.Fatalf("Validate: %v", err)
 	}
 }
+
+// A review drill lives at tasks/review/<category>/<NN>-slug, so a task id may
+// carry one grouping segment between the track root and the task itself. The
+// track is then the whole path minus the task, which keeps the track/id
+// agreement rule below unchanged.
+func TestValidateAcceptsAGroupedTrack(t *testing.T) {
+	task := valid()
+	task.ID = "review/concurrency/01-request-counter"
+	task.Track = "review/concurrency"
+	task.Mode = ModeReview
+	task.Predict = nil
+
+	if err := Validate(task); err != nil {
+		t.Fatalf("Validate rejected a grouped id: %v", err)
+	}
+}
+
+func TestValidateRejectsIDShapes(t *testing.T) {
+	tests := map[string]string{
+		"three grouping segments": "review/go/concurrency/01-request-counter",
+		"no task segment":         "review/concurrency",
+		"upper case":              "review/Concurrency/01-request-counter",
+		"one-digit number":        "review/concurrency/1-request-counter",
+		"trailing slash":          "review/concurrency/01-request-counter/",
+	}
+	for name, id := range tests {
+		t.Run(name, func(t *testing.T) {
+			task := valid()
+			task.ID = id
+			task.Track = "review/concurrency"
+			task.Mode = ModeReview
+			task.Predict = nil
+			if err := Validate(task); err == nil {
+				t.Fatalf("Validate accepted %q", id)
+			}
+		})
+	}
+}

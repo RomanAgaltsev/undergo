@@ -65,3 +65,19 @@ Two traps specific to this repo:
   by itself** — release-please bumps on `feat` and `fix` only. An import that
   adds tasks is a minor, so title its PR `feat(tasks): import <source>` and keep
   `import:` for the commit inside it.
+
+## Task ids and tracks
+
+An id is `<track>/<NN>-<slug>`, and the track may carry one grouping segment:
+`review/concurrency/01-request-counter`. The track is always the id minus its
+final segment, the task lives at `tasks/<id>`, and `--track` matches a whole
+track or a leading group of one.
+
+Two consequences worth knowing before you add a task:
+
+- **Depth is load-bearing.** A relative path in a task's markdown is resolved
+  from the task directory, so a grouped task needs one more `../` than an
+  ungrouped one. `undergo validate` checks every such path and fails on a
+  dangling one.
+- **Ids are permanent.** Renaming one invalidates every solver's progress file,
+  so a retired task gets `deprecated: true` rather than a new name.

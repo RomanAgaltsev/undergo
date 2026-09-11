@@ -8,7 +8,10 @@ import (
 	"slices"
 )
 
-var idRE = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*/[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*$`)
+// A task id is track/NN-slug, where the track may carry one grouping segment:
+// review/concurrency/01-request-counter. The track is always the id minus its
+// final segment, which is what Validate checks below.
+var idRE = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)?/[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*$`)
 
 // Metrics supported by internal/optimize in v1. binary_size is specified but
 // not yet implemented, so it is rejected rather than silently ignored.
@@ -22,7 +25,7 @@ func Validate(t *Task) error {
 		return fmt.Errorf("schema = %d, want %d", t.Schema, SchemaVersion)
 	}
 	if !idRE.MatchString(t.ID) {
-		return fmt.Errorf("id %q must look like track/NN-slug, lower-case", t.ID)
+		return fmt.Errorf("id %q must look like track/NN-slug or track/group/NN-slug, lower-case", t.ID)
 	}
 	if t.Title == "" {
 		return fmt.Errorf("%s: title is empty", t.ID)

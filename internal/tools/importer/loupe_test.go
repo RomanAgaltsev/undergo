@@ -39,10 +39,10 @@ const drillANSWERS = `# Answer key: 01-request-counter
 
 func TestTrackForCategory(t *testing.T) {
 	tests := map[string]string{
-		"C1-concurrency": "review-concurrency",
-		"C15-typed-nil":  "review-typed-nil",
-		"C10-testing":    "review-testing",
-		"C6-api-design":  "review-api-design",
+		"C1-concurrency": "review/concurrency",
+		"C15-typed-nil":  "review/typed-nil",
+		"C10-testing":    "review/testing",
+		"C6-api-design":  "review/api-design",
 	}
 	for in, want := range tests {
 		got, err := trackForCategory(in)
@@ -121,14 +121,14 @@ func TestTierProfile(t *testing.T) {
 }
 
 func TestRewriteDrillREADMELeavesNoMentionOfTheAnswerFile(t *testing.T) {
-	got, err := rewriteDrillREADME(drillREADME, "review-concurrency/01-request-counter")
+	got, err := rewriteDrillREADME(drillREADME, "review/concurrency/01-request-counter")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if strings.Contains(got, "ANSWERS.md") {
 		t.Errorf("the rewritten README still names the answer file:\n%s", got)
 	}
-	if !strings.Contains(got, "undergo reveal review-concurrency/01-request-counter") {
+	if !strings.Contains(got, "undergo reveal review/concurrency/01-request-counter") {
 		t.Errorf("the rewritten README does not tell the solver how to open the key:\n%s", got)
 	}
 	if !strings.Contains(got, "../../../rubric/review-rubric.md") {
@@ -148,5 +148,30 @@ func TestDrillHintNamesTheShapeWithoutTheAnswer(t *testing.T) {
 		if !strings.Contains(got, want) {
 			t.Errorf("hint missing %q:\n%s", want, got)
 		}
+	}
+}
+
+// loupe drills sit three levels below their repo root, undergo's nested review
+// tasks sit four, so every ../-rooted path in a drill README needs one more
+// level. Getting this wrong breaks 135 READMEs at once.
+func TestRewriteDrillREADMEDeepensRubricPaths(t *testing.T) {
+	got, err := rewriteDrillREADME(drillREADME, "review/concurrency/01-request-counter")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, "../../../../rubric/review-rubric.md") {
+		t.Errorf("rubric path not deepened for a nested track:\n%s", got)
+	}
+	if strings.Contains(got, "`../../../rubric/") {
+		t.Errorf("a three-up rubric path survived:\n%s", got)
+	}
+
+	// An ungrouped track is one level shallower and must be left alone.
+	shallow, err := rewriteDrillREADME(drillREADME, "review/01-request-counter")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(shallow, "`../../../rubric/review-rubric.md`") {
+		t.Errorf("an ungrouped track must keep three-up paths:\n%s", shallow)
 	}
 }

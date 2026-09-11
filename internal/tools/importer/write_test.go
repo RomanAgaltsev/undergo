@@ -12,8 +12,8 @@ import (
 
 func sampleTask() taskFiles {
 	return taskFiles{
-		ID: "review-concurrency/01-request-counter", Title: "Request counter",
-		Mode: "review", Track: "review-concurrency", Difficulty: 2, Estimate: "20m",
+		ID: "review/concurrency/01-request-counter", Title: "Request counter",
+		Mode: "review", Track: "review/concurrency", Difficulty: 2, Estimate: "20m",
 		Tags:       []string{"review", "concurrency", "obvious"},
 		InspiredBy: "https://github.com/RomanAgaltsev/loupe",
 		Files: map[string]string{
@@ -31,7 +31,7 @@ func TestWriteTaskProducesAValidSealedTask(t *testing.T) {
 		t.Fatalf("writeTask: %v", err)
 	}
 
-	dir := filepath.Join(root, "tasks", "review-concurrency", "01-request-counter")
+	dir := filepath.Join(root, "tasks", "review", "concurrency", "01-request-counter")
 	task, err := manifest.Load(filepath.Join(dir, "task.yaml"))
 	if err != nil {
 		t.Fatalf("manifest does not load: %v", err)

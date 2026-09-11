@@ -24,7 +24,7 @@ func trackForCategory(dirName string) (string, error) {
 	if m == nil {
 		return "", fmt.Errorf("%q is not a loupe category directory", dirName)
 	}
-	return "review-" + m[1], nil
+	return "review/" + m[1], nil
 }
 
 // splitTaskDir splits NN-slug. Template directories start with _ and are rejected.
@@ -83,7 +83,8 @@ func tierProfile(tier string) (int, string, error) {
 }
 
 // rewriteDrillREADME points the solver at `undergo reveal` instead of the answer
-// file, which no longer exists in the imported task. It fails rather than
+// file, which no longer exists in the imported task, and re-roots the drill's
+// relative paths for the depth its task id implies. It fails rather than
 // silently leaving a dangling reference.
 func rewriteDrillREADME(body, id string) (string, error) {
 	if !strings.Contains(body, "ANSWERS.md") {
@@ -95,7 +96,19 @@ func rewriteDrillREADME(body, id string) (string, error) {
 	if strings.Contains(out, "ANSWERS.md") {
 		return "", fmt.Errorf("rewrite left a reference to ANSWERS.md")
 	}
-	return out, nil
+	return rerootRelPaths(out, id), nil
+}
+
+// rerootRelPaths fixes the ../-rooted paths in a drill README for the depth of
+// its task id. A loupe drill sits three levels below its repo root and writes
+// ../../../rubric/…; a task at tasks/<id> sits one level below that per id
+// segment, so a grouped id such as review/concurrency/01-x needs four.
+func rerootRelPaths(body, id string) string {
+	want := strings.Count(id, "/") + 2 // tasks/ + each id segment above the last
+	if want == 3 {
+		return body
+	}
+	return strings.ReplaceAll(body, "../../../", strings.Repeat("../", want))
 }
 
 // drillHint is rung 1. Knowing how many defects were planted changes how a
@@ -208,7 +221,7 @@ func importOneDrill(src, root, track, num, slug string) error {
 	return writeTask(root, taskFiles{
 		ID: id, Title: humanize(slug), Mode: "review", Track: track,
 		Difficulty: difficulty, Estimate: estimate,
-		Tags:        []string{"review", strings.TrimPrefix(track, "review-"), tier},
+		Tags:        []string{"review", strings.TrimPrefix(track, "review/"), tier},
 		InspiredBy:  "https://github.com/RomanAgaltsev/loupe",
 		Files:       files,
 		Hint:        drillHint(category, tier, defectCount(string(answers))),

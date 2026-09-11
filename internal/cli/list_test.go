@@ -63,3 +63,25 @@ func TestListFiltersByTrack(t *testing.T) {
 		t.Errorf("--track alloc listed a layout task:\n%s", out.String())
 	}
 }
+
+// A grouped track means --track has to match a prefix: --track review lists
+// every category, --track review/concurrency lists one.
+func TestListTrackMatchesAGroupPrefix(t *testing.T) {
+	tests := map[string]bool{
+		"review":             true,
+		"review/concurrency": true,
+		"review/nil-safety":  false,
+		"rev":                false,
+		"":                   true,
+	}
+	for filter, want := range tests {
+		t.Run(filter, func(t *testing.T) {
+			if got := trackMatches("review/concurrency", filter); got != want {
+				t.Errorf("trackMatches(%q, %q) = %v, want %v", "review/concurrency", filter, got, want)
+			}
+		})
+	}
+	if trackMatches("layout", "layout") != true {
+		t.Error("an ungrouped track must still match itself exactly")
+	}
+}

@@ -1,0 +1,13 @@
+schema: 1
+id: review/concurrency/07-once-copied
+title: "Once copied"
+mode: review
+track: review/concurrency
+difficulty: 3
+estimate: 30m
+tags: [review, concurrency, subtle]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://github.com/RomanAgaltsev/loupe"
+deprecated: false

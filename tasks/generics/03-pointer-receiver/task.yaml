@@ -1,0 +1,13 @@
+schema: 1
+id: generics/03-pointer-receiver
+title: "Calling a pointer method on a slice of values"
+mode: build
+track: generics
+difficulty: 4
+estimate: 30m
+tags: [generics, constraints, pointer-receiver, method-sets]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://habr.com/ru/articles/1079104/"
+deprecated: false

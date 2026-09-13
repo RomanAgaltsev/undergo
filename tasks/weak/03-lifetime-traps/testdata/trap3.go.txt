@@ -1,0 +1,18 @@
+package main
+
+import "runtime"
+
+type Obj struct{ data [512]byte }
+type Holder struct{ Ref *Obj }
+
+var keep *Obj
+
+func main() {
+	func() {
+		o := &Obj{}
+		// The cleanup argument is not o, but it points at o.
+		runtime.AddCleanup(o, func(h *Holder) { _ = h }, &Holder{Ref: o})
+	}()
+	runtime.GC()
+	runtime.GC()
+}

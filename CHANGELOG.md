@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/RomanAgaltsev/undergo/compare/v0.7.0...v0.8.0) (2026-09-13)
+
+
+### Features
+
+* **tasks:** the language surface — generics, iter, reflect ([#7](https://github.com/RomanAgaltsev/undergo/issues/7)) ([d22b17e](https://github.com/RomanAgaltsev/undergo/commit/d22b17ece299ef394d1beac829b057518ddb4316))
+
 ## [0.7.0](https://github.com/RomanAgaltsev/undergo/compare/v0.6.0...v0.7.0) (2026-09-13)
 
 

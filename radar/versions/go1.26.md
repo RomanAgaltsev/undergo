@@ -68,3 +68,20 @@ stable".
 ## WebAssembly heaps grow in smaller increments
 → no action
 Real, but there is no wasm track and no plan for one.
+
+## new accepts an expression
+→ candidate | generics
+"The built-in `new` function ... now allows its operand to be an expression,
+specifying the initial value of the variable", so `new(yearsSince(born))` allocates
+a variable already holding that value. The task is not "use it": a pre-1.26 model
+of the language says this does not compile, which makes it a version-diff task in
+the §9.3 genre and a cheap check on whether an answer came from reading or from
+memory.
+
+## A generic type may refer to itself in its own type parameter list
+→ candidate | generics
+"The restriction that a generic type may not refer to itself in its type parameter
+list has been lifted", so `type Adder[A Adder[A]] interface { Add(A) A }` is legal
+and a constraint can name the type it constrains. The task is to write the
+constraint that admits exactly the types closed under their own operation, and to
+say what the pre-1.26 workaround cost in extra type parameters.

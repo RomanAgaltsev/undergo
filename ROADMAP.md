@@ -50,9 +50,14 @@ politeness.
 | `GOAMD64=v3` fused multiply-add changes the exact floating-point values a program produces | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | A Go 1.21 compiler bug delayed nil checks; the same program panics on 1.25 — a toolchain-pair task | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | `//go:linkname` to unmarked standard-library symbols is now refused | `edges` | [Go 1.23](https://go.dev/doc/go1.23) | — |
+| A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Green Tea cuts GC overhead 10–40%, and `GOEXPERIMENT=nogreenteagc` makes it an A/B within one toolchain | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | Green Tea's further ~10% on Ice Lake / Zen 4 and newer — an answer that depends on the CPU | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | Generic methods: how many instantiations does GC-shape stenciling emit, and how does it differ from a generic function? | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | — |
+| Generic type aliases are fully supported — does a parameterized alias add an instantiation, or share one? | `generics` | [Go 1.24](https://go.dev/doc/go1.24) | — |
+| `new` accepts an expression, so `new(f(x))` compiles — a version-diff task a pre-1.26 model gets wrong | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | — |
+| A generic type may refer to itself in its own type parameter list (`type Adder[A Adder[A]]`) | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | — |
+| Function type inference generalized to assignment and conversion contexts — the same call site answers differently on 1.26 and 1.27 | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Range-over-function iterators and the `iter` package — what `break`, `return` and `goto` do to the yield contract | `iter` | [Go 1.23](https://go.dev/doc/go1.23) | — |
 | The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | — |
@@ -87,7 +92,7 @@ Sweep order, most actionable first:
 
 | Era | Versions | Status |
 |---|---|---|
-| E1 | 1.23 – 1.27 | **done** — 54 entries across 5 releases: 31 candidates, 1 invalidation |
+| E1 | 1.23 – 1.27 | **done** — 60 entries across 5 releases: 36 candidates, 1 invalidation. Swept twice: the first pass (2026-09-11) read the runtime, toolchain and library sections and caught three language changes but missed six; the second (2026-09-13) read every release's "Changes to the language" section on its own. |
 | E2 | 1.18 – 1.22 | later |
 | E3 | 1.10 – 1.17 | later |
 | E4 | 1.0 – 1.9 | later |

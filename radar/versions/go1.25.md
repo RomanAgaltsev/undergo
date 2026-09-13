@@ -89,3 +89,11 @@ Toolchain and observability changes with no behaviour a task could grade.
 ## sync.WaitGroup.Go, testing T.Attr/T.Output, crypto.MessageSigner
 → no action
 API conveniences.
+
+## Core types are gone from the language specification
+→ no action
+"There are no language changes that affect Go programs in Go 1.25", but the spec
+"removed [the notion of core types] in favor of dedicated prose". Nothing to
+predict and nothing to build — recorded so that a task author writing about
+constraints, `range` over a type parameter, or channel operations knows that
+"core type" is retired vocabulary and the rules are now stated case by case.

@@ -62,3 +62,12 @@ Cryptographic primitives, outside what this repo asks about.
 ## The linker emits a GNU build ID and a Mach-O UUID
 → no action
 Build metadata, not observable Go behaviour.
+
+## Generic type aliases are fully supported
+→ candidate | generics
+1.23's `GOEXPERIMENT=aliastypeparams` preview became the real thing: "a type alias
+may be parameterized like a defined type", and the opt-out `noaliastypeparams` was
+itself removed in 1.25. The task is the difference a parameterized alias does and
+does not make: it introduces no new type, so it shares a defined type's method set
+and its instantiations, and a predict task can ask whether aliasing a generic type
+adds a single symbol to the archive. Pairs with the stenciling task in `generics`.

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.7.0](https://github.com/RomanAgaltsev/undergo/compare/v0.6.0...v0.7.0) (2026-09-13)
+
+
+### Features
+
+* **tasks:** alloc/02-allocs-per-op ([b21837f](https://github.com/RomanAgaltsev/undergo/commit/b21837fcf3f18b4bedff98ebbcb12fa1367a186b))
+* **tasks:** alloc/03-what-escapes ([68db8c7](https://github.com/RomanAgaltsev/undergo/commit/68db8c7af1175dfb2581a24160c8271ab1ea7bb2))
+* **tasks:** alloc/04-boxing-cache ([1f3ba94](https://github.com/RomanAgaltsev/undergo/commit/1f3ba9427eaebee1e416f038549362ab5f718eeb))
+* **tasks:** layout/02-reorder-to-shrink ([3b5e7b5](https://github.com/RomanAgaltsev/undergo/commit/3b5e7b59382533c6a8a0dcccc01d82a4af23c0a2))
+* **tasks:** layout/03-false-sharing ([37e7e05](https://github.com/RomanAgaltsev/undergo/commit/37e7e0570dccf20c2ff7aac6806fd6bd640806e6))
+* **tasks:** types/01-cap-growth ([f84c2f1](https://github.com/RomanAgaltsev/undergo/commit/f84c2f199c9dff8e0918c4ee5f22662f4e124c09))
+* **tasks:** types/02-aliasing ([7635463](https://github.com/RomanAgaltsev/undergo/commit/76354638a436a5cd08927ea8995aa6904c8e8c9f))
+* **tasks:** types/03-zero-copy-strings ([8e783af](https://github.com/RomanAgaltsev/undergo/commit/8e783aff1d1c6d5f10393b2a86ecda85c4d5ab50))
+* **tasks:** types/04-map-memory ([1f6b148](https://github.com/RomanAgaltsev/undergo/commit/1f6b148aa5bc254740ab6d98fe2adfc39a0c68e0))
+
+
+### Documentation
+
+* the memory tracks are complete ([9e626ea](https://github.com/RomanAgaltsev/undergo/commit/9e626eaebdf75ab0840ebcad84449e53c592c1e8))
+
 ## [0.6.0](https://github.com/RomanAgaltsev/undergo/compare/v0.5.1...v0.6.0) (2026-09-11)
 
 

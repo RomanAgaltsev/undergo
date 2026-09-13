@@ -102,6 +102,24 @@ Output lands in `radar/versions/go1.NN.md`, each entry tagged `→ candidate`,
 fails if an invalidation names a task that does not exist, so the dataset cannot
 rot as the catalogue changes.
 
+## Standing decisions
+
+**Authoring comes before solving, deliberately.** 193 tasks ship and none have been
+solved here. That is a choice, not a backlog: the catalogue is being built out
+first, and the solver's experience — whether a hint is one rung or two, whether a
+question is answerable without its explanation — is unvalidated until someone
+works through a track. Gate 2 proves every reference solution compiles and passes;
+it proves nothing about whether a task teaches. Revisit when a track is picked up
+in a solver's clone.
+
+**The race gate covers the solutions, not just the machinery.** `task race` runs
+the race detector over `./cmd/... ./internal/...` *and* over every reference
+solution via `ci-verify --race`. It is a required check. It is deliberately not
+part of `task ci`, because the detector needs cgo and a Windows checkout without a
+C toolchain cannot run it — `undergo doctor` reports which of the native and
+container routes this machine has, and `task race:docker` is the way round a
+missing compiler.
+
 ## Not yet
 
 Contests — scored challenges, leaderboards and seasons — are deliberately out of

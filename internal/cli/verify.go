@@ -63,7 +63,13 @@ func Verify(e Env, args []string) error {
 // running the frozen tests in the work directory. It stays in the signature
 // because task.yaml carries an overridable verify command.
 func RunTests(e Env, _ *manifest.Task, dir string) (bool, error) {
-	cmd := exec.Command("go", "test", "-count=1", "-v", ".")
+	args := []string{"test", "-count=1", "-v"}
+	if e.Race {
+		args = append(args, "-race")
+	}
+	args = append(args, ".")
+
+	cmd := exec.Command("go", args...)
 	cmd.Dir = dir
 	cmd.Stdout = e.Out
 	cmd.Stderr = e.Err

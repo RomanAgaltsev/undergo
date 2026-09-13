@@ -2,9 +2,12 @@ package cli
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 	"github.com/RomanAgaltsev/undergo/internal/seal"
@@ -13,10 +16,50 @@ import (
 // SolutionSubdir is where a sealed blob keeps the files that overlay a task.
 const SolutionSubdir = "solution"
 
+// preflightRace refuses the race gate when this machine cannot build with it.
+//
+// Without this, every single task fails with "frozen tests did not pass" —
+// which is true of the exit code and false about the cause. A machine with no
+// C toolchain would be told it has 22 broken tasks rather than one missing
+// compiler, and the gate would be measuring the environment instead of the
+// solutions.
+func preflightRace() error {
+	if out, err := exec.Command("go", "env", "CGO_ENABLED").Output(); err == nil {
+		if strings.TrimSpace(string(out)) == "0" {
+			return fmt.Errorf("ci-verify --race: CGO_ENABLED=0, and the race detector is built on cgo; " +
+				"set CGO_ENABLED=1, or run `task race:docker`")
+		}
+	}
+
+	for _, cc := range []string{"gcc", "clang"} {
+		if _, err := exec.LookPath(cc); err == nil {
+			return nil
+		}
+	}
+	return fmt.Errorf("ci-verify --race: no C toolchain (gcc or clang) on PATH, and the race detector needs one; " +
+		"run `task race:docker` instead, or `go run ./cmd/undergo doctor` to see what this machine can do")
+}
+
 // CIVerify is gate 2: every sealed reference solution must unseal, compile and
 // pass its own task's frozen tests. Test output is captured and only a verdict
 // is printed, so a solution never reaches a public CI log.
-func CIVerify(e Env, _ []string) error {
+func CIVerify(e Env, args []string) error {
+	fs := flag.NewFlagSet("ci-verify", flag.ContinueOnError)
+	fs.SetOutput(e.Err)
+	race := fs.Bool("race", false, "run every reference solution under the race detector")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if fs.NArg() != 0 {
+		return fmt.Errorf("usage: undergo ci-verify [--race]")
+	}
+	e.Race = *race
+	if e.Race {
+		if err := preflightRace(); err != nil {
+			return err
+		}
+	}
+
 	tasks, err := manifest.Walk(e.TasksDir())
 	if err != nil {
 		return err
@@ -32,6 +75,15 @@ func CIVerify(e Env, _ []string) error {
 		}
 		if ok, why := manifest.Gradeable(t, manifest.CurrentEnv()); !ok {
 			fmt.Fprintf(e.Out, "skip  %s: %s\n", t.ID, why)
+			skipped++
+			continue
+		}
+		// A task pinned to the default build is skipped by the race gate
+		// rather than failed by it: -race changes the compiler's escape and
+		// stack-allocation decisions, so racing such a task measures the
+		// instrumentation. The plain gate still proves it.
+		if e.Race && t.Requires.DefaultBuild {
+			fmt.Fprintf(e.Out, "skip  %s (answers are pinned to the default build; -race changes it)\n", t.ID)
 			skipped++
 			continue
 		}
@@ -97,7 +149,7 @@ func proveOne(e Env, t *manifest.Task) error {
 
 	// Capture everything: a reference solution must never reach a CI log.
 	var sink bytes.Buffer
-	quiet := Env{Root: e.Root, Out: &sink, Err: &sink}
+	quiet := Env{Root: e.Root, Out: &sink, Err: &sink, Race: e.Race}
 	passed, err := RunTests(quiet, t, work)
 	if err != nil {
 		return err

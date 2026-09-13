@@ -1,0 +1,34 @@
+name: race
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  race:
+    name: Gate 6 — the race detector
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+
+      # The machinery. Shuffled as well as raced, because a test-order
+      # dependency and a data race fail the same way at 3am.
+      - run: go test -race -shuffle=on ./cmd/... ./internal/...
+
+      # Every reference solution, each in its own work directory with its own
+      # prediction.yaml. ci-verify captures all output and prints only a
+      # verdict per task, so a solution never reaches this public log —
+      # including when the race detector has something to say about it.
+      #
+      # The cost of that secrecy: a race here reports which task failed and
+      # nothing else. Reproduce it locally with
+      # `go run ./cmd/undergo start <id>`, overlay the solution, and
+      # `go test -race .` — or `task race:docker` for the whole gate.
+      - run: go run ./cmd/undergo ci-verify --race

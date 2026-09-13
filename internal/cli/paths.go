@@ -16,6 +16,16 @@ type Env struct {
 	Root string
 	Out  io.Writer
 	Err  io.Writer
+
+	// Race runs a task's frozen tests under the race detector.
+	//
+	// It lives here rather than in a parameter because it describes how this
+	// invocation runs rather than what it runs, and because RunTests is
+	// reached from two commands that both need to pass it through unchanged.
+	//
+	// The detector needs cgo, so a machine with no C toolchain cannot honour
+	// this. `undergo doctor` reports whether this one can.
+	Race bool
 }
 
 // TasksDir is the task catalogue.

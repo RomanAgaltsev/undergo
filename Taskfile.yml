@@ -3,6 +3,22 @@ version: '3'
 vars:
   PKGS: ./cmd/... ./internal/...
 
+  # The race detector needs cgo, so a checkout with no C toolchain cannot run
+  # the gate natively. The container is the way round it, and it is also the
+  # platform CI runs on. `go run ./cmd/undergo doctor` reports which of these
+  # this machine can do.
+  #
+  # Never ./... here either: the repo root holds 193 task packages, and the
+  # predict ones fail without a prediction.yaml. Tasks are raced through
+  # `ci-verify --race`, which supplies each one its own.
+  GO_IMAGE: "golang:1.27"
+  DOCKER_RUN: >-
+    docker run --rm
+    -v "{{.ROOT_DIR | replace "\\" "/"}}:/src"
+    -v undergo-race-modcache:/go/pkg/mod
+    -v undergo-race-buildcache:/root/.cache/go-build
+    -w /src {{.GO_IMAGE}}
+
 tasks:
   build:
     desc: Build the undergo CLI into ./bin
@@ -20,7 +36,7 @@ tasks:
       - golangci-lint run
 
   ci:
-    desc: Everything CI runs
+    desc: Everything CI runs except the race gate — that needs cgo, see `task race`
     cmds:
       - task: test
       - task: lint
@@ -28,6 +44,29 @@ tasks:
       - task: validate
       - task: radar
       - task: seals
+
+  race:
+    desc: Gate 6 — the machinery and every reference solution, under the race detector
+    cmds:
+      - go test -race -shuffle=on {{.PKGS}}
+      - go run ./cmd/undergo ci-verify --race
+
+  race:docker:
+    desc: The race gate in a Linux container (no local C toolchain needed)
+    cmds:
+      - "{{.DOCKER_RUN}} go test -race -shuffle=on {{.PKGS}}"
+      - "{{.DOCKER_RUN}} go run ./cmd/undergo ci-verify --race"
+
+  test:docker:
+    desc: Race-free unit tests in the container, for comparing against the native run
+    cmds:
+      - "{{.DOCKER_RUN}} go test -shuffle=on {{.PKGS}}"
+
+  test:norace:
+    desc: Shuffled unit tests WITHOUT the race detector — a partial gate
+    cmds:
+      - echo "WARNING -- running without -race. This does NOT satisfy the race gate."
+      - go test -shuffle=on {{.PKGS}}
 
   stubs:
     desc: Gate 1 — every task builds; machine-graded tasks also vet clean

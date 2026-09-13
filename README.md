@@ -28,11 +28,11 @@ No install, no account, no network after the clone — dependencies are vendored
 | **review** | findings | you, against the sealed key |
 | **design** | a design document | you, against the sealed rubric |
 
-174 tasks ship today: 3 machine-graded exemplars, 135 review drills across 15
-categories, and 36 system-design katas. The review and design tracks are
-**self-graded** — the seal holds an answer key or a grading checklist, and you
-score yourself against it. `undergo verify` says so rather than pretending to
-grade prose.
+183 tasks ship today: 12 machine-graded tasks across `layout`, `alloc`, `types` and
+`reflect`, 135 review drills across 15 categories, and 36 system-design katas. The
+review and design tracks are **self-graded** — the seal holds an answer key or a
+grading checklist, and you score yourself against it. `undergo verify` says so
+rather than pretending to grade prose.
 
 Review drills are grouped by category under `tasks/review/`, so a task id carries
 one extra segment: `review/concurrency/01-request-counter`. `--track review`

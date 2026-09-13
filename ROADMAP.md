@@ -2,10 +2,10 @@
 
 ## Tracks
 
-Shipped: the three memory tracks are complete — `layout` (3 tasks), `alloc` (4) and
-`types` (4) — alongside `reflect` (one exemplar), the 15 `review/*` categories (135
-drills, imported from loupe), and `design` (36 katas, imported from keystone). 183
-tasks in all.
+Shipped: the three memory tracks — `layout` (3 tasks), `alloc` (4) and `types` (4) —
+and the three language-surface tracks — `generics` (5), `iter` (3) and `reflect` (3) —
+alongside the 15 `review/*` categories (135 drills, imported from loupe) and `design`
+(36 katas, imported from keystone). 193 tasks in all, 22 of them machine-graded.
 
 Planned, in rough order:
 
@@ -53,12 +53,12 @@ politeness.
 | A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Green Tea cuts GC overhead 10–40%, and `GOEXPERIMENT=nogreenteagc` makes it an A/B within one toolchain | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | Green Tea's further ~10% on Ice Lake / Zen 4 and newer — an answer that depends on the CPU | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
-| Generic methods: how many instantiations does GC-shape stenciling emit, and how does it differ from a generic function? | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | — |
+| Generic methods: how many instantiations does GC-shape stenciling emit, and how does it differ from a generic function? | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | `generics/01-instantiation-count`, `generics/02-generic-methods` |
 | Generic type aliases are fully supported — does a parameterized alias add an instantiation, or share one? | `generics` | [Go 1.24](https://go.dev/doc/go1.24) | — |
-| `new` accepts an expression, so `new(f(x))` compiles — a version-diff task a pre-1.26 model gets wrong | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | — |
-| A generic type may refer to itself in its own type parameter list (`type Adder[A Adder[A]]`) | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | — |
-| Function type inference generalized to assignment and conversion contexts — the same call site answers differently on 1.26 and 1.27 | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | — |
-| Range-over-function iterators and the `iter` package — what `break`, `return` and `goto` do to the yield contract | `iter` | [Go 1.23](https://go.dev/doc/go1.23) | — |
+| `new` accepts an expression, so `new(f(x))` compiles — a version-diff task a pre-1.26 model gets wrong | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
+| A generic type may refer to itself in its own type parameter list (`type Adder[A Adder[A]]`) | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
+| Function type inference generalized to assignment and conversion contexts — not gated by the go.mod language version, so a true A/B needs an older toolchain | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | `generics/05-inference-limits` — the assignment shape only; no 1.26-vs-1.27 A/B, see the radar note |
+| Range-over-function iterators and the `iter` package — what `break`, `return` and `goto` do to the yield contract | `iter` | [Go 1.23](https://go.dev/doc/go1.23) | `iter/02-yield-contract` and `iter/01-adapters` — `goto` out of a range body is still uncovered |
 | The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | `GOMAXPROCS` is container-aware and updates itself as the cgroup quota changes | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |

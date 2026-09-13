@@ -9,6 +9,10 @@ tags: [slices, append, growth, allocation]
 requires:
   go: "1.27"
   arch: [amd64, arm64]
+  # The third capacity and the total count exist only because the compiler may
+  # build this slice on the stack. -race turns that path off, so the sequence
+  # loses a step and two of the five answers change.
+  default_build: true
 verify: "go test ./..."
 predict:
   slots: [first_cap, third_cap, cap_after_256, cap_after_512, distinct_caps]

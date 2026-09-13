@@ -38,3 +38,14 @@ load-bearing here, and question 3 is about why.
    and then again with `Sink` deleted from `growth.go`. Each changes the answer.
    Explain which part of the sequence each one changes, and say which of the
    three results you would call "how append grows".
+
+4. Now run it a fourth way, under the race detector:
+
+   ```
+   go test -race -count=1 .
+   ```
+
+   Two of the five slots change. Say which, and why an instrument that is
+   supposed to observe concurrency has any opinion at all about how a slice
+   grows. This task carries `requires.default_build: true` in its manifest for
+   exactly this reason — work out what that had to protect it from.

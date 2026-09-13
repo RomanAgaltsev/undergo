@@ -78,6 +78,15 @@ func CIVerify(e Env, args []string) error {
 			skipped++
 			continue
 		}
+		// A task pinned to the default build is skipped by the race gate
+		// rather than failed by it: -race changes the compiler's escape and
+		// stack-allocation decisions, so racing such a task measures the
+		// instrumentation. The plain gate still proves it.
+		if e.Race && t.Requires.DefaultBuild {
+			fmt.Fprintf(e.Out, "skip  %s (answers are pinned to the default build; -race changes it)\n", t.ID)
+			skipped++
+			continue
+		}
 		if err := proveOne(e, t); err != nil {
 			failed = append(failed, t.ID)
 			fmt.Fprintf(e.Out, "FAIL  %s: %v\n", t.ID, err)

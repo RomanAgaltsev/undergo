@@ -31,6 +31,19 @@ type Requires struct {
 	Arch       []string `yaml:"arch"`
 	OS         []string `yaml:"os"`
 	Toolchains []string `yaml:"toolchains"`
+
+	// DefaultBuild marks a task whose answers hold only for an unmodified
+	// build, so the race gate must leave it alone.
+	//
+	// The race detector is not a neutral observer: it changes which values
+	// the compiler may keep on the stack, and a task measuring an
+	// optimisation is then measuring the instrumentation instead. Racing
+	// such a task reports a failure that says nothing about the solution.
+	//
+	// Set it only where that is actually true, and say why in the task's
+	// explanation — a blanket opt-out would hide the concurrency bugs the
+	// gate exists to find.
+	DefaultBuild bool `yaml:"default_build"`
 }
 
 // Predict configures a predict-mode task.

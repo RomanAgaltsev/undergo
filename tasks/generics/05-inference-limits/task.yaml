@@ -1,0 +1,15 @@
+schema: 1
+id: generics/05-inference-limits
+title: "Which of these calls need a type argument?"
+mode: predict
+track: generics
+difficulty: 4
+estimate: 35m
+tags: [generics, inference, constraints, compile-errors]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [call1_compiles, call2_compiles, call3_compiles, call4_compiles, call5_compiles, call6_compiles]
+inspired_by: "https://go.dev/ref/spec#Type_inference"
+deprecated: false

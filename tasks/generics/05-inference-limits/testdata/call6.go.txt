@@ -1,0 +1,10 @@
+package main
+
+import "fmt"
+
+func Identity[T any](v T) T { return v }
+
+func main() {
+	var f func(int) int = Identity
+	fmt.Println(f(7))
+}

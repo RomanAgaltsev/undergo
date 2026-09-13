@@ -1,0 +1,11 @@
+package main
+
+import "fmt"
+
+type Number interface{ ~int32 | ~int64 }
+
+func Sum[T Number](a, b T) T { return a + b }
+
+func main() {
+	fmt.Println(Sum(int32(1), int64(2)))
+}

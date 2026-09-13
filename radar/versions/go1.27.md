@@ -83,7 +83,10 @@ each one set?
 ## Function type inference applies in assignment and conversion contexts
 → candidate | generics
 Inference "has been generalized to apply in all contexts where a generic function
-is assigned to a variable of (or converted to) a matching function type" — so
-`var f func(int) string = Identity` can now infer where it previously demanded
-explicit type arguments. This is a direct version-diff on the inference-limits
-task: the same call site has different answers on 1.26 and 1.27.
+is assigned to a variable of (or converted to) a matching function type", so
+`var f func(int) int = Identity` infers rather than demanding explicit type
+arguments. Caveat for whoever builds the task: this is **not gated by the go.mod
+language version** — the simple assignment shape above compiles identically under
+`go 1.26` and `go 1.27` directives on a 1.27 toolchain, so a genuine before/after
+needs a real older toolchain, and the task must find the shape that actually
+flips rather than assuming any assignment does.

@@ -1,0 +1,9 @@
+package main
+
+import "fmt"
+
+func First[T any](s []T) T { return s[0] }
+
+func main() {
+	fmt.Println(First(nil))
+}

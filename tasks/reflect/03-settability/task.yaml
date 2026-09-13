@@ -1,0 +1,15 @@
+schema: 1
+id: reflect/03-settability
+title: "Which of these reflect calls panic?"
+mode: predict
+track: reflect
+difficulty: 3
+estimate: 30m
+tags: [reflect, settability, addressability, panics]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [set_through_value, set_through_pointer, set_unexported, set_wrong_type, set_slice_element, set_map_value_in_place, elem_of_nil_pointer, append_and_assign]
+inspired_by: "https://go.dev/blog/laws-of-reflection"
+deprecated: false

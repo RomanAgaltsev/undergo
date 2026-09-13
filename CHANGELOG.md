@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/RomanAgaltsev/undergo/compare/v0.8.0...v0.9.0) (2026-09-13)
+
+
+### Features
+
+* **ci:** race the machinery and every reference solution ([#9](https://github.com/RomanAgaltsev/undergo/issues/9)) ([187ee6a](https://github.com/RomanAgaltsev/undergo/commit/187ee6ae81c26019e2c3be2d122c5018259b79cf))
+
 ## [0.8.0](https://github.com/RomanAgaltsev/undergo/compare/v0.7.0...v0.8.0) (2026-09-13)
 
 

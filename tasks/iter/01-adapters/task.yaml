@@ -1,0 +1,13 @@
+schema: 1
+id: iter/01-adapters
+title: "Five adapters over a sequence"
+mode: build
+track: iter
+difficulty: 4
+estimate: 45m
+tags: [iter, range-over-func, adapters, pull, go1.23]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://pkg.go.dev/iter"
+deprecated: false

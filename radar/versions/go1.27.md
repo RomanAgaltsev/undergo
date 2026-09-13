@@ -71,3 +71,22 @@ Post-quantum cryptography is outside what this repo is about.
 ## macOS 13 minimum, ppc64 ELFv2, bzr support removed
 → no action
 Platform support, not observable Go behaviour.
+
+## A struct literal key may be any field selector
+→ candidate | edges
+"A key in a struct literal may now be any valid field selector for the struct type,
+not just a (top-level) field name", so a literal can set a promoted field of an
+embedded struct directly. A predict task: given a type with two levels of embedding
+and a shadowed field name, which of these literals compile and which field does
+each one set?
+
+## Function type inference applies in assignment and conversion contexts
+→ candidate | generics
+Inference "has been generalized to apply in all contexts where a generic function
+is assigned to a variable of (or converted to) a matching function type", so
+`var f func(int) int = Identity` infers rather than demanding explicit type
+arguments. Caveat for whoever builds the task: this is **not gated by the go.mod
+language version** — the simple assignment shape above compiles identically under
+`go 1.26` and `go 1.27` directives on a 1.27 toolchain, so a genuine before/after
+needs a real older toolchain, and the task must find the shape that actually
+flips rather than assuming any assignment does.

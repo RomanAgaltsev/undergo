@@ -1,0 +1,13 @@
+schema: 1
+id: generics/04-new-and-self-reference
+title: "Two things Go 1.26 let you write"
+mode: build
+track: generics
+difficulty: 3
+estimate: 25m
+tags: [generics, constraints, go1.26, new, language-changes]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://go.dev/doc/go1.26"
+deprecated: false

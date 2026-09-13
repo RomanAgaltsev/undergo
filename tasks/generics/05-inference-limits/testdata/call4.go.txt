@@ -1,0 +1,12 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func Apply[T, R any](v T, f func(T) R) R { return f(v) }
+
+func main() {
+	fmt.Println(Apply(3, strconv.Itoa))
+}

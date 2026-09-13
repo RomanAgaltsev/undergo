@@ -1,0 +1,15 @@
+schema: 1
+id: iter/02-yield-contract
+title: "What stopping does to an iterator"
+mode: predict
+track: iter
+difficulty: 3
+estimate: 30m
+tags: [iter, range-over-func, yield, control-flow, panics]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [plain_yields, break_yields, return_yields, labelled_yields, panicking_yields, misbehaving_panics]
+inspired_by: "https://go.dev/blog/range-functions"
+deprecated: false

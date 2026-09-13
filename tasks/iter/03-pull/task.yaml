@@ -1,0 +1,13 @@
+schema: 1
+id: iter/03-pull
+title: "Merging two sequences, and stopping them"
+mode: build
+track: iter
+difficulty: 5
+estimate: 50m
+tags: [iter, pull, coroutines, resource-cleanup, goroutine-leak, go1.23]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://pkg.go.dev/iter#Pull"
+deprecated: false

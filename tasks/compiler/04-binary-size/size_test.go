@@ -68,7 +68,6 @@ func TestPredictions(t *testing.T) {
 	// above both and far below the additions that matter.
 	const material = 8 << 10
 	grewMaterially := func(name string) bool { return sizes[name]-base > material }
-	grewAtAll := func(name string) bool { return sizes[name] > base }
 
 	largest := ""
 	for _, name := range snippets {
@@ -85,7 +84,7 @@ func TestPredictions(t *testing.T) {
 		"reflect_grows_materially":      grewMaterially("reflectuse"),
 		"generic_grows_materially":      grewMaterially("generic"),
 		"iface_method_grows_materially": grewMaterially("ifacemethod"),
-		"unused_table_grows_at_all":     grewAtAll("bigtable"),
+		"unused_table_grows_materially": grewMaterially("bigtable"),
 		"largest_addition":              largest,
 	})
 }

@@ -10,12 +10,11 @@ bigger, and which added the most.
 | `reflect_grows_materially` | one `reflect.TypeOf` |
 | `generic_grows_materially` | a generic function instantiated over four types |
 | `iface_method_grows_materially` | a method reachable only through an interface |
-| `unused_table_grows_at_all` | a 512 KiB package-level array nothing references |
+| `unused_table_grows_materially` | a 512 KiB package-level array nothing references |
 | `largest_addition` | the name of the snippet that added the most |
 
-"Materially" means by more than 8 KiB, and the last row means by a single byte.
-That distinction is not pedantry — written question 5 is about why the task needs
-both.
+"Materially" means by more than 8 KiB. Written question 5 is about why the task
+cannot ask a sharper question than that.
 
 ```
 undergo verify compiler/04-binary-size

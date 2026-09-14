@@ -1,0 +1,15 @@
+schema: 1
+id: sched/01-runnext-ordering
+title: "Which goroutine runs first"
+mode: predict
+track: sched
+difficulty: 3
+estimate: 25m
+tags: [sched, runnext, gomaxprocs, runqueue]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [first, second, third, fourth]
+inspired_by: "https://go.dev/src/runtime/proc.go"
+deprecated: false

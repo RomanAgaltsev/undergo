@@ -1,0 +1,15 @@
+schema: 1
+id: gc/02-cycle-ordering
+title: "Ranking four collectors"
+mode: predict
+track: gc
+difficulty: 4
+estimate: 35m
+tags: [gc, gogc, runtime-metrics, determinism]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [ordering, gogc50_beats_gogc800]
+inspired_by: "https://tip.golang.org/doc/gc-guide"
+deprecated: false

@@ -1,0 +1,13 @@
+schema: 1
+id: weak/04-unique-interning
+title: "Interning a stream of labels"
+mode: build
+track: weak
+difficulty: 4
+estimate: 40m
+tags: [weak, unique, interning, memory, go1.23]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://pkg.go.dev/unique"
+deprecated: false

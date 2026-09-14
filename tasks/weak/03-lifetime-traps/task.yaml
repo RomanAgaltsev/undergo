@@ -1,0 +1,15 @@
+schema: 1
+id: weak/03-lifetime-traps
+title: "What checkfinalizers will and will not tell you"
+mode: predict
+track: weak
+difficulty: 4
+estimate: 35m
+tags: [weak, finalizers, cleanup, godebug, diagnostics, go1.25]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [trap1_diagnosed, trap2_diagnosed, trap3_diagnosed, trap4_diagnosed]
+inspired_by: "https://go.dev/doc/go1.25"
+deprecated: false

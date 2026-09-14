@@ -1,0 +1,15 @@
+schema: 1
+id: gc/04-write-barrier
+title: "Which stores are barriered"
+mode: predict
+track: gc
+difficulty: 4
+estimate: 35m
+tags: [gc, write-barrier, compiler, assembly]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [pointer_store_barriered, scalar_store_barriered, nil_store_barriered, local_store_barriered, slice_store_barriered]
+inspired_by: "https://go.dev/src/runtime/mbarrier.go"
+deprecated: false

@@ -2,10 +2,11 @@
 
 ## Tracks
 
-Shipped: the three memory tracks — `layout` (3 tasks), `alloc` (4) and `types` (4) —
-and the three language-surface tracks — `generics` (5), `iter` (3) and `reflect` (3) —
-alongside the 15 `review/*` categories (135 drills, imported from loupe) and `design`
-(36 katas, imported from keystone). 193 tasks in all, 22 of them machine-graded.
+Shipped: the three memory tracks — `layout` (3 tasks), `alloc` (4) and `types` (4);
+the three language-surface tracks — `generics` (5), `iter` (3) and `reflect` (3); and
+lifetime and collection — `weak` (4) and `gc` (4) — alongside the 15 `review/*`
+categories (135 drills, imported from loupe) and `design` (36 katas, imported from
+keystone). 201 tasks in all, 30 of them machine-graded.
 
 Planned, in rough order:
 
@@ -69,11 +70,11 @@ politeness.
 | Windows timer resolution went from 15.6ms to 0.5ms — an answer that depends on the OS | `sched` | [Go 1.23](https://go.dev/doc/go1.23) | — |
 | The builtin map is a Swiss table — predict real memory for a key count, A/B with `GOEXPERIMENT=noswissmap` | `types` | [Go 1.24](https://go.dev/doc/go1.24) | `types/04-map-memory` — memory half only; the `noswissmap` A/B is still open |
 | `sync.Map` is a hash-trie — the contention curve, and what the old implementation was warming up | `types` | [Go 1.24](https://go.dev/doc/go1.24) | — |
-| `runtime.AddCleanup` vs `SetFinalizer` — four enumerated differences, four predictions | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | — |
-| The `weak` package — the floor for the whole track | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | — |
-| `AddCleanup` runs concurrently and `unique` handles reclaim in a single GC cycle — every pre-1.25 measurement is stale | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | — |
-| `GODEBUG=checkfinalizers=1` names the classic finalizer mistakes — plant each one | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | — |
-| The `unique` package: interning where handle comparison reduces to a pointer compare | `weak` | [Go 1.23](https://go.dev/doc/go1.23) | — |
+| `runtime.AddCleanup` vs `SetFinalizer` — four enumerated differences, four predictions | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | `weak/02-cleanup-vs-finalizer` |
+| The `weak` package — the floor for the whole track | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | `weak/01-weak-cache` |
+| `AddCleanup` runs concurrently and `unique` handles reclaim in a single GC cycle — every pre-1.25 measurement is stale | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | `weak/02-cleanup-vs-finalizer` — the concurrency half; the single-cycle reclaim claim is untested |
+| `GODEBUG=checkfinalizers=1` names the classic finalizer mistakes — plant each one | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | `weak/03-lifetime-traps` |
+| The `unique` package: interning where handle comparison reduces to a pointer compare | `weak` | [Go 1.23](https://go.dev/doc/go1.23) | `weak/04-unique-interning` |
 
 ## Invalidated by a release
 
@@ -104,13 +105,23 @@ rot as the catalogue changes.
 
 ## Standing decisions
 
-**Authoring comes before solving, deliberately.** 193 tasks ship and none have been
+**Authoring comes before solving, deliberately.** 201 tasks ship and none have been
 solved here. That is a choice, not a backlog: the catalogue is being built out
 first, and the solver's experience — whether a hint is one rung or two, whether a
 question is answerable without its explanation — is unvalidated until someone
 works through a track. Gate 2 proves every reference solution compiles and passes;
 it proves nothing about whether a task teaches. Revisit when a track is picked up
 in a solver's clone.
+
+**Noisy measurements get an invariant, not a tolerance.** GC cycle counts vary 39–68
+across identical runs, and `GOMEMLIMIT`-clamped heap goals give four distinct values in
+eight. Rather than widen the answer with a range, `gc/02` and `gc/03` ask for an
+ordering and a predicate, which measured 6/6 and 8/8 stable and need no harness change.
+`sched` and `memmodel` face the same problem in M10 and should reach for the same tool
+before proposing tolerance slots.
+
+The two Green Tea candidates stay open for this reason: a 10–40% overhead reduction is
+a distribution, not a value, and nobody has yet found the invariant underneath it.
 
 **The race gate covers the solutions, not just the machinery.** `task race` runs
 the race detector over `./cmd/... ./internal/...` *and* over every reference

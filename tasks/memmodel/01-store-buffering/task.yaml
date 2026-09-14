@@ -1,0 +1,16 @@
+schema: 1
+id: memmodel/01-store-buffering
+title: "The outcome that should be impossible"
+mode: predict
+track: memmodel
+difficulty: 4
+estimate: 45m
+tags: [memmodel, atomics, storebuffer, race, happens-before]
+requires:
+  go: "1.27"
+  default_build: true
+verify: "go test ./..."
+predict:
+  slots: [plain_00_observed, atomic_00_observed]
+inspired_by: "https://go.dev/ref/mem"
+deprecated: false

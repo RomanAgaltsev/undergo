@@ -1,0 +1,14 @@
+schema: 1
+id: asm/02-write-plan9
+title: "Write one in Plan9"
+mode: build
+track: asm
+difficulty: 5
+estimate: 50m
+tags: [asm, plan9, noescape, register-abi, amd64]
+requires:
+  go: "1.27"
+  arch: [amd64]
+verify: "go test ./..."
+inspired_by: "https://go.dev/doc/asm"
+deprecated: false

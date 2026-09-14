@@ -1,0 +1,16 @@
+package main
+
+import (
+	"fmt"
+	_ "unsafe" // for go:linkname
+)
+
+// An internal runtime function, not on the standard library's list of symbols it expects to be linknamed.
+//
+//go:linkname target runtime.gcStart
+func target()
+
+func main() {
+	fmt.Println("built")
+	_ = target
+}

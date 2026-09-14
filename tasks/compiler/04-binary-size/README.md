@@ -6,15 +6,16 @@ bigger, and which added the most.
 
 | slot | what the program adds |
 |---|---|
-| `fmt_grows_binary` | one `fmt.Println` |
-| `reflect_grows_binary` | one `reflect.TypeOf` |
-| `generic_grows_binary` | a generic function instantiated over four types |
-| `iface_method_grows_binary` | a method reachable only through an interface |
-| `unused_table_grows_binary` | a 512 KiB package-level array nothing references |
+| `fmt_grows_materially` | one `fmt.Println` |
+| `reflect_grows_materially` | one `reflect.TypeOf` |
+| `generic_grows_materially` | a generic function instantiated over four types |
+| `iface_method_grows_materially` | a method reachable only through an interface |
+| `unused_table_grows_at_all` | a 512 KiB package-level array nothing references |
 | `largest_addition` | the name of the snippet that added the most |
 
-Four of the five grow it, or fewer. Two of these have loud reputations that the
-measurement does not support.
+"Materially" means by more than 8 KiB, and the last row means by a single byte.
+That distinction is not pedantry — written question 5 is about why the task needs
+both.
 
 ```
 undergo verify compiler/04-binary-size
@@ -35,5 +36,10 @@ that ran this.
    mechanism is, and why this measurement is smaller than you might expect.
 4. `fmt` is the largest by a wide margin. Say what it drags in, and why a program
    that only ever prints a string still pays for it.
-5. Name two build flags that reduce binary size, and say precisely what each one
+5. Four of these slots use an 8 KiB threshold and one asks about a single byte.
+   Given that the same snippet measures +24 bytes on Linux and exactly 0 on
+   Windows, say why a strict comparison against the baseline is the wrong
+   question — and which of the five genuinely is exactly zero everywhere.
+
+6. Name two build flags that reduce binary size, and say precisely what each one
    gives up.

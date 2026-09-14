@@ -61,7 +61,14 @@ func TestPredictions(t *testing.T) {
 	}
 
 	base := sizes["base"]
-	grew := func(name string) bool { return sizes[name] > base }
+
+	// "Materially" is 8 KiB. A strict comparison against the baseline is below
+	// the noise floor: the same snippet measures +24 bytes on Linux and exactly
+	// 0 on Windows, where PE section padding rounds it away. Eight KiB is far
+	// above both and far below the additions that matter.
+	const material = 8 << 10
+	grewMaterially := func(name string) bool { return sizes[name]-base > material }
+	grewAtAll := func(name string) bool { return sizes[name] > base }
 
 	largest := ""
 	for _, name := range snippets {
@@ -74,11 +81,11 @@ func TestPredictions(t *testing.T) {
 	}
 
 	predict.Check(t, map[string]any{
-		"fmt_grows_binary":          grew("fmtprint"),
-		"reflect_grows_binary":      grew("reflectuse"),
-		"generic_grows_binary":      grew("generic"),
-		"iface_method_grows_binary": grew("ifacemethod"),
-		"unused_table_grows_binary": grew("bigtable"),
-		"largest_addition":          largest,
+		"fmt_grows_materially":          grewMaterially("fmtprint"),
+		"reflect_grows_materially":      grewMaterially("reflectuse"),
+		"generic_grows_materially":      grewMaterially("generic"),
+		"iface_method_grows_materially": grewMaterially("ifacemethod"),
+		"unused_table_grows_at_all":     grewAtAll("bigtable"),
+		"largest_addition":              largest,
 	})
 }

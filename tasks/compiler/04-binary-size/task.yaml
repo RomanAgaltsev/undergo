@@ -10,6 +10,6 @@ requires:
   go: "1.27"
 verify: "go test ./..."
 predict:
-  slots: [fmt_grows_binary, reflect_grows_binary, generic_grows_binary, iface_method_grows_binary, unused_table_grows_binary, largest_addition]
+  slots: [fmt_grows_materially, reflect_grows_materially, generic_grows_materially, iface_method_grows_materially, unused_table_grows_at_all, largest_addition]
 inspired_by: "https://go.dev/doc/faq#Why_is_my_trivial_program_such_a_large_binary"
 deprecated: false

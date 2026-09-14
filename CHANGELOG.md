@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/RomanAgaltsev/undergo/compare/v0.9.0...v0.10.0) (2026-09-14)
+
+
+### Features
+
+* **tasks:** lifetime and collection — weak and gc ([#11](https://github.com/RomanAgaltsev/undergo/issues/11)) ([4b3ce0e](https://github.com/RomanAgaltsev/undergo/commit/4b3ce0ebde1ab69e3ea9ec641761abb89b14be58))
+
 ## [0.9.0](https://github.com/RomanAgaltsev/undergo/compare/v0.8.0...v0.9.0) (2026-09-13)
 
 

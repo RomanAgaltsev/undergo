@@ -1,0 +1,18 @@
+package main
+
+import "fmt"
+
+func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("RECOVERED")
+		}
+	}()
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		panic("in a child")
+	}()
+	<-done
+	fmt.Println("SURVIVED")
+}

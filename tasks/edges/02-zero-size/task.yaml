@@ -1,0 +1,15 @@
+schema: 1
+id: edges/02-zero-size
+title: "Where nothing lives"
+mode: predict
+track: edges
+difficulty: 4
+estimate: 35m
+tags: [edges, zero-size, unsafe, layout, addresses]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [two_empty_structs_share_an_address, two_zero_arrays_share_an_address, trailing_field_adds_padding, leading_field_adds_padding, zero_length_slices_share_data, empty_slice_equals_nil]
+inspired_by: "https://habr.com/ru/articles/1079104/"
+deprecated: false

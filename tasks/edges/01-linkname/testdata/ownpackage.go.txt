@@ -1,0 +1,18 @@
+package main
+
+import (
+	"fmt"
+	_ "unsafe" // for go:linkname
+)
+
+// Pulling a symbol out of this program's own package rather than the standard
+// library.
+//
+//go:linkname secret main.hidden
+func secret() int
+
+func hidden() int { return 42 }
+
+func main() {
+	fmt.Println(secret())
+}

@@ -1,0 +1,16 @@
+package main
+
+import (
+	"fmt"
+	_ "unsafe" // for go:linkname
+)
+
+// A widely used runtime clock.
+//
+//go:linkname target runtime.nanotime
+func target()
+
+func main() {
+	fmt.Println("built")
+	_ = target
+}

@@ -8,8 +8,11 @@ each one performed.
 
 | slot | question |
 |---|---|
-| `ordering` | the four settings ranked by collections performed, most first, joined by `>` — e.g. `gogc100>gogc50>gogc800>gogc400` |
-| `gogc50_beats_gogc800` | `true` or `false`: does GOGC=50 collect more often than GOGC=800? |
+| `gogc50_beats_gogc400` | does GOGC=50 collect more often than GOGC=400? |
+| `gogc100_beats_gogc800` | ... than GOGC=800? |
+| `gogc400_beats_gogc100` | does GOGC=400 collect more often than GOGC=100? |
+| `gogc800_beats_gogc50` | ... than GOGC=50? |
+| `gogc50_beats_gogc800` | the widest pair |
 
 ```
 undergo verify gc/02-cycle-ordering
@@ -44,5 +47,7 @@ in production.
    instead of cycle count.
 4. `GOGC=off` is a fifth setting. Say where it ranks, and whether that is a
    useful answer or a degenerate one.
-5. GOGC=800 collects far less often than GOGC=50. Name what you pay for that, and
-   the deployment where the trade is wrong.
+5. This task originally asked for a four-way ranking, and that slot was removed
+   after it failed once on a loaded machine. Given the measured counts — roughly
+   27, 15, 3 and 1 — say which adjacent pair broke it, and why comparing settings
+   an order of magnitude apart is safe when comparing neighbours is not.

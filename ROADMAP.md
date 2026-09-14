@@ -2,11 +2,11 @@
 
 ## Tracks
 
-Shipped: the three memory tracks — `layout` (3 tasks), `alloc` (4) and `types` (4);
-the three language-surface tracks — `generics` (5), `iter` (3) and `reflect` (3); and
-lifetime and collection — `weak` (4) and `gc` (4) — alongside the 15 `review/*`
-categories (135 drills, imported from loupe) and `design` (36 katas, imported from
-keystone). 201 tasks in all, 30 of them machine-graded.
+Shipped: all fourteen internals tracks. Memory — `layout` (3 tasks), `alloc` (4),
+`types` (4). Language surface — `generics` (5), `iter` (3), `reflect` (3). Lifetime
+and collection — `weak` (4), `gc` (4). The machine — `iface` (4), `compiler` (3),
+`asm` (2), `edges` (4). Alongside the 15 `review/*` categories (135 drills, imported
+from loupe) and `design` (36 katas, imported from keystone). 214 tasks in all, 43 of them machine-graded.
 
 Planned, in rough order:
 
@@ -44,13 +44,13 @@ politeness.
 | Slice backing stores are stack-allocated in more cases — predict which `make` calls reach the heap, with `-d=variablemakehash=n` as the control | `alloc` | [Go 1.25](https://go.dev/doc/go1.25), extended in [1.26](https://go.dev/doc/go1.26) | `alloc/03-what-escapes`, `types/01-cap-growth` |
 | The experimental portable `simd` package against a pure-Go baseline | `asm` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | PGO build overhead collapsed, and PGO now aligns hot loop blocks for 1–1.5% | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | — |
-| The compiler overlaps stack slots of locals with disjoint live ranges — predict a frame size, then move one line | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | — |
+| The compiler overlaps stack slots of locals with disjoint live ranges — predict a frame size, then move one line | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | `compiler/03-stack-slots` — which measured that it does NOT happen for address-taken locals |
 | Closures may now share a code pointer, so comparing function pointers misleads in more cases | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | cgo call overhead is down about 30% — measure the boundary | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | The heap base address is randomized on 64-bit: which observations stop being reproducible, and which never were | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | `GOAMD64=v3` fused multiply-add changes the exact floating-point values a program produces | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | A Go 1.21 compiler bug delayed nil checks; the same program panics on 1.25 — a toolchain-pair task | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
-| `//go:linkname` to unmarked standard-library symbols is now refused | `edges` | [Go 1.23](https://go.dev/doc/go1.23) | — |
+| `//go:linkname` to unmarked standard-library symbols is now refused | `edges` | [Go 1.23](https://go.dev/doc/go1.23) | `edges/01-linkname` |
 | A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Green Tea cuts GC overhead 10–40%, and `GOEXPERIMENT=nogreenteagc` makes it an A/B within one toolchain | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | Green Tea's further ~10% on Ice Lake / Zen 4 and newer — an answer that depends on the CPU | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
@@ -105,13 +105,53 @@ rot as the catalogue changes.
 
 ## Standing decisions
 
-**Authoring comes before solving, deliberately.** 201 tasks ship and none have been
+**Authoring comes before solving, deliberately.** 214 tasks ship and none have been
 solved here. That is a choice, not a backlog: the catalogue is being built out
 first, and the solver's experience — whether a hint is one rung or two, whether a
 question is answerable without its explanation — is unvalidated until someone
 works through a track. Gate 2 proves every reference solution compiles and passes;
 it proves nothing about whether a task teaches. Revisit when a track is picked up
 in a solver's clone.
+
+**cgo tasks cannot ship while the authoring machine has no C toolchain.** Spec §8
+T14's "cgo boundary cost" is deferred, and not merely for want of a compiler: the
+`cgo` build tag is satisfied by `CGO_ENABLED=1`, which is set here, rather than by
+a compiler existing. So a `//go:build cgo` file with a `//go:build !cgo` fallback
+does **not** degrade gracefully — the cgo file is selected and the build fails with
+`C compiler "gcc" not found`, breaking `task ci` locally rather than only in CI.
+Revisit when the machine has a toolchain, or build the task as a `testdata`
+snippet compiled with `CGO_ENABLED=0` explicitly.
+
+**Assembly tasks ship a portable fallback and pin `requires.arch`.** Gate 1 builds
+every task on every platform and CI includes an arm64 macOS runner, where an
+amd64-only `.s` fails with "missing function body" — `requires.arch` gates gate 2,
+not gate 1. The `//go:build amd64` declaration plus a `//go:build !amd64` Go
+implementation builds and vets on windows/amd64, linux/arm64 and darwin/arm64.
+The cost is that a green run on arm64 exercised the fallback, so an asm task
+should make which implementation ran visible in its output.
+
+**Binary size is not measurable reliably enough to grade, and `compiler/04` was
+withdrawn.** Spec §8 T12's "binary-size golf" was built, passed locally on Windows
+and in a Linux container, and then failed intermittently on the ubuntu CI runner
+across three attempts — including after every slot was moved behind an 8 KiB
+threshold. Measured evidence for why: the same snippet is +24 bytes on Linux and
+exactly 0 on Windows because PE section padding rounds it away; building the same
+source in two temporary directories of different name lengths changes the size,
+because source paths are embedded; and `-trimpath` shifts sizes by a couple of
+hundred bytes in both directions rather than removing the dependence. A binary's
+size has many contributors that have nothing to do with the question being asked.
+
+The idea stays in the pool. A future attempt should measure something with a
+defined meaning — a section size from `go tool nm`, or the count of symbols
+retained from a named package — rather than the size of a file on disk.
+
+**An invariant is not automatically robust — measure its margin.** `gc/02` shipped
+a four-way GOGC ordering in M7 that measured 8/8 stable locally, 8/8 under the race
+detector, and green on both CI platforms. It then failed once during a heavily
+loaded build, because a full ordering is a conjunction of adjacent comparisons and
+its weakest link was 3 collections against 1. It now asks about pairs an order of
+magnitude apart. Reaching for an invariant instead of a tolerance was right; not
+checking how much room the invariant had was not.
 
 **Noisy measurements get an invariant, not a tolerance.** GC cycle counts vary 39–68
 across identical runs, and `GOMEMLIMIT`-clamped heap goals give four distinct values in

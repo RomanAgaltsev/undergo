@@ -1,0 +1,16 @@
+schema: 1
+id: iface/01-eface-vs-iface
+title: "What an interface value is"
+mode: predict
+track: iface
+difficulty: 3
+estimate: 30m
+tags: [iface, eface, unsafe, boxing, layout]
+requires:
+  go: "1.27"
+  arch: [amd64, arm64]
+verify: "go test ./..."
+predict:
+  slots: [empty_interface_words, method_interface_words, slice_words, boxing_small_int_allocs, boxing_large_int_allocs, boxing_pointer_allocs, boxing_struct_allocs]
+inspired_by: "https://research.swtch.com/interfaces"
+deprecated: false

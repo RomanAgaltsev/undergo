@@ -12,8 +12,6 @@ import (
 	"runtime"
 	"runtime/debug"
 	"runtime/metrics"
-	"slices"
-	"strings"
 )
 
 // live is retained for the whole run, so the workload has a stable live set.
@@ -53,33 +51,12 @@ func Cycles(gogc int, garbageMiB int) uint64 {
 	return readCycles() - before
 }
 
-// Ordering ranks the four settings by how many collections each performed, most
-// first, joined by ">".
-func Ordering(garbageMiB int) string {
-	type result struct {
-		name   string
-		cycles uint64
-	}
-	results := []result{
-		{"gogc50", Cycles(50, garbageMiB)},
-		{"gogc100", Cycles(100, garbageMiB)},
-		{"gogc400", Cycles(400, garbageMiB)},
-		{"gogc800", Cycles(800, garbageMiB)},
-	}
-	slices.SortStableFunc(results, func(a, b result) int {
-		switch {
-		case a.cycles > b.cycles:
-			return -1
-		case a.cycles < b.cycles:
-			return 1
-		default:
-			return 0
-		}
-	})
-
-	names := make([]string, 0, len(results))
-	for _, r := range results {
-		names = append(names, r.name)
-	}
-	return strings.Join(names, ">")
+// Beats reports whether the first setting performed more collections than the
+// second.
+//
+// Pairwise rather than a full ranking: the counts for adjacent settings can sit
+// close enough that load on the machine reorders them, while settings an order
+// of magnitude apart do not move. See EXPLANATION.md.
+func Beats(gogcA, gogcB, garbageMiB int) bool {
+	return Cycles(gogcA, garbageMiB) > Cycles(gogcB, garbageMiB)
 }

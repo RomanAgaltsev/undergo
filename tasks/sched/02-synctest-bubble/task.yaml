@@ -10,6 +10,6 @@ requires:
   go: "1.27"
 verify: "go test ./..."
 predict:
-  slots: [slept_minutes, ticks, year, real_under_second]
+  slots: [slept_minutes, ticks, year, fake_exceeds_real]
 inspired_by: "https://pkg.go.dev/testing/synctest"
 deprecated: false

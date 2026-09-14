@@ -1,0 +1,15 @@
+schema: 1
+id: edges/03-panic-vs-fatal
+title: "What recover cannot catch"
+mode: predict
+track: edges
+difficulty: 4
+estimate: 40m
+tags: [edges, panic, recover, fatal, goroutines]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [ordinary_recovered, child_goroutine_recovered, concurrent_map_recovered, nil_map_write_recovered, deadlock_recovered, concurrent_map_is_fatal]
+inspired_by: "https://habr.com/ru/articles/1079104/"
+deprecated: false

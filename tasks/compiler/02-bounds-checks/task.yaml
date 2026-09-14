@@ -1,0 +1,15 @@
+schema: 1
+id: compiler/02-bounds-checks
+title: "Which bounds checks survive"
+mode: predict
+track: compiler
+difficulty: 4
+estimate: 40m
+tags: [compiler, bce, bounds-check, ssa]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [ranged_checked, counted_checked, two_slices_checked, unchecked_checked, after_one_check_checked, next_element_checked]
+inspired_by: "https://go.dev/wiki/CompilerOptimizations"
+deprecated: false

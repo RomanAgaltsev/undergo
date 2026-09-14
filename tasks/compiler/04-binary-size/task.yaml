@@ -8,6 +8,11 @@ estimate: 40m
 tags: [compiler, linker, binary-size, deadcode]
 requires:
   go: "1.27"
+  # Every measurement here is the size of a binary produced by a separate
+  # `go build`. Racing this task exercises no concurrency of its own and makes
+  # the sizes depend on the toolchain context the test runs under, which is not
+  # what the task is asking about.
+  default_build: true
 verify: "go test ./..."
 predict:
   slots: [fmt_grows_materially, reflect_grows_materially, generic_grows_materially, iface_method_grows_materially, unused_table_grows_at_all, largest_addition]

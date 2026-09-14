@@ -1,0 +1,27 @@
+schema: 1
+id: memmodel/03-happens-before-edges
+title: "Which of these assertions can fail"
+mode: predict
+track: memmodel
+difficulty: 4
+estimate: 45m
+tags: [memmodel, happens-before, channels, sync, atomics]
+requires:
+  go: "1.27"
+  default_build: true
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      unbuffered_send_always,
+      buffered_full_always,
+      close_always,
+      mutex_always,
+      once_always,
+      waitgroup_always,
+      atomic_always,
+      sleep_always,
+      no_sync_always,
+    ]
+inspired_by: "https://go.dev/ref/mem"
+deprecated: false

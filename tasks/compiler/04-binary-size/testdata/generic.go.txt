@@ -1,0 +1,19 @@
+package main
+
+import "os"
+
+func Max[T int | int8 | int32 | float64](a, b T) T {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func main() {
+	n := len(os.Args)
+	t := Max(n, 1)
+	t += int(Max(int8(n), int8(2)))
+	t += int(Max(int32(n), int32(3)))
+	t += int(Max(float64(n), 4.0))
+	os.Exit(t - t)
+}

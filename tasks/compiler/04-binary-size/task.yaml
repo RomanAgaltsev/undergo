@@ -1,0 +1,15 @@
+schema: 1
+id: compiler/04-binary-size
+title: "What actually costs bytes"
+mode: predict
+track: compiler
+difficulty: 4
+estimate: 40m
+tags: [compiler, linker, binary-size, deadcode]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [fmt_grows_binary, reflect_grows_binary, generic_grows_binary, iface_method_grows_binary, unused_table_grows_binary, largest_addition]
+inspired_by: "https://go.dev/doc/faq#Why_is_my_trivial_program_such_a_large_binary"
+deprecated: false

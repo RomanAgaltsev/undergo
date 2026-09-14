@@ -1,0 +1,7 @@
+package main
+
+import "os"
+
+func main() {
+	os.Exit(len(os.Args) - 1)
+}

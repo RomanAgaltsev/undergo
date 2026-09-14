@@ -12,6 +12,7 @@ package lifetime
 
 import (
 	"runtime"
+	"sync/atomic"
 	"time"
 )
 
@@ -116,9 +117,14 @@ func FinalizerCanResurrect() bool {
 
 // MultipleCleanupsAllRun registers three cleanups on one object and reports
 // whether every one of them ran.
+//
+// The flags are atomic because cleanups run on their own goroutine: plain bools
+// written there and read here would be a data race, and the race detector says
+// so. That is not a detail of this experiment — it is the same fact the
+// experiment is measuring.
 func MultipleCleanupsAllRun() bool {
-	var a, b, c bool
-	set := func(p *bool) { *p = true }
+	var a, b, c atomic.Bool
+	set := func(p *atomic.Bool) { p.Store(true) }
 
 	func() {
 		o := &Obj{}
@@ -127,12 +133,13 @@ func MultipleCleanupsAllRun() bool {
 		runtime.AddCleanup(o, set, &c)
 	}()
 
+	allRan := func() bool { return a.Load() && b.Load() && c.Load() }
 	for range maxGCs {
 		runtime.GC()
 		time.Sleep(settle)
-		if a && b && c {
+		if allRan() {
 			return true
 		}
 	}
-	return a && b && c
+	return allRan()
 }

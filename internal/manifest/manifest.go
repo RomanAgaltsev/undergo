@@ -40,9 +40,16 @@ type Requires struct {
 	// optimisation is then measuring the instrumentation instead. Racing
 	// such a task reports a failure that says nothing about the solution.
 	//
-	// Set it only where that is actually true, and say why in the task's
-	// explanation — a blanket opt-out would hide the concurrency bugs the
-	// gate exists to find.
+	// There are two ways it is true. The first is a task measuring a compiler
+	// optimisation that -race disables, such as slice stack allocation. The
+	// second is a task whose subject *is* a data race — the memmodel track
+	// plants races deliberately, and under -race the detector aborts the
+	// program rather than letting it answer the question.
+	//
+	// Set it only where one of those actually applies, and say why in the
+	// task's explanation — a blanket opt-out would hide the concurrency bugs
+	// the gate exists to find. A task that merely uses goroutines does not
+	// qualify: memmodel/04-seqlock plants no race and is raced like any other.
 	DefaultBuild bool `yaml:"default_build"`
 }
 

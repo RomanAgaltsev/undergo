@@ -33,3 +33,8 @@ undergo verify sched/01-runnext-ordering
 4. A goroutine in that structure is not stealable by another P for a short
    window. Say why that matters for a two-goroutine ping-pong, and what it
    would cost if it were stealable immediately.
+5. Run this task's test under `go test -race`. Two of the four slots change.
+   Say which two, why *those* two, and what that tells you about using the race
+   detector to investigate a scheduling question. This program contains no data
+   race at all — so what is the detector changing?
+

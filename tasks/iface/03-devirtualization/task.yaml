@@ -1,0 +1,15 @@
+schema: 1
+id: iface/03-devirtualization
+title: "When the compiler knows the type"
+mode: predict
+track: iface
+difficulty: 4
+estimate: 35m
+tags: [iface, devirtualization, inlining, compiler]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [one_type_devirtualized, reassigned_devirtualized, via_parameter_devirtualized, via_global_devirtualized, from_constructor_devirtualized, in_slice_devirtualized]
+inspired_by: "https://go.dev/doc/pgo"
+deprecated: false

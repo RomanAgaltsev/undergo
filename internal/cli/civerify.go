@@ -155,9 +155,27 @@ func proveOne(e Env, t *manifest.Task) error {
 		return err
 	}
 	if !passed {
+		if path, werr := writeFailureLog(e, t.ID, sink.Bytes()); werr == nil {
+			return fmt.Errorf("frozen tests did not pass; output written to %s", path)
+		}
 		return fmt.Errorf("frozen tests did not pass")
 	}
 	return nil
+}
+
+// writeFailureLog saves a failing task's captured output where a maintainer can
+// read it, and returns the path.
+//
+// The path is safe to print; the contents are not. See Env.FailureLogPath.
+func writeFailureLog(e Env, id string, output []byte) (string, error) {
+	path := e.FailureLogPath(id)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return "", err
+	}
+	if err := os.WriteFile(path, output, 0o644); err != nil {
+		return "", err
+	}
+	return path, nil
 }
 
 // writeReferencePredictions installs the sealed answer sheet for a predict task.

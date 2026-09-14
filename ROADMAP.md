@@ -4,10 +4,9 @@
 
 Shipped: all fourteen internals tracks. Memory — `layout` (3 tasks), `alloc` (4),
 `types` (4). Language surface — `generics` (5), `iter` (3), `reflect` (3). Lifetime
-and collection — `weak` (4), `gc` (4). The machine — `iface` (4), `compiler` (4),
+and collection — `weak` (4), `gc` (4). The machine — `iface` (4), `compiler` (3),
 `asm` (2), `edges` (4). Alongside the 15 `review/*` categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 215 tasks in all, 44 of
-them machine-graded.
+from loupe) and `design` (36 katas, imported from keystone). 214 tasks in all, 43 of them machine-graded.
 
 Planned, in rough order:
 
@@ -106,7 +105,7 @@ rot as the catalogue changes.
 
 ## Standing decisions
 
-**Authoring comes before solving, deliberately.** 215 tasks ship and none have been
+**Authoring comes before solving, deliberately.** 214 tasks ship and none have been
 solved here. That is a choice, not a backlog: the catalogue is being built out
 first, and the solver's experience — whether a hint is one rung or two, whether a
 question is answerable without its explanation — is unvalidated until someone
@@ -130,6 +129,21 @@ not gate 1. The `//go:build amd64` declaration plus a `//go:build !amd64` Go
 implementation builds and vets on windows/amd64, linux/arm64 and darwin/arm64.
 The cost is that a green run on arm64 exercised the fallback, so an asm task
 should make which implementation ran visible in its output.
+
+**Binary size is not measurable reliably enough to grade, and `compiler/04` was
+withdrawn.** Spec §8 T12's "binary-size golf" was built, passed locally on Windows
+and in a Linux container, and then failed intermittently on the ubuntu CI runner
+across three attempts — including after every slot was moved behind an 8 KiB
+threshold. Measured evidence for why: the same snippet is +24 bytes on Linux and
+exactly 0 on Windows because PE section padding rounds it away; building the same
+source in two temporary directories of different name lengths changes the size,
+because source paths are embedded; and `-trimpath` shifts sizes by a couple of
+hundred bytes in both directions rather than removing the dependence. A binary's
+size has many contributors that have nothing to do with the question being asked.
+
+The idea stays in the pool. A future attempt should measure something with a
+defined meaning — a section size from `go tool nm`, or the count of symbols
+retained from a named package — rather than the size of a file on disk.
 
 **An invariant is not automatically robust — measure its margin.** `gc/02` shipped
 a four-way GOGC ordering in M7 that measured 8/8 stable locally, 8/8 under the race

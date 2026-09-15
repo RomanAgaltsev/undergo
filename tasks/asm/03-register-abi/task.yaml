@@ -1,0 +1,16 @@
+schema: 1
+id: asm/03-register-abi
+title: "Where the arguments actually go"
+mode: predict
+track: asm
+difficulty: 4
+estimate: 45m
+tags: [asm, abi, registers, go1.17]
+requires:
+  go: "1.27"
+  arch: [amd64]
+verify: "go test ./..."
+predict:
+  slots: [nine_reads_stack, ten_reads_stack, pair_reads_stack, mixed_uses_floats]
+inspired_by: "https://go.dev/src/cmd/compile/abi-internal.md"
+deprecated: false

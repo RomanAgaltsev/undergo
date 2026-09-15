@@ -2,12 +2,13 @@
 
 ## Tracks
 
-Shipped: all fourteen internals tracks. Memory — `layout` (3 tasks), `alloc` (4),
-`types` (4). Language surface — `generics` (5), `iter` (3), `reflect` (3). Lifetime
-and collection — `weak` (4), `gc` (4). The machine — `iface` (4), `compiler` (3),
-`asm` (2), `edges` (4). Scheduling and memory — `sched` (5), `memmodel` (5).
+Shipped: all fourteen internals tracks, **every one of them at five tasks or more**.
+Memory — `layout` (5 tasks), `alloc` (5),
+`types` (5). Language surface — `generics` (5), `iter` (5), `reflect` (5). Lifetime
+and collection — `weak` (5), `gc` (5). The machine — `iface` (5), `compiler` (5),
+`asm` (5), `edges` (5). Scheduling and memory — `sched` (5), `memmodel` (5).
 Alongside the 15 `review/*` categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 224 tasks in all, 53 of them machine-graded.
+from loupe) and `design` (36 katas, imported from keystone). 241 tasks in all, 70 of them machine-graded.
 
 Planned, in rough order:
 
@@ -24,7 +25,7 @@ Planned, in rough order:
 | `gc` | predict | GC cycles, GOGC × GOMEMLIMIT, write barriers, Green Tea |
 | `sched` | predict/build | interleaving, async preemption, `LockOSThread`, timers, traces |
 | `memmodel` | predict | happens-before, store buffering, seqlocks, the benign-race myth |
-| `compiler` | predict/optimize | inlining budget, bounds-check elimination, PGO, binary size |
+| `compiler` | predict/optimize | inlining budget, bounds-check elimination, PGO, loop lowering |
 | `asm` | build/optimize | Plan9 syntax, register ABI, `//go:noescape`, SIMD |
 | `edges` | mixed | cgo cost, `defer` tiers, panic/recover, `unsafe.Pointer` rules |
 | `review/*` | review | 15 categories × 3 tiers × 3 drills — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
@@ -33,7 +34,7 @@ Planned, in rough order:
 
 ## Candidate pool
 
-Each entry records where the idea came from. Ideas may be borrowed; code may not.
+Each entry records where the idea came from.
 
 Every row below records a source: a `→ candidate` entry in `radar/versions/`, or
 a named reference. A row with no source behind it is drift, and gets deleted
@@ -44,7 +45,7 @@ rather than kept out of politeness. Ideas may be borrowed; code may not.
 | Size-specialized allocation routines make small allocations (<80 bytes) up to 30% cheaper — A/B it with `GOEXPERIMENT=nosizespecializedmalloc` | `alloc` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Slice backing stores are stack-allocated in more cases — predict which `make` calls reach the heap, with `-d=variablemakehash=n` as the control | `alloc` | [Go 1.25](https://go.dev/doc/go1.25), extended in [1.26](https://go.dev/doc/go1.26) | `alloc/03-what-escapes`, `types/01-cap-growth` |
 | The experimental portable `simd` package against a pure-Go baseline | `asm` | [Go 1.27](https://go.dev/doc/go1.27) | — |
-| PGO build overhead collapsed, and PGO now aligns hot loop blocks for 1–1.5% | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | — |
+| PGO build overhead collapsed, and PGO now aligns hot loop blocks for 1–1.5% | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | `compiler/04-pgo-devirtualization` |
 | The compiler overlaps stack slots of locals with disjoint live ranges — predict a frame size, then move one line | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | `compiler/03-stack-slots` — which measured that it does NOT happen for address-taken locals |
 | Closures may now share a code pointer, so comparing function pointers misleads in more cases | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | cgo call overhead is down about 30% — measure the boundary | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
@@ -60,7 +61,7 @@ rather than kept out of politeness. Ideas may be borrowed; code may not.
 | `new` accepts an expression, so `new(f(x))` compiles — a version-diff task a pre-1.26 model gets wrong | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
 | A generic type may refer to itself in its own type parameter list (`type Adder[A Adder[A]]`) | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
 | Function type inference generalized to assignment and conversion contexts — not gated by the go.mod language version, so a true A/B needs an older toolchain | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | `generics/05-inference-limits` — the assignment shape only; no 1.26-vs-1.27 A/B, see the radar note |
-| Range-over-function iterators and the `iter` package — what `break`, `return` and `goto` do to the yield contract | `iter` | [Go 1.23](https://go.dev/doc/go1.23) | `iter/02-yield-contract` and `iter/01-adapters` — `goto` out of a range body is still uncovered |
+| Range-over-function iterators and the `iter` package — what `break`, `return` and `goto` do to the yield contract | `iter` | [Go 1.23](https://go.dev/doc/go1.23) | `iter/02-yield-contract`, `iter/01-adapters`, `iter/04-goto-and-labels` |
 | The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/05-goroutine-leak-profile` |
 | Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/03-timer-channels` |
 | `GOMAXPROCS` is container-aware and updates itself as the cgroup quota changes | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
@@ -73,7 +74,7 @@ rather than kept out of politeness. Ideas may be borrowed; code may not.
 | `sync.Map` is a hash-trie — the contention curve, and what the old implementation was warming up | `types` | [Go 1.24](https://go.dev/doc/go1.24) | — |
 | `runtime.AddCleanup` vs `SetFinalizer` — four enumerated differences, four predictions | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | `weak/02-cleanup-vs-finalizer` |
 | The `weak` package — the floor for the whole track | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | `weak/01-weak-cache` |
-| `AddCleanup` runs concurrently and `unique` handles reclaim in a single GC cycle — every pre-1.25 measurement is stale | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | `weak/02-cleanup-vs-finalizer` — the concurrency half; the single-cycle reclaim claim is untested |
+| `AddCleanup` runs concurrently and `unique` handles reclaim in a single GC cycle — every pre-1.25 measurement is stale | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | `weak/02-cleanup-vs-finalizer` + `weak/05-single-cycle-reclaim` |
 | `GODEBUG=checkfinalizers=1` names the classic finalizer mistakes — plant each one | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | `weak/03-lifetime-traps` |
 | The `unique` package: interning where handle comparison reduces to a pointer compare | `weak` | [Go 1.23](https://go.dev/doc/go1.23) | `weak/04-unique-interning` |
 
@@ -106,7 +107,7 @@ rot as the catalogue changes.
 
 ## Standing decisions
 
-**Authoring comes before solving, deliberately.** 224 tasks ship and none have been
+**Authoring comes before solving, deliberately.** 241 tasks ship and none have been
 solved here. That is a choice, not a backlog: the catalogue is being built out
 first, and the solver's experience — whether a hint is one rung or two, whether a
 question is answerable without its explanation — is unvalidated until someone
@@ -131,8 +132,10 @@ implementation builds and vets on windows/amd64, linux/arm64 and darwin/arm64.
 The cost is that a green run on arm64 exercised the fallback, so an asm task
 should make which implementation ran visible in its output.
 
-**Binary size is not measurable reliably enough to grade, and `compiler/04` was
-withdrawn.** Spec §8 T12's "binary-size golf" was built, passed locally on Windows
+**Binary size is not measurable reliably enough to grade, and the binary-size
+golf task was withdrawn.** (It never reached a tag, so the number it had been
+given was later reused by `compiler/04-pgo-devirtualization`.) Spec §8 T12's
+"binary-size golf" was built, passed locally on Windows
 and in a Linux container, and then failed intermittently on the ubuntu CI runner
 across three attempts — including after every slot was moved behind an 8 KiB
 threshold. Measured evidence for why: the same snippet is +24 bytes on Linux and
@@ -172,10 +175,10 @@ C toolchain cannot run it — `undergo doctor` reports which of the native and
 container routes this machine has, and `task race:docker` is the way round a
 missing compiler.
 
-**Every track carries at least five tasks.** Ten where the material supports it.
-This is discipline, not machinery — there is deliberately no CI gate. What keeps
-it honest is that the ceilings are written down, so a track sitting below ten is
-legibly finished rather than neglected:
+**Every track carries at least five tasks, and as of v0.13.0 every one does.**
+Ten where the material supports it. This is discipline, not machinery — there is
+deliberately no CI gate. What keeps it honest is that the ceilings are written
+down, so a track sitting below ten is legibly finished rather than neglected:
 
 | Verdict | Tracks |
 |---|---|
@@ -214,6 +217,47 @@ caught by the gate rather than by design: **a task measuring scheduling order.**
 between a goroutine being scheduled and reaching the mutex, so the `runnext`
 slot survives and the queue order behind it does not. Reach for the detector to
 answer *is there a race*, never *in what order do these run*.
+
+**Gate 1 builds only what the host can build, and says what it skipped.**
+`requires.arch` gated gate 2 but not gate 1, so an amd64-only `.s` failed to
+build on the arm64 runner — and every assembly task carried a portable Go
+fallback to compensate, which meant a green arm64 run proved the fallback worked
+and said nothing about the assembly. Gate 1 now consults `manifest.Buildable`,
+deliberately narrower than `Gradeable`: only arch and OS decide whether a package
+compiles, because a task needing an extra toolchain still builds with the default
+one and a task needing a newer Go should fail loudly rather than vanish.
+
+This is safe **only because CI runs both architectures** — `ubuntu-latest` is
+amd64 and `macos-latest` is arm64. A task pinning a platform no runner has would
+be built nowhere and nobody would be told. New assembly tasks need no fallback;
+`asm/02-write-plan9` keeps its own because its README teaches the pattern.
+
+**An answer that depends on the machine is not an answer, and it takes CI to
+find out.** Three M10 slots shipped green locally and failed in CI, each for a
+different reason, and the pattern is worth naming because it recurs:
+
+- A **wall-clock budget** (`sched/02`: "did this finish in under a second")
+  measured 0–22ms locally and failed half of all gate-2 runs. Gate 2's load is
+  process creation, compilation and antivirus scanning, not CPU contention, so a
+  CPU-load probe "proved" it safe while measuring the wrong thing. A threshold
+  against a constant is a tolerance; compare two measured quantities instead.
+- A **struct width** (`memmodel/02`: tearing) was two words, which is two `MOVQ`s
+  on amd64 and a single `STP` on arm64 — so it did not tear there at all. Widened
+  to three words rather than pinned, because the claim being taught is
+  architecture-independent and only the demonstration was accidentally amd64.
+- A **race being won** (`memmodel/05`: duplicate lazy initialisation) was true on
+  twelve cores and false on a CI runner. The constructor now yields part-way
+  through, which makes the window reliable rather than lucky.
+
+**The verifier says what a failing predict task got wrong.** Gate 2 captures a
+failing task's output rather than printing it, so a reference solution never
+reaches a public log — which left "frozen tests did not pass" as the only
+diagnostic, and two CI failures in a row were investigated blind. The output now
+goes to `.undergo/ci-failures/<id>.log` (gitignored) and only the path is
+printed. In addition, for a **predict** task the failing slot names are printed:
+`predict.Check` emits only `slot "name": correct` and never a measured value, and
+the names are already public in `task.yaml`. Build and optimize tasks print
+nothing, because their output can contain the overlaid reference source.
 
 ## Not yet
 

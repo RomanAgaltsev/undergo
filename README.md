@@ -28,7 +28,7 @@ No install, no account, no network after the clone — dependencies are vendored
 | **review** | findings | you, against the sealed key |
 | **design** | a design document | you, against the sealed rubric |
 
-224 tasks ship today: 53 machine-graded tasks across all fourteen internals tracks,
+241 tasks ship today: 70 machine-graded tasks across all fourteen internals tracks,
 135 review drills across 15 categories, and 36 system-design katas. The
 review and design tracks are **self-graded** — the seal holds an answer key or a
 grading checklist, and you score yourself against it. `undergo verify` says so

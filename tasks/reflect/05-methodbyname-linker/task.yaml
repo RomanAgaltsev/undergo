@@ -1,0 +1,15 @@
+schema: 1
+id: reflect/05-methodbyname-linker
+title: "The method the linker cannot drop"
+mode: predict
+track: reflect
+difficulty: 5
+estimate: 45m
+tags: [reflect, linker, deadcode, nm, methodbyname]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [archive_retained, direct_binary_retained, byname_binary_retained]
+inspired_by: "https://pkg.go.dev/reflect#Value.MethodByName"
+deprecated: false

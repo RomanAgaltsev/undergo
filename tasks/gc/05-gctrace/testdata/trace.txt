@@ -1,0 +1,17 @@
+GC forced
+gc 1 @0.001s 4%: 0+0.52+0 ms clock, 0+0.52/1.0/0+0 ms cpu, 3->4->0 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 2 @0.007s 1%: 0+1.0+0 ms clock, 0+0/0/0+0 ms cpu, 3->4->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 3 @0.008s 1%: 0+0.51+0 ms clock, 0+0/0/0+0 ms cpu, 3->4->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 4 @0.010s 1%: 0+0+0 ms clock, 0+0/0/0+0 ms cpu, 2->2->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P (forced)
+gc 5 @0.010s 1%: 0+0.52+0 ms clock, 0+0/0/0+0 ms cpu, 3->3->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 6 @0.011s 1%: 0+0.52+0 ms clock, 0+0.52/0.52/0+0 ms cpu, 3->3->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 7 @0.012s 1%: 0+0+0.52 ms clock, 0+0/0/0+6.3 ms cpu, 3->3->0 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 8 @0.012s 2%: 0+0+0.53 ms clock, 0+0/0/0+6.4 ms cpu, 3->3->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+scvg: inuse: 1, idle: 3, sys: 4, released: 0, consumed: 4 (MB)
+gc 9 @0.013s 5%: 0.52+0+0 ms clock, 6.3+0/0/0+0 ms cpu, 3->3->0 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 10 @0.014s 5%: 0+0+0 ms clock, 0+0/0/0+0 ms cpu, 3->3->0 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 11 @0.015s 5%: 0+0+0.53 ms clock, 0+0/0/0+6.3 ms cpu, 1->1->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P (forced)
+gc 12 @0.015s 5%: 0+0.53+0 ms clock, 0+0/0/0+0 ms cpu, 3->3->0 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 13 @0.016s 4%: 0+0+0 ms clock, 0+0/0/0+0 ms cpu, 3->3->0 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 14 @0.017s 4%: 0+0.53+0 ms clock, 0+0/0/0+0 ms cpu, 3->3->0 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P
+gc 15 @0.018s 4%: 0+0+0 ms clock, 0+0/0/0+0 ms cpu, 3->3->0 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 12 P

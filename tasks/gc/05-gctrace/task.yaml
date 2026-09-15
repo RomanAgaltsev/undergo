@@ -1,0 +1,13 @@
+schema: 1
+id: gc/05-gctrace
+title: "Reading what the collector says"
+mode: build
+track: gc
+difficulty: 4
+estimate: 50m
+tags: [gc, gctrace, godebug, parsing, pacer]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://pkg.go.dev/runtime#hdr-Environment_Variables"
+deprecated: false

@@ -1,0 +1,14 @@
+schema: 1
+id: asm/05-carry-chain
+title: "The carry Go cannot reach"
+mode: build
+track: asm
+difficulty: 5
+estimate: 50m
+tags: [asm, carry, bits, plan9, bigint]
+requires:
+  go: "1.27"
+  arch: [amd64]
+verify: "go test ./..."
+inspired_by: "https://pkg.go.dev/math/bits#Add64"
+deprecated: false

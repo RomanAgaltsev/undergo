@@ -68,6 +68,29 @@ func installedToolchains() []string {
 	return out
 }
 
+// Buildable reports whether a task's package can be compiled on env, and why
+// not if it cannot.
+//
+// It is deliberately narrower than Gradeable. Only the architecture and the
+// operating system decide whether a package physically builds: an amd64-only
+// .s file leaves its Go declaration without a body on arm64, and the build
+// fails with "missing function body".
+//
+// A task needing a newer Go or an extra toolchain still compiles with what is
+// here. The first should fail loudly rather than be skipped, and the second
+// affects only running, so neither belongs in this check.
+func Buildable(t *Task, e Env) (bool, string) {
+	if len(t.Requires.Arch) > 0 && !slices.Contains(t.Requires.Arch, e.GOARCH) {
+		return false, fmt.Sprintf("needs %s, this is %s",
+			strings.Join(t.Requires.Arch, "/"), e.GOARCH)
+	}
+	if len(t.Requires.OS) > 0 && !slices.Contains(t.Requires.OS, e.GOOS) {
+		return false, fmt.Sprintf("needs %s, this is %s",
+			strings.Join(t.Requires.OS, "/"), e.GOOS)
+	}
+	return true, ""
+}
+
 // Gradeable reports whether a task can be graded in env, and why not if it cannot.
 func Gradeable(t *Task, e Env) (bool, string) {
 	if t.Requires.Go != "" {

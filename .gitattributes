@@ -5,3 +5,4 @@
 
 # Sealed blobs are opaque; never let any filter touch their bytes.
 *.sealed -text
+*.pgo binary

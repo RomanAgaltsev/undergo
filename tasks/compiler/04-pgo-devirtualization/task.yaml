@@ -1,0 +1,15 @@
+schema: 1
+id: compiler/04-pgo-devirtualization
+title: "What the profile lets the compiler assume"
+mode: predict
+track: compiler
+difficulty: 5
+estimate: 50m
+tags: [compiler, pgo, devirtualization, inlining]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [devirtualized_with_pgo, devirtualized_without_pgo, target_is_rect, target_is_circle]
+inspired_by: "https://go.dev/doc/pgo"
+deprecated: false

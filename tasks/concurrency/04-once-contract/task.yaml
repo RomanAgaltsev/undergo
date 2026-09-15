@@ -1,0 +1,21 @@
+schema: 1
+id: concurrency/04-once-contract
+title: "What Once promises when f panics"
+mode: predict
+track: concurrency
+difficulty: 3
+estimate: 30m
+tags: [concurrency, sync, once, panic, oncevalue, go1.21]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      do_panic_reaches_caller,
+      do_second_call_runs_f,
+      do_second_call_panics,
+      oncefunc_second_call_panics,
+      oncevalue_calls_f_twice,
+    ]
+inspired_by: "go-concurrency kata 08 Q2 — the Once contract under panic"

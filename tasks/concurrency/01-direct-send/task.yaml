@@ -1,0 +1,20 @@
+schema: 1
+id: concurrency/01-direct-send
+title: "Does the value go through the buffer?"
+mode: predict
+track: concurrency
+difficulty: 3
+estimate: 30m
+tags: [concurrency, channels, hchan, synctest, buffering]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      len_after_send_with_parked_receiver,
+      len_after_send_with_no_receiver,
+      full_buffer_and_parked_receiver_possible,
+      value_received_when_buffer_full_and_sender_parked,
+    ]
+inspired_by: "go-concurrency kata 02 — unbuffered channels = synchronization"

@@ -43,5 +43,9 @@ func OffsetOfMap() uintptr {
 // comparison with the empty one.
 func BigSliceSize() uintptr {
 	s := make([]int, 1_000_000)
+	// Touching the slice is not decoration. unsafe.Sizeof is evaluated at
+	// compile time from the type alone, so it does not count as using s, and
+	// staticcheck reports SA4006 for a value that is never read.
+	s[len(s)-1] = 1
 	return unsafe.Sizeof(s)
 }

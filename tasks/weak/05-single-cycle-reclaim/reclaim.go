@@ -13,8 +13,10 @@ import (
 	"weak"
 )
 
-// Big is large enough not to share a block with anything else.
-type Big struct{ b [512]byte }
+// Big is large enough not to share a block with anything else. The field is
+// exported so that a linter does not report it as unused: its only job is to
+// take up space.
+type Big struct{ Bytes [512]byte }
 
 // gcsUntil forces collections until check reports true, and returns how many
 // were needed. It returns -1 if the limit is reached first.

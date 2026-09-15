@@ -1,0 +1,20 @@
+schema: 1
+id: concurrency/05-pool-clearing
+title: "How many collections a pooled object survives"
+mode: predict
+track: concurrency
+difficulty: 4
+estimate: 40m
+tags: [concurrency, sync, pool, gc, victim-cache, go1.13]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      new_calls_before_any_gc,
+      survives_one_gc,
+      survives_two_gc,
+      new_calls_after_two_gc,
+    ]
+inspired_by: "go-concurrency kata 10 Q1; radar candidate Go 1.13 (sync.Pool victim cache)"

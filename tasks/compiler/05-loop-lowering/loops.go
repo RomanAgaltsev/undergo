@@ -20,6 +20,12 @@ func ZeroLoop(b []byte) {
 func ZeroClear(b []byte) { clear(b) }
 
 // CopyLoop copies element by element.
+//
+// staticcheck's S1001 says to use copy here, and it is right — that is the
+// point of the task, and the suppression is why the loop survives to be
+// compared against CopyBuiltin.
+//
+//nolint:staticcheck // the loop is the subject of the exercise
 func CopyLoop(dst, src []byte) {
 	for i := range src {
 		dst[i] = src[i]

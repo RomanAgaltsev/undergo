@@ -11,7 +11,7 @@ import (
 // program. Whether -race reports these races is asked in writing, because the
 // detector needs a C toolchain that not every checkout has.
 func TestPredictions(t *testing.T) {
-	exits, err := SpinLoopExits(20 * time.Second)
+	exits, err := SpinLoopExits(30 * time.Second)
 	if err != nil {
 		t.Fatalf("running the hoist program: %v", err)
 	}

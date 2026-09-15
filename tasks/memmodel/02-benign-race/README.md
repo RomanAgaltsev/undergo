@@ -11,7 +11,7 @@ Everybody has heard these three defences, and usually said one of them:
 | slot | question |
 |---|---|
 | `torn_uint64_seen` | did a reader ever see a `uint64` neither writer wrote? |
-| `torn_struct_seen` | did a reader ever see a two-word struct assembled from two writes? |
+| `torn_struct_seen` | did a reader ever see a three-word struct assembled from two writes? |
 | `spin_loop_exits` | does a loop spinning on a plain `bool` ever notice it changed? |
 
 One of the three defences turns out to be true on this hardware. Work out which

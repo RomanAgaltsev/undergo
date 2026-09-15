@@ -2,13 +2,13 @@
 
 ## Tracks
 
-Shipped: all fourteen internals tracks, **every one of them at five tasks or more**.
+Shipped: all fifteen internals tracks, **every one of them at five tasks or more**.
 Memory — `layout` (5 tasks), `alloc` (5),
 `types` (5). Language surface — `generics` (5), `iter` (5), `reflect` (5). Lifetime
 and collection — `weak` (5), `gc` (5). The machine — `iface` (5), `compiler` (5),
-`asm` (5), `edges` (5). Scheduling and memory — `sched` (5), `memmodel` (5).
-Alongside the 15 `review/*` categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 241 tasks in all, 70 of them machine-graded.
+`asm` (5), `edges` (5). Scheduling and memory — `sched` (5), `memmodel` (5),
+`concurrency` (8). Alongside the 15 `review/*` categories (135 drills, imported
+from loupe) and `design` (36 katas, imported from keystone). 249 tasks in all, 78 of them machine-graded.
 
 Planned, in rough order:
 
@@ -30,7 +30,7 @@ Planned, in rough order:
 | `edges` | mixed | cgo cost, `defer` tiers, panic/recover, `unsafe.Pointer` rules |
 | `review/*` | review | 15 categories × 3 tiers × 3 drills — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
 | `design` | design | 36 system-design katas across 8 tracks |
-| `concurrency` | build | imported from go-concurrency |
+| `concurrency` | predict/build | channel handoff, abandoned results, `Cond`, the `Once` contract, `Pool` clearing, `RWMutex` admission, cancellability, close cascades — derived from `go-concurrency` |
 
 ## Candidate pool
 
@@ -43,10 +43,16 @@ rather than kept out of politeness. Ideas may be borrowed; code may not.
 The historical sweep (M12) added 158 rows at once. That is a pool, not a
 backlog: a row is a lead with a citation, and most will never become tasks.
 
-193 rows against the radar's 194 candidates. The one difference is deliberate:
-"slice backing stores are stack-allocated in more cases" is a `→ candidate` in
-both 1.25 and 1.26 because the change was extended, and it is one lead, so it
-gets one row. Any other gap is a defect in one direction or the other.
+193 of these rows come from the radar, against its 194 candidates. The one
+difference is deliberate: "slice backing stores are stack-allocated in more
+cases" is a `→ candidate` in both 1.25 and 1.26 because the change was extended,
+and it is one lead, so it gets one row. Any other gap between the radar and this
+table is a defect in one direction or the other.
+
+The remaining three rows are **kata-sourced**, not radar-sourced — M9 triaged
+the fourteen `go-concurrency` katas and these three could not be built without
+adding a module dependency. The pool's rule is "records a source", and a named
+kata is one; but the count above is about the radar, so it does not move.
 
 | Candidate | Track | Source | Built |
 |---|---|---|---|
@@ -59,7 +65,7 @@ gets one row. Any other gap is a defect in one direction or the other.
 | Converting a small integer to an interface stopped allocating — where is the boundary, and what is the staticuint64s table | `alloc` | [Go 1.15](https://go.dev/doc/go1.15) | — |
 | Small-object allocation stopped degrading at high core counts — an answer that changes shape with `GOMAXPROCS` | `alloc` | [Go 1.15](https://go.dev/doc/go1.15) | — |
 | The page allocator stopped contending: large parallel allocations cross the 32 KiB boundary into a different allocator | `alloc` | [Go 1.14](https://go.dev/doc/go1.14) | `alloc/05-size-classes` measures the boundary |
-| `sync.Pool` retains objects across one GC via a victim cache — put, force one collection, `Get`; then force two | `alloc` | [Go 1.13](https://go.dev/doc/go1.13) | — |
+| `sync.Pool` retains objects across one GC via a victim cache — put, force one collection, `Get`; then force two | `alloc` | [Go 1.13](https://go.dev/doc/go1.13) | `concurrency/05-pool-clearing` |
 | The 1.13 escape-analysis rewrite changed which values reach the heap wholesale — a genuine two-toolchain version diff | `alloc` | [Go 1.13](https://go.dev/doc/go1.13) | — |
 | Memory profiles stopped overcounting large heap allocations — every pre-1.12 profile of an above-size-class allocation was wrong | `alloc` | [Go 1.12](https://go.dev/doc/go1.12) | — |
 | The `allocs` profile: bytes allocated ever against bytes live now, and why both are true of one program | `alloc` | [Go 1.11](https://go.dev/doc/go1.11) | `alloc/05-size-classes` uses the quantity |
@@ -97,6 +103,9 @@ gets one row. Any other gap is a defect in one direction or the other.
 | The map-clearing idiom `for k := range m { delete(m, k) }` became one runtime call — and why it cannot be `memclr` | `compiler` | [Go 1.11](https://go.dev/doc/go1.11) | `compiler/05-loop-lowering` grades the slice analogue |
 | Functions that call `panic` became inlinable — the small argument-checking wrapper stopped being penalised | `compiler` | [Go 1.11](https://go.dev/doc/go1.11) | — |
 | The SSA back end (amd64 in 1.7, every architecture in 1.8) — the platform every later `compiler` finding is written against | `compiler` | [Go 1.7](https://go.dev/doc/go1.7), [1.8](https://go.dev/doc/go1.8) | — |
+| `errgroup`'s first error wins and its siblings' errors are silently discarded — the mechanism is an internal `errOnce sync.Once` | `concurrency` | go-concurrency kata 09 | — (costs `golang.org/x/sync`) |
+| `singleflight` deletes the key on success **and on error** before `Do` returns — and `DoChan` allocates five times what `Do` does | `concurrency` | go-concurrency kata 12 | — (costs `golang.org/x/sync`) |
+| Three rate limiters behind one interface: which can burst, and why the `time.Ticker` one strictly cannot | `concurrency` | go-concurrency kata 14 | — (costs `golang.org/x/time`) |
 | Closures may now share a code pointer, so comparing function pointers misleads in more cases | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | cgo call overhead is down about 30% — measure the boundary | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |

@@ -1,0 +1,24 @@
+schema: 1
+id: concurrency/07-cancellability
+title: "When a context stops being cancellable"
+mode: predict
+track: concurrency
+difficulty: 3
+estimate: 35m
+tags: [concurrency, context, withoutcancel, cause, afterfunc, go1.21]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      without_cancel_done_is_nil,
+      without_cancel_keeps_values,
+      without_cancel_err_after_parent_cancel,
+      detached_child_is_uncancellable,
+      cause_of_plain_cancel_is_canceled,
+      cause_of_live_context_is_canceled,
+      err_when_cause_differs,
+      afterfunc_runs_on_already_cancelled_ctx,
+    ]
+inspired_by: "go-concurrency kata 05 Q3, answered with Go 1.21's context additions"

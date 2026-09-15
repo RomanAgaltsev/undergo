@@ -114,7 +114,7 @@ func RadarCheck(e Env, _ []string) error {
 		return err
 	}
 
-	var total, candidates, invalidates int
+	var total, candidates, invalidates, parsed int
 	for _, f := range files {
 		if f.IsDir() || filepath.Ext(f.Name()) != ".md" {
 			continue
@@ -130,6 +130,7 @@ func RadarCheck(e Env, _ []string) error {
 		if err := checkTargets(entries, known); err != nil {
 			return fmt.Errorf("radar/versions/%s: %w", f.Name(), err)
 		}
+		parsed++
 		total += len(entries)
 		for _, entry := range entries {
 			switch entry.Tag {
@@ -140,7 +141,7 @@ func RadarCheck(e Env, _ []string) error {
 			}
 		}
 	}
-	fmt.Fprintf(e.Out, "radar: %d entries across %d releases — %d candidates, %d invalidations\n",
-		total, len(files), candidates, invalidates)
+	fmt.Fprintf(e.Out, "radar: %d entries across %d radar files — %d candidates, %d invalidations\n",
+		total, parsed, candidates, invalidates)
 	return nil
 }

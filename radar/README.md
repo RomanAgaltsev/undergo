@@ -29,6 +29,12 @@ Tags are exactly `candidate`, `invalidates` and `no action`. A candidate names
 the **track** it would land in; an invalidation names the **task id** it breaks,
 and `undergo radar-check` fails if that task does not exist.
 
+Era E4 is the exception to one-file-per-release. Most of Go 1.0–1.9 has been
+superseded, so it is harvested into `versions/go1.0-1.9.md` — the durable
+surprises only, each naming the release it came from. Ten thin files would
+misrepresent the yield. This is also why `radar-check` reports a count of
+*radar files* rather than of releases.
+
 ## What earns an entry
 
 A finding must be **observable from Go code** — measurable, printable, or
@@ -45,7 +51,7 @@ else has written:
 
 | Era | Versions | Status |
 |---|---|---|
-| E1 | 1.23 – 1.27 | this milestone |
-| E2 | 1.18 – 1.22 | later |
-| E3 | 1.10 – 1.17 | later |
-| E4 | 1.0 – 1.9 | later |
+| E1 | 1.23 – 1.27 | done — swept release by release |
+| E2 | 1.18 – 1.22 | done — swept release by release |
+| E3 | 1.10 – 1.17 | done — swept release by release |
+| E4 | 1.0 – 1.9 | done — **harvested into one file** |

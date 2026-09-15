@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/RomanAgaltsev/undergo/compare/v0.11.0...v0.12.0) (2026-09-15)
+
+
+### Features
+
+* **tasks:** M10 — sched and memmodel tracks ([#15](https://github.com/RomanAgaltsev/undergo/issues/15)) ([a635e5d](https://github.com/RomanAgaltsev/undergo/commit/a635e5d864d5f345a727f6d95121e13771f20d0f))
+
 ## [0.11.0](https://github.com/RomanAgaltsev/undergo/compare/v0.10.0...v0.11.0) (2026-09-14)
 
 

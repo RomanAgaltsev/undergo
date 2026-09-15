@@ -40,28 +40,162 @@ Every row below records a source: a `→ candidate` entry in `radar/versions/`, 
 a named reference. A row with no source behind it is drift, and gets deleted
 rather than kept out of politeness. Ideas may be borrowed; code may not.
 
+The historical sweep (M12) added 158 rows at once. That is a pool, not a
+backlog: a row is a lead with a citation, and most will never become tasks.
+
+193 rows against the radar's 194 candidates. The one difference is deliberate:
+"slice backing stores are stack-allocated in more cases" is a `→ candidate` in
+both 1.25 and 1.26 because the change was extended, and it is one lead, so it
+gets one row. Any other gap is a defect in one direction or the other.
+
 | Candidate | Track | Source | Built |
 |---|---|---|---|
 | Size-specialized allocation routines make small allocations (<80 bytes) up to 30% cheaper — A/B it with `GOEXPERIMENT=nosizespecializedmalloc` | `alloc` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Slice backing stores are stack-allocated in more cases — predict which `make` calls reach the heap, with `-d=variablemakehash=n` as the control | `alloc` | [Go 1.25](https://go.dev/doc/go1.25), extended in [1.26](https://go.dev/doc/go1.26) | `alloc/03-what-escapes`, `types/01-cap-growth` |
+| Heap metadata moved next to the object and allocation alignment fell from 16 bytes to 8 — which size classes changed, and by how much | `alloc` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| A goroutine's starting stack is sized from the average of its predecessors, not from a constant — so a function's first allocation depends on program history | `alloc` | [Go 1.19](https://go.dev/doc/go1.19) | — |
+| `strings.Trim` and friends became allocation-free for the no-op case — predict `AllocsPerRun` before and after | `alloc` | [Go 1.18](https://go.dev/doc/go1.18) | — |
+| `os.File.WriteString` stopped copying to a `[]byte` — one allocation removed by a compiler-level conversion rule | `alloc` | [Go 1.17](https://go.dev/doc/go1.17) | — |
+| Converting a small integer to an interface stopped allocating — where is the boundary, and what is the staticuint64s table | `alloc` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| Small-object allocation stopped degrading at high core counts — an answer that changes shape with `GOMAXPROCS` | `alloc` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| The page allocator stopped contending: large parallel allocations cross the 32 KiB boundary into a different allocator | `alloc` | [Go 1.14](https://go.dev/doc/go1.14) | `alloc/05-size-classes` measures the boundary |
+| `sync.Pool` retains objects across one GC via a victim cache — put, force one collection, `Get`; then force two | `alloc` | [Go 1.13](https://go.dev/doc/go1.13) | — |
+| The 1.13 escape-analysis rewrite changed which values reach the heap wholesale — a genuine two-toolchain version diff | `alloc` | [Go 1.13](https://go.dev/doc/go1.13) | — |
+| Memory profiles stopped overcounting large heap allocations — every pre-1.12 profile of an above-size-class allocation was wrong | `alloc` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| The `allocs` profile: bytes allocated ever against bytes live now, and why both are true of one program | `alloc` | [Go 1.11](https://go.dev/doc/go1.11) | `alloc/05-size-classes` uses the quantity |
+| The heap became sparse and lost its 512 GiB ceiling, fixing address-space conflicts under `-race` and cgo | `alloc` | [Go 1.11](https://go.dev/doc/go1.11) | — |
+| `strings.Builder` avoids `bytes.Buffer`'s copy in `String()` because its API forbids writing afterwards — the restriction *is* the optimisation | `alloc` | [Go 1.10](https://go.dev/doc/go1.10) | `alloc/01-zero-alloc-join` |
+| Contiguous growable stacks replaced segmented ones, and the starting size fell to 2048 bytes — where the "2 KB goroutine" number comes from | `alloc` | [Go 1.3](https://go.dev/doc/go1.3), [1.4](https://go.dev/doc/go1.4) | — |
 | The experimental portable `simd` package against a pure-Go baseline | `asm` | [Go 1.27](https://go.dev/doc/go1.27) | — |
+| Frameless `NOSPLIT` assembly is no longer automatically `NOFRAME` on amd64 — what a frame costs and what it buys | `asm` | [Go 1.21](https://go.dev/doc/go1.21) | `asm/03-register-abi` |
+| The register ABI reached arm64 and ppc64 — the same function, two calling conventions, one `-S` dump | `asm` | [Go 1.18](https://go.dev/doc/go1.18) | `asm/03-register-abi` |
+| Stack traces mark register-passed arguments as possibly inaccurate — the debugging cost of the register ABI, stated | `asm` | [Go 1.18](https://go.dev/doc/go1.18) | — |
+| arm64 keeps frame pointers in every function where amd64 does not — the price of `perf`-compatible unwinding, paid everywhere | `asm` | [Go 1.17](https://go.dev/doc/go1.17) | — |
+| Stack traces print arguments, and print `?` where a register-passed value is unknowable — the register ABI's debugging debt | `asm` | [Go 1.17](https://go.dev/doc/go1.17) | — |
+| The register calling convention on amd64, and the ABI0 adapters the transition needed | `asm` | [Go 1.17](https://go.dev/doc/go1.17) | `asm/03-register-abi` |
+| `go vet` learned that assembly must preserve BP — a register the Go ABI treats as callee-save and hand-written code forgets | `asm` | [Go 1.16](https://go.dev/doc/go1.16) | — |
+| `math/bits` carries a documented constant-time guarantee for `Add`, `Sub`, `Mul`, `RotateLeft` and `ReverseBytes` | `asm` | [Go 1.13](https://go.dev/doc/go1.13) | `asm/05-carry-chain` |
+| Frame pointers on linux/arm64 cost about 3% — a stated price for a debugging affordance | `asm` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| The assembler stopped rewriting `MOVL $0, AX` as `XORL`, because the peephole clobbered the condition flags | `asm` | [Go 1.10](https://go.dev/doc/go1.10) | `asm/05-carry-chain` is built on flags surviving |
+| `math/bits` functions are intrinsics: the portable Go body ships, compiles, and almost never runs — which ones, on which GOARCH | `asm` | [Go 1.9](https://go.dev/doc/go1.9) | `asm/05-carry-chain` |
 | PGO build overhead collapsed, and PGO now aligns hot loop blocks for 1–1.5% | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | `compiler/04-pgo-devirtualization` |
 | The compiler overlaps stack slots of locals with disjoint live ranges — predict a frame size, then move one line | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | `compiler/03-stack-slots` — which measured that it does NOT happen for address-taken locals |
+| An inliner that weighs the call site and not just the callee — a panic path discourages inlining where 1.11 encouraged it | `compiler` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| PGO devirtualizes more, and devirtualization now interleaves with inlining rather than running before it | `compiler` | [Go 1.22](https://go.dev/doc/go1.22) | `compiler/04-pgo-devirtualization` |
+| Linker symbol prefixes changed from `go.` to `go:` — every tool that parsed `-S` output by prefix broke | `compiler` | [Go 1.20](https://go.dev/doc/go1.20) | — |
+| PGO arrived as a preview that only inlined — the baseline any PGO measurement is against | `compiler` | [Go 1.20](https://go.dev/doc/go1.20) | `compiler/04-pgo-devirtualization` |
+| Large value switches became jump tables — predict the crossover count, and what makes a switch ineligible | `compiler` | [Go 1.19](https://go.dev/doc/go1.19) | — |
+| Functions containing range loops became inlinable — which loop shapes still block inlining | `compiler` | [Go 1.18](https://go.dev/doc/go1.18) | `compiler/01-inlining-budget` |
+| The inliner learned three new shapes at once in 1.16 — a budget task that is really an eligibility task | `compiler` | [Go 1.16](https://go.dev/doc/go1.16) | `compiler/01-inlining-budget` |
+| Bounds-check elimination learned about slice creation and about index types narrower than `int` | `compiler` | [Go 1.14](https://go.dev/doc/go1.14) | `compiler/02-bounds-checks` |
+| The compiler can emit inlining, escape, BCE and nil-check decisions as JSON (`-json`) — a structured alternative to parsing `-m` | `compiler` | [Go 1.14](https://go.dev/doc/go1.14) | — |
+| Mutex, RWMutex and Once fast paths were *restructured* to fit the inlining budget — a design technique visible in the source | `compiler` | [Go 1.13](https://go.dev/doc/go1.13) | `compiler/01-inlining-budget`, `memmodel/05-publication` |
+| Out-of-range panics name the index and the length — information the surviving bounds check must keep live to the point of failure | `compiler` | [Go 1.13](https://go.dev/doc/go1.13) | `compiler/02-bounds-checks` |
+| `-trimpath` removes file system paths from the binary — the flag M8 needed when identical source in differently-named directories produced different binary sizes | `compiler` | [Go 1.13](https://go.dev/doc/go1.13) | — |
+| Functions that do nothing but call another function became inlinable — and `runtime.Callers` stopped matching the source as a result | `compiler` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| Bounds-check elimination learned transitivity, arithmetic offsets, induction and shift narrowing — four abilities in one release | `compiler` | [Go 1.11](https://go.dev/doc/go1.11) | `compiler/02-bounds-checks` |
+| The map-clearing idiom `for k := range m { delete(m, k) }` became one runtime call — and why it cannot be `memclr` | `compiler` | [Go 1.11](https://go.dev/doc/go1.11) | `compiler/05-loop-lowering` grades the slice analogue |
+| Functions that call `panic` became inlinable — the small argument-checking wrapper stopped being penalised | `compiler` | [Go 1.11](https://go.dev/doc/go1.11) | — |
+| The SSA back end (amd64 in 1.7, every architecture in 1.8) — the platform every later `compiler` finding is written against | `compiler` | [Go 1.7](https://go.dev/doc/go1.7), [1.8](https://go.dev/doc/go1.8) | — |
 | Closures may now share a code pointer, so comparing function pointers misleads in more cases | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
+| A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | cgo call overhead is down about 30% — measure the boundary | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | The heap base address is randomized on 64-bit: which observations stop being reproducible, and which never were | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | `GOAMD64=v3` fused multiply-add changes the exact floating-point values a program produces | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | A Go 1.21 compiler bug delayed nil checks; the same program panics on 1.25 — a toolchain-pair task | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | `//go:linkname` to unmarked standard-library symbols is now refused | `edges` | [Go 1.23](https://go.dev/doc/go1.23) | `edges/01-linkname` |
-| A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
+| Loop variables are created anew each iteration — gated on the `go.mod` language version, so one toolchain gives both answers | `edges` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| `GODEBUG` and the `go` line became the compatibility mechanism — how a behaviour change ships without breaking the Go 1 promise | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
+| `panic(nil)` stopped being nil: `recover()` now returns a `*runtime.PanicNilError`, gated on the go line | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | `edges/03-panic-vs-fatal` |
+| Package initialisation order became a specified algorithm rather than an implementation detail | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
+| The cgo call boundary got an order of magnitude cheaper — the number people quote for "cgo is slow" has a date on it | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
+| `runtime.Pinner` — pinning an object so C may hold it, and what the collector gives up to allow it | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
+| `unsafe.SliceData`, `unsafe.String` and `unsafe.StringData` completed the set — the supported spelling of the zero-copy conversion | `edges` | [Go 1.20](https://go.dev/doc/go1.20) | `types/03-zero-copy-strings` |
+| cgo is disabled by default when no C toolchain is present — so whether a program builds depends on the machine, not the source | `edges` | [Go 1.20](https://go.dev/doc/go1.20) | — |
+| Fatal error tracebacks got shorter unless you ask (`GOTRACEBACK`) — what a crash is allowed to hide | `edges` | [Go 1.19](https://go.dev/doc/go1.19) | — |
+| Importing `os` raises the process's file descriptor limit to the hard maximum — an import with a side effect on the kernel | `edges` | [Go 1.19](https://go.dev/doc/go1.19) | — |
+| `GOAMD64` selects a microarchitecture level — one source, four instruction sets, and sometimes different floating-point results | `edges` | [Go 1.18](https://go.dev/doc/go1.18) | — |
+| Functions containing closures became inlinable, and one function's code pointers multiplied as a result | `edges` | [Go 1.17](https://go.dev/doc/go1.17) | — |
+| `unsafe.Add` and `unsafe.Slice` — the two operations that previously required a `uintptr` round trip | `edges` | [Go 1.17](https://go.dev/doc/go1.17) | `edges/05-unsafe-pointer-rules` |
+| `GODEBUG=inittrace=1` prints what every package `init` cost in time and bytes | `edges` | [Go 1.16](https://go.dev/doc/go1.16) | — |
+| `go test` now fails a test that calls `os.Exit(0)` mid-run — a passing suite that ran nothing | `edges` | [Go 1.16](https://go.dev/doc/go1.16) | — |
+| Chained `unsafe.Pointer`-to-`uintptr` conversions became illegal — the loophole in pattern 3 closed | `edges` | [Go 1.15](https://go.dev/doc/go1.15) | `edges/05-unsafe-pointer-rules` |
+| `-race` and `-msan` began implying `-d=checkptr` on every platform — why the race gate finds pointer bugs that vet does not | `edges` | [Go 1.15](https://go.dev/doc/go1.15) | `edges/05-unsafe-pointer-rules` |
+| `panic` prints derived types rather than bare addresses — what a panic message is allowed to know about its value | `edges` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| `checkptr`'s two rules, stated exactly: alignment on conversion, and same-object arithmetic | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | `edges/05-unsafe-pointer-rules` |
+| `defer` became almost free — for *most* uses; which ones still fall back to the heap is the whole question | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | `edges/04-defer-tiers` |
+| `math.FMA(x, y, z)` and `x*y + z` can produce different `float64` values — predict which inputs expose the gap | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | — |
+| `runtime.Goexit` can no longer be aborted by a recursive `panic`/`recover` — a third exit path that is neither | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | `edges/03-panic-vs-fatal` |
+| `hash/maphash` is consistent within a process and different across them — the guarantee people accidentally rely on | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | — |
+| `defer` got 30% faster in 1.13 and nearly free in 1.14 — two mechanisms, two consecutive releases | `edges` | [Go 1.13](https://go.dev/doc/go1.13) | `edges/04-defer-tiers` |
+| `Sin`, `Cos`, `Tan` stopped being bit-for-bit reproducible across releases — Go promises accuracy, not reproducibility | `edges` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| Converting a nil `unsafe.Pointer` to `uintptr` and back with arithmetic is invalid — the obvious-looking loophole in pattern 3 | `edges` | [Go 1.12](https://go.dev/doc/go1.12) | `edges/05-unsafe-pointer-rules` |
+| The compiler rejects an unused type switch guard — a case where gc was the lenient implementation and gccgo was not | `edges` | [Go 1.11](https://go.dev/doc/go1.11) | — |
+| Stack traces stopped including `<autogenerated>` wrappers, so a `runtime.Caller` skip count finally matched the source | `edges` | [Go 1.10](https://go.dev/doc/go1.10) | — |
+| Test results are cached, and `-count=1` is the documented escape — what the cache keys on, and when it is wrong | `edges` | [Go 1.10](https://go.dev/doc/go1.10) | the verifier depends on it |
+| `go test` runs a high-confidence subset of `go vet` first — which is not the same set `go vet` runs | `edges` | [Go 1.10](https://go.dev/doc/go1.10) | `edges/05-unsafe-pointer-rules` keeps snippets in testdata because of it |
+| A `time.Time` carries two clocks: which operations use the monotonic reading, which strip it, and why `==` is treacherous | `edges` | [Go 1.9](https://go.dev/doc/go1.9) | — |
+| Go pointers passed to C: the sharing rules, enforced at run time, and `GODEBUG=cgocheck` | `edges` | [Go 1.6](https://go.dev/doc/go1.6) | — |
+| The runtime assumes pointer-typed means pointer: an integer in a pointer slot crashes, a pointer in an integer slot is silent and fatal later | `edges` | [Go 1.3](https://go.dev/doc/go1.3), [1.4](https://go.dev/doc/go1.4) | `edges/05-unsafe-pointer-rules` |
 | Green Tea cuts GC overhead 10–40%, and `GOEXPERIMENT=nogreenteagc` makes it an A/B within one toolchain | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | Green Tea's further ~10% on Ice Lake / Zen 4 and newer — an answer that depends on the CPU | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
+| Stop-the-world pauses split into a stopping phase and a total — two numbers where the trace used to report one | `gc` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| Transparent huge pages are managed explicitly on Linux — the runtime overriding a kernel policy, with a measurable result | `gc` | [Go 1.21](https://go.dev/doc/go1.21) | — |
+| `GOGC` and `GOMEMLIMIT` became readable as `runtime/metrics` values — configuration a program can inspect about itself | `gc` | [Go 1.21](https://go.dev/doc/go1.21) | — |
+| The collector's own internal structures got 2% cheaper — the cost of the collector's bookkeeping, separate from its work | `gc` | [Go 1.20](https://go.dev/doc/go1.20) | — |
+| `GOMEMLIMIT` is a soft limit that holds even with `GOGC=off` — the two knobs are not alternatives | `gc` | [Go 1.19](https://go.dev/doc/go1.19) | — |
+| The GC CPU limiter caps collection at 50% of CPU — what a program does when it cannot collect fast enough | `gc` | [Go 1.19](https://go.dev/doc/go1.19) | — |
+| The pacer started counting stack scanning and globals — the heap goal stopped being a function of the heap alone | `gc` | [Go 1.18](https://go.dev/doc/go1.18) | `gc/05-gctrace` |
+| `MADV_DONTNEED` returned as the default so RSS reflects physical memory again — the end of a four-year arc | `gc` | [Go 1.16](https://go.dev/doc/go1.16) | — |
+| `runtime/metrics` arrived: a supported, versioned alternative to parsing `gctrace` lines | `gc` | [Go 1.16](https://go.dev/doc/go1.16) | `gc/05-gctrace` parses the unsupported one |
+| `ReadMemStats` stopped stopping the world — the instrument stopped perturbing the measurement | `gc` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| The runtime returns memory promptly after a heap spike, and RSS still does not move — what "returned" means | `gc` | [Go 1.13](https://go.dev/doc/go1.13) | — |
+| `MADV_FREE` became the default and RSS stopped being the truth for four releases — which measurement changes at each step | `gc` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| Sweeping got faster when most of the heap survives — the cost is paid by the *allocator*, so it shows up as allocation latency | `gc` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| The collector's CPU fraction fell while its duration rose and the total stayed put — three quantities, two of them moved | `gc` | [Go 1.10](https://go.dev/doc/go1.10) | `gc/05-gctrace` |
+| Stop-the-world stack rescanning was eliminated by the hybrid write barrier: pauses fell from milliseconds to microseconds | `gc` | [Go 1.8](https://go.dev/doc/go1.8) | — |
+| The collector became concurrent — the release every fact in the `gc` track dates from | `gc` | [Go 1.5](https://go.dev/doc/go1.5) | — |
 | Generic methods: how many instantiations does GC-shape stenciling emit, and how does it differ from a generic function? | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | `generics/01-instantiation-count`, `generics/02-generic-methods` |
 | Generic type aliases are fully supported — does a parameterized alias add an instantiation, or share one? | `generics` | [Go 1.24](https://go.dev/doc/go1.24) | — |
 | `new` accepts an expression, so `new(f(x))` compiles — a version-diff task a pre-1.26 model gets wrong | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
 | A generic type may refer to itself in its own type parameter list (`type Adder[A Adder[A]]`) | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
 | Function type inference generalized to assignment and conversion contexts — not gated by the go.mod language version, so a true A/B needs an older toolchain | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | `generics/05-inference-limits` — the assignment shape only; no 1.26-vs-1.27 A/B, see the radar note |
+| Type inference gained four specific new abilities in one release — predict which of a set of calls compile | `generics` | [Go 1.21](https://go.dev/doc/go1.21) | `generics/05-inference-limits` |
+| `comparable` may be satisfied by types that are not strictly comparable — a constraint whose name stopped meaning what it says | `generics` | [Go 1.20](https://go.dev/doc/go1.20) | — |
+| Generics arrived with six limitations stated as a list — which of them are still true | `generics` | [Go 1.18](https://go.dev/doc/go1.18) | `generics/03-constraint-satisfaction` |
+| `context.Background()` and `context.TODO()` can now compare equal — two sentinels that stopped being distinguishable | `iface` | [Go 1.21](https://go.dev/doc/go1.21) | `iface/05-interface-comparison` |
+| The spec spelled out how structs and arrays are compared, including the freedom to stop early | `iface` | [Go 1.20](https://go.dev/doc/go1.20) | `iface/05-interface-comparison` |
+| `netip.Addr` is comparable and `net.IP` is not — a deliberate redesign around the comparability rule | `iface` | [Go 1.18](https://go.dev/doc/go1.18) | `iface/05-interface-comparison` |
+| `go vet` learned to spot impossible interface assertions — same method name, different signature | `iface` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| Overlapping interface embedding became legal, but only for *identical* signatures — predict which declarations compile | `iface` | [Go 1.14](https://go.dev/doc/go1.14) | — |
 | Range-over-function iterators and the `iter` package — what `break`, `return` and `goto` do to the yield contract | `iter` | [Go 1.23](https://go.dev/doc/go1.23) | `iter/02-yield-contract`, `iter/01-adapters`, `iter/04-goto-and-labels` |
+| Heap metadata moved next to the object and alignment fell from 16 to 8 — what that does to a struct's real footprint | `layout` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| `atomic.Int64` aligns itself even on 32-bit, where a bare `int64` field does not — the fix for a decade of alignment panics | `layout` | [Go 1.19](https://go.dev/doc/go1.19) | `layout/05-alignment-64bit` |
+| Functions became 32-byte aligned to dodge a CPU erratum — code alignment as a correctness measure, not a performance one | `layout` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| `int` is implementation-defined and became 64-bit on 64-bit platforms in 1.1 — so `unsafe.Sizeof` is a property of the build | `layout` | [Go 1.1](https://go.dev/doc/go1.1) | `layout/01-struct-padding` |
+| `sync.OnceFunc`, `OnceValue` and `OnceValues` — the publication pattern given three standard spellings | `memmodel` | [Go 1.21](https://go.dev/doc/go1.21) | `memmodel/05-publication` |
+| `sync.Map` gained `Swap`, `CompareAndSwap` and `CompareAndDelete` — atomic update on a concurrent map | `memmodel` | [Go 1.20](https://go.dev/doc/go1.20) | — |
+| The memory model was revised to pin Go to sequential consistency for `sync/atomic` — the document, not the implementation, changed | `memmodel` | [Go 1.19](https://go.dev/doc/go1.19) | `memmodel/01-store-buffering` |
+| The race detector got faster and lost its 8192-goroutine ceiling — what the detector can and cannot see | `memmodel` | [Go 1.19](https://go.dev/doc/go1.19) | `memmodel/02-benign-race` |
+| `sync.Mutex.TryLock` and `RWMutex.TryLock` — a lock operation with no happens-before edge on failure | `memmodel` | [Go 1.18](https://go.dev/doc/go1.18) | — |
+| `atomic.Value` gained `Swap` and `CompareAndSwap` — read-modify-write on a publication slot | `memmodel` | [Go 1.17](https://go.dev/doc/go1.17) | `memmodel/05-publication` |
+| The race detector started catching races it used to miss — a "clean" pre-1.16 run proves less than it seemed to | `memmodel` | [Go 1.16](https://go.dev/doc/go1.16) | `memmodel/02-benign-race` |
+| `sync.Map`: a read-only snapshot published through an atomic plus a dirty map behind a mutex, promoted on a miss count | `memmodel` | [Go 1.9](https://go.dev/doc/go1.9) | `memmodel/05-publication` |
+| `reflect.TypeFor[T]()` — a type descriptor without a value, and without `(*T)(nil)` | `reflect` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| `reflect.ValueOf` stopped forcing its argument to the heap — reflection stopped being an escape hatch in the literal sense | `reflect` | [Go 1.21](https://go.dev/doc/go1.21) | `alloc/03-what-escapes` |
+| The linker deletes dead global map variables — a `map` initialised in `init` and never read costs nothing | `reflect` | [Go 1.21](https://go.dev/doc/go1.21) | — |
+| `reflect.Value.Comparable` and `Equal` — asking whether a value *can* be compared before comparing it | `reflect` | [Go 1.20](https://go.dev/doc/go1.20) | `iface/05-interface-comparison` |
+| `reflect.Len` and `Cap` accept a pointer to an array — the one place reflection auto-dereferences | `reflect` | [Go 1.19](https://go.dev/doc/go1.19) | — |
+| `reflect.MapIter.Reset` makes reflective map iteration allocation-free — the third of three releases to get there | `reflect` | [Go 1.18](https://go.dev/doc/go1.18) | — |
+| `reflect.ConvertibleTo` stopped being a guarantee: a convertible pair whose conversion panics | `reflect` | [Go 1.17](https://go.dev/doc/go1.17) | `types/05-compiler-free-conversions` |
+| The linker prunes reflection-reachable symbols more aggressively — what `reflect.MethodByName` costs a binary | `reflect` | [Go 1.16](https://go.dev/doc/go1.16) | — |
+| `reflect.Zero` stopped allocating, and two zero values stopped comparing the way they used to | `reflect` | [Go 1.16](https://go.dev/doc/go1.16) | — |
+| Binary size fell 5% by dropping type metadata the runtime no longer needed — reflection's cost, stated as a number | `reflect` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| `reflect` closed a hole in unexported field access — a rule the package had been failing to enforce | `reflect` | [Go 1.15](https://go.dev/doc/go1.15) | `reflect/03-settability` |
+| `reflect.StructOf` gained unexported fields via `PkgPath` — the export boundary as something you construct | `reflect` | [Go 1.14](https://go.dev/doc/go1.14) | `reflect/02-structof` |
+| `reflect.Value.IsZero` arrived in 1.13 and was corrected in 1.22 for negative zero — one function, two definitions of zero | `reflect` | [Go 1.13](https://go.dev/doc/go1.13) | — |
+| `reflect.MapIter` — reflective map iteration that does not allocate a slice of every key | `reflect` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| An embedded pointer to an unexported struct type used to punch a hole through the export check — `CanSet` was wrong for years | `reflect` | [Go 1.10](https://go.dev/doc/go1.10) | `reflect/03-settability` |
 | The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/05-goroutine-leak-profile` |
 | Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/03-timer-channels` |
 | `GOMAXPROCS` is container-aware and updates itself as the cgroup quota changes | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
@@ -70,13 +204,45 @@ rather than kept out of politeness. Ideas may be borrowed; code may not.
 | A new runtime-internal mutex (`GOEXPERIMENT=nospinbitmutex`) — only worth a task if the spin/park boundary can be made visible | `sched` | [Go 1.24](https://go.dev/doc/go1.24) | — |
 | Timers and tickers are collected without `Stop`, and the behaviour is gated on the `go.mod` go line rather than the toolchain | `sched` | [Go 1.23](https://go.dev/doc/go1.23) | `sched/03-timer-channels` |
 | Windows timer resolution went from 15.6ms to 0.5ms — an answer that depends on the OS | `sched` | [Go 1.23](https://go.dev/doc/go1.23) | — |
+| Mutex profiles now scale by the number of blocked goroutines — the third correction the radar found to Go's contention profiling | `sched` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| The execution tracer was rewritten and can be streamed — traces stopped being a whole-program stop | `sched` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| Stack traces name the goroutine that created each goroutine — the 1.11 opt-in ancestor made unconditional | `sched` | [Go 1.21](https://go.dev/doc/go1.21) | `sched/05-goroutine-leak-profile` |
+| New metrics for `GOMAXPROCS`, cgo calls and mutex wait — runtime state a program can read about itself | `sched` | [Go 1.20](https://go.dev/doc/go1.20) | — |
+| The CPU profiler moved to per-thread timers on Linux — a profiler that had been under-sampling busy threads | `sched` | [Go 1.18](https://go.dev/doc/go1.18) | — |
+| Goroutine scheduling latency became a `runtime/metrics` distribution — how long a runnable goroutine waits for a P | `sched` | [Go 1.17](https://go.dev/doc/go1.17) | `sched/01-runnext-ordering` |
+| Block profiles stopped favouring rare long events — a debiasing fix to an instrument, not to the program | `sched` | [Go 1.17](https://go.dev/doc/go1.17) | — |
+| Non-blocking receives on closed channels got faster — the fast path of the idiom every cancellation uses | `sched` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| `os` and `net` started retrying on `EINTR` — async preemption's signals were interrupting syscalls | `sched` | [Go 1.15](https://go.dev/doc/go1.15) | `sched/04-async-preemption` |
+| Goroutines became asynchronously preemptible — on every platform *except* four, where the old behaviour still holds | `sched` | [Go 1.14](https://go.dev/doc/go1.14) | `sched/04-async-preemption` |
+| Unlocking a contended mutex hands the CPU directly to the next waiter — which changes acquisition *order*, not just speed | `sched` | [Go 1.14](https://go.dev/doc/go1.14) | `sched/01-runnext-ordering` |
+| Timers became cheaper "with no user visible changes" — a claim that later releases falsified | `sched` | [Go 1.14](https://go.dev/doc/go1.14) | `sched/03-timer-channels` |
+| Timer and deadline code started scaling with CPU count — step one of a rewrite that spans six releases | `sched` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| Non-blocking descriptors use the runtime poller instead of a thread — the difference between costing a thread and costing nothing | `sched` | [Go 1.11](https://go.dev/doc/go1.11) | — |
+| `GODEBUG=tracebackancestors=N` extends a traceback with the stacks that created each goroutine | `sched` | [Go 1.11](https://go.dev/doc/go1.11) | `sched/05-goroutine-leak-profile` |
+| The mutex profile learned about reader/writer contention — a starving writer used to produce an empty profile | `sched` | [Go 1.11](https://go.dev/doc/go1.11) | — |
+| `LockOSThread` calls nest, and a locked thread is retired rather than reused — lock and unlock in a loop and count threads | `sched` | [Go 1.10](https://go.dev/doc/go1.10) | — |
+| The 1024 ceiling on `GOMAXPROCS` was removed | `sched` | [Go 1.10](https://go.dev/doc/go1.10) | — |
+| `GOMAXPROCS` defaults to the number of cores — which is why every `sched` task must pin it | `sched` | [Go 1.5](https://go.dev/doc/go1.5) | — |
+| Preemption at (non-inlined) function entry: for twelve years, whether a loop could be preempted depended on an inlining decision | `sched` | [Go 1.2](https://go.dev/doc/go1.2) | `sched/04-async-preemption`, `compiler/01-inlining-budget` |
 | The builtin map is a Swiss table — predict real memory for a key count, A/B with `GOEXPERIMENT=noswissmap` | `types` | [Go 1.24](https://go.dev/doc/go1.24) | `types/04-map-memory` — memory half only; the `noswissmap` A/B is still open |
 | `sync.Map` is a hash-trie — the contention curve, and what the old implementation was warming up | `types` | [Go 1.24](https://go.dev/doc/go1.24) | — |
+| Shrinking a slice now zeroes the tail beyond the new length — `s = s[:0]` stopped keeping its elements alive | `types` | [Go 1.22](https://go.dev/doc/go1.22) | `types/02-aliasing` |
+| `reflect.Value.IsZero` agrees with `==` for negative zero — a correction to a definition that looked obvious | `types` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| Slice-to-array conversion (not to array *pointer*) — which lengths panic, and at what point | `types` | [Go 1.20](https://go.dev/doc/go1.20) | — |
+| `append`'s growth formula changed: the 1024-element doubling threshold became a smooth 1.25× ramp | `types` | [Go 1.18](https://go.dev/doc/go1.18) | `types/01-cap-growth` |
+| `strings.Clone` exists specifically to stop sharing memory — when a substring keeps a megabyte alive | `types` | [Go 1.18](https://go.dev/doc/go1.18) | `types/02-aliasing` |
+| A type conversion that panics — the shape that made `ConvertibleTo` stop being a guarantee | `types` | [Go 1.17](https://go.dev/doc/go1.17) | `types/05-compiler-free-conversions` |
+| `fmt` prints maps in key-sorted order while `range` stays randomised — both true at once, with stated ordering rules for `NaN` keys | `types` | [Go 1.12](https://go.dev/doc/go1.12) | — |
+| `append(s, make([]T, n)...)` became one allocation at the final size rather than two | `types` | [Go 1.11](https://go.dev/doc/go1.11) | `types/01-cap-growth` |
+| `bytes.Split` and `Fields` clip returned subslices to capacity so appending cannot overwrite the input | `types` | [Go 1.10](https://go.dev/doc/go1.10) | `types/02-aliasing` |
+| Type aliases: `reflect.TypeOf` cannot tell `T1 = T2` apart, and `case byte:` with `case uint8:` is a compile error | `types` | [Go 1.9](https://go.dev/doc/go1.9) | — |
+| Three-index slicing `a[2:4:7]` — the only way to hand out a window without handing out the room behind it | `types` | [Go 1.2](https://go.dev/doc/go1.2) | `types/02-aliasing` |
 | `runtime.AddCleanup` vs `SetFinalizer` — four enumerated differences, four predictions | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | `weak/02-cleanup-vs-finalizer` |
 | The `weak` package — the floor for the whole track | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | `weak/01-weak-cache` |
 | `AddCleanup` runs concurrently and `unique` handles reclaim in a single GC cycle — every pre-1.25 measurement is stale | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | `weak/02-cleanup-vs-finalizer` + `weak/05-single-cycle-reclaim` |
 | `GODEBUG=checkfinalizers=1` names the classic finalizer mistakes — plant each one | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | `weak/03-lifetime-traps` |
 | The `unique` package: interning where handle comparison reduces to a pointer compare | `weak` | [Go 1.23](https://go.dev/doc/go1.23) | `weak/04-unique-interning` |
+| More precise liveness analysis made finalizers run sooner — and made "still in scope" stop meaning "still alive" | `weak` | [Go 1.12](https://go.dev/doc/go1.12) | `weak/05-single-cycle-reclaim` |
 
 ## Invalidated by a release
 
@@ -91,19 +257,27 @@ create, and what does it invalidate. The radar also runs backwards over Go's
 whole history, because a behaviour that *changed* is the best kind of task —
 "this was true in 1.21; is it still?"
 
-Sweep order, most actionable first:
+Sweep order, most actionable first. **The sweep is complete: every Go release
+from 1.0 to 1.27 is triaged**, 271 entries across 19 files, 194 candidates and
+1 invalidation.
 
 | Era | Versions | Status |
 |---|---|---|
 | E1 | 1.23 – 1.27 | **done** — 60 entries across 5 releases: 36 candidates, 1 invalidation. Swept twice: the first pass (2026-09-11) read the runtime, toolchain and library sections and caught three language changes but missed six; the second (2026-09-13) read every release's "Changes to the language" section on its own. |
-| E2 | 1.18 – 1.22 | later |
-| E3 | 1.10 – 1.17 | later |
-| E4 | 1.0 – 1.9 | later |
+| E2 | 1.18 – 1.22 | **done** — 80 entries across 5 releases: 59 candidates, 0 invalidations. |
+| E3 | 1.10 – 1.17 | **done** — 114 entries across 8 releases: 85 candidates, 0 invalidations. The densest era: the SSA optimisations, the escape-analysis rewrite, async preemption and `checkptr` all land here. |
+| E4 | 1.0 – 1.9 | **done** — harvested rather than swept, into one file: 17 entries, 14 candidates. Ten thin files would have misrepresented the yield. |
+
+That the historical sweep produced **zero invalidations** is itself a finding.
+The one invalidation on record came from E1 — the newest era, where the
+catalogue's answers are youngest and least settled. Old behaviour that survived
+to 1.27 is old behaviour that has stopped moving.
 
 Output lands in `radar/versions/go1.NN.md`, each entry tagged `→ candidate`,
 `→ invalidates <task-id>`, or `→ no action`. `undergo radar-check` runs in CI and
 fails if an invalidation names a task that does not exist, so the dataset cannot
-rot as the catalogue changes.
+rot as the catalogue changes. Era E4 is the one exception to one file per
+release, which is why the check counts *radar files*.
 
 ## Standing decisions
 

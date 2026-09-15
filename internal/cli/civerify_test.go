@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/RomanAgaltsev/undergo/internal/manifest"
 	"github.com/RomanAgaltsev/undergo/internal/seal"
 )
 
@@ -87,6 +88,44 @@ func TestCIVerifyWritesFailureLogButNotItsContents(t *testing.T) {
 	}
 	if strings.Contains(combined, "totallyUndefinedHelper") {
 		t.Errorf("gate 2 printed the captured output instead of only its path:\n%s", combined)
+	}
+}
+
+// A predict task's slot verdicts are safe to print — the names are public and
+// predict.Check never prints a measured value — so a CI log can say which
+// question failed. Nothing else from the captured output may be included.
+func TestSlotVerdictsOnlyForPredictAndOnlyNames(t *testing.T) {
+	const output = `=== RUN   TestPredictions
+    sb_test.go:21: slot "plain_00_observed": correct
+    sb_test.go:21: slot "atomic_00_observed": incorrect
+    sb_test.go:21: slot "third_slot": no prediction
+    sb_test.go:21: 1/3 slots correct
+package padding // solved
+--- FAIL: TestPredictions`
+
+	got := slotVerdicts(&manifest.Task{Mode: manifest.ModePredict}, output)
+	if !strings.Contains(got, `slot "atomic_00_observed": incorrect`) {
+		t.Errorf("the failing slot was not named: %q", got)
+	}
+	if !strings.Contains(got, `slot "third_slot": no prediction`) {
+		t.Errorf("a missing prediction was not named: %q", got)
+	}
+	if strings.Contains(got, "plain_00_observed") {
+		t.Errorf("a passing slot should not be listed: %q", got)
+	}
+	if strings.Contains(got, "slots correct") {
+		t.Errorf("the summary line should not be listed: %q", got)
+	}
+	if strings.Contains(got, "package padding") {
+		t.Errorf("non-slot output leaked into the printed verdicts: %q", got)
+	}
+
+	// A build task's output can contain the reference source, so none of it is
+	// printed — not even lines that look like slot verdicts.
+	for _, mode := range []manifest.Mode{manifest.ModeBuild, manifest.ModeOptimize, manifest.ModeReview} {
+		if v := slotVerdicts(&manifest.Task{Mode: mode}, output); v != "" {
+			t.Errorf("mode %s should print nothing, got %q", mode, v)
+		}
 	}
 }
 

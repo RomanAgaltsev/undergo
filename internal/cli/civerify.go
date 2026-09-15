@@ -155,12 +155,44 @@ func proveOne(e Env, t *manifest.Task) error {
 		return err
 	}
 	if !passed {
+		where := ""
 		if path, werr := writeFailureLog(e, t.ID, sink.Bytes()); werr == nil {
-			return fmt.Errorf("frozen tests did not pass; output written to %s", path)
+			where = "; output written to " + path
 		}
-		return fmt.Errorf("frozen tests did not pass")
+		if verdicts := slotVerdicts(t, sink.String()); verdicts != "" {
+			return fmt.Errorf("frozen tests did not pass (%s)%s", verdicts, where)
+		}
+		return fmt.Errorf("frozen tests did not pass%s", where)
 	}
 	return nil
+}
+
+// slotVerdicts names the slots a failing predict task got wrong, so a CI log
+// says which question failed rather than only that something did.
+//
+// This is safe to print, and only for a predict task. predict.Check emits one
+// line per slot of the form `slot "name": correct` — the slot names are already
+// public in task.yaml, and the package deliberately never prints a measured
+// value, because doing so would hand over the answer. Nothing else from the
+// captured output is included: a build or optimize task's output can contain
+// the overlaid reference source, which must never reach a public log.
+func slotVerdicts(t *manifest.Task, output string) string {
+	if t.Mode != manifest.ModePredict {
+		return ""
+	}
+	var wrong []string
+	for _, line := range strings.Split(output, "\n") {
+		text := strings.TrimSpace(line)
+		i := strings.Index(text, `slot "`)
+		if i < 0 || strings.HasSuffix(text, ": correct") {
+			continue
+		}
+		wrong = append(wrong, text[i:])
+	}
+	if len(wrong) == 0 {
+		return ""
+	}
+	return strings.Join(wrong, "; ")
 }
 
 // writeFailureLog saves a failing task's captured output where a maintainer can

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.1](https://github.com/RomanAgaltsev/undergo/compare/v0.13.0...v0.13.1) (2026-09-15)
+
+
+### Documentation
+
+* **radar:** M12 — the historical sweep, eras E2 to E4 ([#19](https://github.com/RomanAgaltsev/undergo/issues/19)) ([0c21a1b](https://github.com/RomanAgaltsev/undergo/commit/0c21a1b031f7ea658ac6ce2187ae3f30c7142a2b))
+
 ## [0.13.0](https://github.com/RomanAgaltsev/undergo/compare/v0.12.0...v0.13.0) (2026-09-15)
 
 

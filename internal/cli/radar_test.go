@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -104,5 +107,65 @@ func TestCandidateTargetIsATrackNotATask(t *testing.T) {
 		{Heading: "D", Tag: "candidate", Target: ""},
 	}, map[string]bool{}); err == nil {
 		t.Error("a candidate with no track is not actionable and must fail")
+	}
+}
+
+// radarRepo extends repo with a radar/versions directory holding the given
+// files, keyed by name.
+func radarRepo(t *testing.T, files map[string]string) Env {
+	t.Helper()
+	e := repo(t)
+	dir := filepath.Join(e.Root, "radar", "versions")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for name, body := range files {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return e
+}
+
+// The summary counts files, not releases: era E4 is one file covering ten of
+// them, so calling the number "releases" would misreport the dataset.
+func TestRadarCheckSummaryCountsFiles(t *testing.T) {
+	e := radarRepo(t, map[string]string{
+		"go1.27.md":    "# Go 1.27\n\nSource: https://go.dev/doc/go1.27\n\n## A finding\n→ candidate | alloc\nWhy.\n",
+		"go1.0-1.9.md": "# Go 1.0 – 1.9\n\nSource: https://go.dev/doc/devel/release\n\n## Another\n→ no action\nWhy not.\n",
+	})
+	var out bytes.Buffer
+	e.Out = &out
+
+	if err := RadarCheck(e, nil); err != nil {
+		t.Fatalf("RadarCheck: %v", err)
+	}
+	got := out.String()
+	if !strings.Contains(got, "2 radar files") {
+		t.Errorf("the summary should count files:\n%s", got)
+	}
+	if strings.Contains(got, "releases") {
+		t.Errorf("the summary should not call files releases:\n%s", got)
+	}
+}
+
+// A directory or a non-Markdown file in radar/versions is skipped by the loop,
+// so it must not be counted either.
+func TestRadarCheckCountsOnlyParsedFiles(t *testing.T) {
+	e := radarRepo(t, map[string]string{
+		"go1.27.md": "# Go 1.27\n\nSource: https://go.dev/doc/go1.27\n\n## A finding\n→ candidate | alloc\nWhy.\n",
+		"notes.txt": "not markdown",
+	})
+	if err := os.MkdirAll(filepath.Join(e.Root, "radar", "versions", "drafts"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	e.Out = &out
+
+	if err := RadarCheck(e, nil); err != nil {
+		t.Fatalf("RadarCheck: %v", err)
+	}
+	if got := out.String(); !strings.Contains(got, "1 radar file") {
+		t.Errorf("only the one parsed file should be counted:\n%s", got)
 	}
 }

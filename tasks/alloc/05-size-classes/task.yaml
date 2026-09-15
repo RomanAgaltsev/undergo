@@ -1,0 +1,15 @@
+schema: 1
+id: alloc/05-size-classes
+title: "What a byte slice really costs"
+mode: predict
+track: alloc
+difficulty: 3
+estimate: 35m
+tags: [alloc, sizeclasses, tinyallocator, malloc, pages]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [n1, n8, n9, n17, n33, n600, n1000, n32768, n32769, one_pointer]
+inspired_by: "https://go.dev/src/runtime/sizeclasses.go"
+deprecated: false

@@ -1,0 +1,15 @@
+schema: 1
+id: types/05-compiler-free-conversions
+title: "The conversions that are not conversions"
+mode: predict
+track: types
+difficulty: 4
+estimate: 35m
+tags: [types, strings, conversions, alloc, compiler]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [map_index, comparison, range_over, type_switch, assignment]
+inspired_by: "https://go.dev/ref/spec#Conversions"
+deprecated: false

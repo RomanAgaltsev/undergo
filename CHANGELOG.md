@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/RomanAgaltsev/undergo/compare/v0.12.0...v0.13.0) (2026-09-15)
+
+
+### Features
+
+* **tasks:** M11 — the floor sweep, every track at five ([#17](https://github.com/RomanAgaltsev/undergo/issues/17)) ([e79a6cc](https://github.com/RomanAgaltsev/undergo/commit/e79a6cc83a6819df9064b0ac5c80a451c7c24932))
+
 ## [0.12.0](https://github.com/RomanAgaltsev/undergo/compare/v0.11.0...v0.12.0) (2026-09-15)
 
 

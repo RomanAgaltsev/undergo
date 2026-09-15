@@ -1,0 +1,12 @@
+schema: 1
+id: concurrency/08-close-cascade
+title: "Fan-out, fan-in, and closing the cascade"
+mode: build
+track: concurrency
+difficulty: 4
+estimate: 50m
+tags: [concurrency, pipeline, fan-out, fan-in, cancellation, goroutine-leak]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "go-concurrency kata 13 — pipeline patterns"

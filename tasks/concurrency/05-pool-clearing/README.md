@@ -8,7 +8,7 @@
 "At any time" is the contract. It is not the behaviour. The behaviour is
 specific, it changed once, and it is measurable.
 
-`pool_test.go` puts one object into a pool and then forces collections, counting
+`pool.go` puts one object into a pool and then forces collections, counting
 how many times the pool has to call `New`. `GOMAXPROCS` is pinned to 1, because
 a pool's storage is per-P and the question is otherwise not well posed.
 

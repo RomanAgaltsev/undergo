@@ -5,7 +5,7 @@ given up — it timed out, or its context was cancelled, and it moved on.
 
 What happens to the worker?
 
-`abandoned_test.go` starts five workers, each abandoned the moment it is
+`workers.go` holds five workers, each abandoned the moment it is
 launched, and then asks the runtime's own goroutine profile whether each one is
 still there. Predict the five answers.
 

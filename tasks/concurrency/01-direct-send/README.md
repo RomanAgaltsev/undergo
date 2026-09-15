@@ -3,7 +3,7 @@
 A buffered channel has a buffer. The obvious model is that every value lands in
 it on the way past: the sender puts it in, the receiver takes it out.
 
-`direct_test.go` sets up four situations and looks at `len(ch)` — the number of
+`channels.go` sets up four situations and looks at `len(ch)` — the number of
 values *sitting in the buffer* — at a moment when the answer is decidable.
 
 | slot | question |

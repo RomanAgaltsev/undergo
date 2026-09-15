@@ -1,0 +1,24 @@
+schema: 1
+id: sched/05-goroutine-leak-profile
+title: "Which leaks does the runtime name"
+mode: predict
+track: sched
+difficulty: 4
+estimate: 40m
+tags: [sched, pprof, goroutineleak, profiling, go1.27]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      blocked_send_named,
+      nil_recv_named,
+      waitgroup_named,
+      mutex_named,
+      context_named,
+      count_before_writeto,
+      count_after_writeto,
+    ]
+inspired_by: "https://go.dev/doc/go1.27"
+deprecated: false

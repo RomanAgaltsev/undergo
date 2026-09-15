@@ -5,8 +5,9 @@
 Shipped: all fourteen internals tracks. Memory — `layout` (3 tasks), `alloc` (4),
 `types` (4). Language surface — `generics` (5), `iter` (3), `reflect` (3). Lifetime
 and collection — `weak` (4), `gc` (4). The machine — `iface` (4), `compiler` (3),
-`asm` (2), `edges` (4). Alongside the 15 `review/*` categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 214 tasks in all, 43 of them machine-graded.
+`asm` (2), `edges` (4). Scheduling and memory — `sched` (5), `memmodel` (5).
+Alongside the 15 `review/*` categories (135 drills, imported
+from loupe) and `design` (36 katas, imported from keystone). 224 tasks in all, 53 of them machine-graded.
 
 Planned, in rough order:
 
@@ -34,9 +35,9 @@ Planned, in rough order:
 
 Each entry records where the idea came from. Ideas may be borrowed; code may not.
 
-Every row below is derived from a `→ candidate` entry in `radar/versions/`. A row
-with no entry behind it is drift, and gets deleted rather than kept out of
-politeness.
+Every row below records a source: a `→ candidate` entry in `radar/versions/`, or
+a named reference. A row with no source behind it is drift, and gets deleted
+rather than kept out of politeness. Ideas may be borrowed; code may not.
 
 | Candidate | Track | Source | Built |
 |---|---|---|---|
@@ -60,13 +61,13 @@ politeness.
 | A generic type may refer to itself in its own type parameter list (`type Adder[A Adder[A]]`) | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
 | Function type inference generalized to assignment and conversion contexts — not gated by the go.mod language version, so a true A/B needs an older toolchain | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | `generics/05-inference-limits` — the assignment shape only; no 1.26-vs-1.27 A/B, see the radar note |
 | Range-over-function iterators and the `iter` package — what `break`, `return` and `goto` do to the yield contract | `iter` | [Go 1.23](https://go.dev/doc/go1.23) | `iter/02-yield-contract` and `iter/01-adapters` — `goto` out of a range body is still uncovered |
-| The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | — |
-| Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | — |
+| The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/05-goroutine-leak-profile` |
+| Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/03-timer-channels` |
 | `GOMAXPROCS` is container-aware and updates itself as the cgroup quota changes | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
-| `testing/synctest` is GA: virtualized time in a bubble — a task, and the harness that makes `sched` and `memmodel` gradeable at all | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
+| `testing/synctest` is GA: virtualized time in a bubble — a task, and the harness that makes `sched` and `memmodel` gradeable at all | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | `sched/02-synctest-bubble` |
 | `runtime/trace.FlightRecorder` as the data source for a trace-analyzer task | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | A new runtime-internal mutex (`GOEXPERIMENT=nospinbitmutex`) — only worth a task if the spin/park boundary can be made visible | `sched` | [Go 1.24](https://go.dev/doc/go1.24) | — |
-| Timers and tickers are collected without `Stop`, and the behaviour is gated on the `go.mod` go line rather than the toolchain | `sched` | [Go 1.23](https://go.dev/doc/go1.23) | — |
+| Timers and tickers are collected without `Stop`, and the behaviour is gated on the `go.mod` go line rather than the toolchain | `sched` | [Go 1.23](https://go.dev/doc/go1.23) | `sched/03-timer-channels` |
 | Windows timer resolution went from 15.6ms to 0.5ms — an answer that depends on the OS | `sched` | [Go 1.23](https://go.dev/doc/go1.23) | — |
 | The builtin map is a Swiss table — predict real memory for a key count, A/B with `GOEXPERIMENT=noswissmap` | `types` | [Go 1.24](https://go.dev/doc/go1.24) | `types/04-map-memory` — memory half only; the `noswissmap` A/B is still open |
 | `sync.Map` is a hash-trie — the contention curve, and what the old implementation was warming up | `types` | [Go 1.24](https://go.dev/doc/go1.24) | — |
@@ -105,7 +106,7 @@ rot as the catalogue changes.
 
 ## Standing decisions
 
-**Authoring comes before solving, deliberately.** 214 tasks ship and none have been
+**Authoring comes before solving, deliberately.** 224 tasks ship and none have been
 solved here. That is a choice, not a backlog: the catalogue is being built out
 first, and the solver's experience — whether a hint is one rung or two, whether a
 question is answerable without its explanation — is unvalidated until someone
@@ -170,6 +171,49 @@ part of `task ci`, because the detector needs cgo and a Windows checkout without
 C toolchain cannot run it — `undergo doctor` reports which of the native and
 container routes this machine has, and `task race:docker` is the way round a
 missing compiler.
+
+**Every track carries at least five tasks.** Ten where the material supports it.
+This is discipline, not machinery — there is deliberately no CI gate. What keeps
+it honest is that the ceilings are written down, so a track sitting below ten is
+legibly finished rather than neglected:
+
+| Verdict | Tracks |
+|---|---|
+| Ten comfortably | `sched`, `alloc`, `types`, `layout`, `generics`, `compiler`, `asm` |
+| Ten if a blocked item unblocks | `gc` (needs the Green Tea invariant), `edges` (cgo needs a C toolchain; the 1.21 nil-check task needs two toolchains), `memmodel` (IRIW is legality-only, being unobservable on x86) |
+| About eight | `iface`, `reflect`, `iter` |
+| About seven, and will not reach ten | `weak` — the `weak` and `unique` packages have a genuinely small surface |
+
+**`sched` and `memmodel` are gradeable because of answer form, not new
+machinery.** M10 added ten tasks and no harness code beyond a failure log. Every
+slot in both tracks is an ordering, a predicate, a legality set or a
+compile-time constant; not one grades a duration or a count the scheduler can
+perturb. Three levers made it possible: `testing/synctest`'s fake clock, the
+`goroutineleak` profile, and the race gate, which turns the detector from a
+guard into a grader.
+
+Two slots were written, measured, and replaced before shipping, both for the
+same reason. `sched/02` asked whether the test finished in under a second — a
+tolerance against a constant, which measured 0–22ms locally and failed half of
+all gate-2 runs, because gate 2's load is process creation and compilation
+rather than CPU contention. It now compares the two clocks against each other.
+The same task's ticker count was a coin flip, 9 in 28 runs and 10 in 32: the
+tenth tick and the deadline landed on the same instant of fake time, and
+`select` chooses among ready cases at random. **A fake clock removes
+non-determinism that comes from scheduling; it cannot remove non-determinism
+that is specified.**
+
+**The race detector is not a neutral observer, and now in three ways.**
+`requires.default_build` exists for tasks whose answers hold only on an
+unmodified build, and each milestone has found a new reason for it. M7: a
+compiler optimisation that `-race` disables (`types/01-cap-growth`). M10: a task
+whose subject *is* a data race, which is most of `memmodel`. Also M10, and
+caught by the gate rather than by design: **a task measuring scheduling order.**
+`sched/01-runnext-ordering` measures `4 1 2 3` unmodified and `4 2 1 3` under
+`-race`, in a program with no data race at all — instrumentation inserts work
+between a goroutine being scheduled and reaching the mutex, so the `runnext`
+slot survives and the queue order behind it does not. Reach for the detector to
+answer *is there a race*, never *in what order do these run*.
 
 ## Not yet
 

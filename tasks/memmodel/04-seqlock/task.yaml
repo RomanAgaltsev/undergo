@@ -1,0 +1,13 @@
+schema: 1
+id: memmodel/04-seqlock
+title: "A reader that never blocks the writer"
+mode: build
+track: memmodel
+difficulty: 5
+estimate: 60m
+tags: [memmodel, seqlock, atomics, lockfree, race]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+inspired_by: "https://go.dev/ref/mem"
+deprecated: false

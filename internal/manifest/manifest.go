@@ -40,9 +40,26 @@ type Requires struct {
 	// optimisation is then measuring the instrumentation instead. Racing
 	// such a task reports a failure that says nothing about the solution.
 	//
-	// Set it only where that is actually true, and say why in the task's
-	// explanation — a blanket opt-out would hide the concurrency bugs the
-	// gate exists to find.
+	// There are three ways it is true, one found per milestone so far.
+	//
+	// The first is a task measuring a compiler optimisation that -race
+	// disables, such as slice stack allocation (types/01-cap-growth).
+	//
+	// The second is a task whose subject *is* a data race: the memmodel track
+	// plants races deliberately, and under -race the detector aborts the
+	// program rather than letting it answer the question.
+	//
+	// The third is a task measuring scheduling order. Instrumenting every
+	// memory access inserts work between a goroutine being scheduled and
+	// reaching the operation being observed, which reorders goroutines that
+	// were not racing at all. sched/01-runnext-ordering measures 4 1 2 3 on an
+	// unmodified build and 4 2 1 3 under -race; the runnext slot survives and
+	// the queue order behind it does not.
+	//
+	// Set it only where one of those actually applies, and say why in the
+	// task's explanation — a blanket opt-out would hide the concurrency bugs
+	// the gate exists to find. A task that merely uses goroutines does not
+	// qualify: memmodel/04-seqlock plants no race and is raced like any other.
 	DefaultBuild bool `yaml:"default_build"`
 }
 

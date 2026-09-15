@@ -1,0 +1,15 @@
+schema: 1
+id: sched/02-synctest-bubble
+title: "Time that costs nothing"
+mode: predict
+track: sched
+difficulty: 4
+estimate: 35m
+tags: [sched, synctest, time, fakeclock, go1.25]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [slept_minutes, ticks, year, fake_exceeds_real]
+inspired_by: "https://pkg.go.dev/testing/synctest"
+deprecated: false

@@ -1,0 +1,15 @@
+schema: 1
+id: sched/04-async-preemption
+title: "The loop that used to hang"
+mode: predict
+track: sched
+difficulty: 4
+estimate: 40m
+tags: [sched, preemption, godebug, gc, go1.14]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [gc_completes_normally, gc_completes_preemptoff]
+inspired_by: "https://go.dev/doc/go1.14"
+deprecated: false

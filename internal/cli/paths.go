@@ -49,6 +49,22 @@ func (e Env) RevealDir(id string) string {
 	return filepath.Join(e.Root, ".undergo", "reveals", filepath.FromSlash(id))
 }
 
+// FailureLogPath is where gate 2 writes the test output of a reference solution
+// that did not pass. Gitignored.
+//
+// Gate 2 captures a failing task's output rather than printing it, because a
+// reference solution must never reach a public CI log. That makes a failure
+// undiagnosable from the log alone: "frozen tests did not pass" says nothing
+// about which slot was wrong or whether the package even compiled.
+//
+// Writing the output to a file under .undergo/ resolves both needs. Only the
+// path is printed, so CI logs stay clean, while whoever is standing at the
+// checkout can read what actually happened. .undergo/ is gitignored, so the
+// file cannot be committed by accident.
+func (e Env) FailureLogPath(id string) string {
+	return filepath.Join(e.Root, ".undergo", "ci-failures", filepath.FromSlash(id)+".log")
+}
+
 // FindRoot walks up from start to the undergo module root.
 func FindRoot(start string) (string, error) {
 	dir, err := filepath.Abs(start)

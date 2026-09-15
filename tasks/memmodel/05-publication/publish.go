@@ -6,6 +6,7 @@
 package publish
 
 import (
+	"runtime"
 	"sync"
 	"sync/atomic"
 )
@@ -16,9 +17,20 @@ import (
 type Config struct{ A, B, C int }
 
 // NewConfig builds a Config with every field set to marker.
+//
+// It yields part-way through. A real lazy constructor does work — it reads a
+// file, parses an environment, dials something — and that work is exactly the
+// window in which a second goroutine can arrive and find the field still empty.
+// Without the yield the window is a few instructions wide, and whether two
+// goroutines land in it is a matter of luck: the answer measured true on a
+// twelve-core developer machine and false on a CI runner.
+//
+// The yield makes the window reliable rather than lucky. It changes nothing
+// about which strategies are correct.
 func NewConfig(marker int) *Config {
 	c := new(Config)
 	c.A = marker
+	runtime.Gosched()
 	c.B = marker
 	c.C = marker
 	return c

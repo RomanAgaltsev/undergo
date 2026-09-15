@@ -1,0 +1,15 @@
+schema: 1
+id: compiler/05-loop-lowering
+title: "Which loops become one call"
+mode: predict
+track: compiler
+difficulty: 4
+estimate: 35m
+tags: [compiler, ssa, memclr, memmove, loops]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots: [zero_loop_memclr, zero_clear_memclr, copy_loop_memmove, copy_builtin_memmove, zero_pointers_memclr]
+inspired_by: "https://go.dev/src/cmd/compile/internal/ssa/"
+deprecated: false

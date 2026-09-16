@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.14.0](https://github.com/RomanAgaltsev/undergo/compare/v0.13.1...v0.14.0) (2026-09-16)
+
+
+### Features
+
+* **concurrency:** the concurrency track, derived from go-concurrency ([#21](https://github.com/RomanAgaltsev/undergo/issues/21)) ([49365a8](https://github.com/RomanAgaltsev/undergo/commit/49365a8e8f654aa0e941ebb6a55c5eacbfb24320))
+
+
+### Bug Fixes
+
+* **concurrency:** pin pool-clearing to the default build ([#23](https://github.com/RomanAgaltsev/undergo/issues/23)) ([3353960](https://github.com/RomanAgaltsev/undergo/commit/33539607297a5a2dda0a22bcf6440d08782ccb41))
+
 ## [0.13.1](https://github.com/RomanAgaltsev/undergo/compare/v0.13.0...v0.13.1) (2026-09-15)
 
 

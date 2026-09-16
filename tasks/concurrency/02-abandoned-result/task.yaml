@@ -1,0 +1,21 @@
+schema: 1
+id: concurrency/02-abandoned-result
+title: "The result nobody received"
+mode: predict
+track: concurrency
+difficulty: 3
+estimate: 35m
+tags: [concurrency, goroutine-leak, channels, select, timeout, pprof]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      unbuffered_leaks,
+      capacity_one_leaks,
+      select_with_default_leaks,
+      capacity_one_two_results_leaks,
+      late_drain_leaks,
+    ]
+inspired_by: "go-concurrency kata 03 Q2 and kata 04 Q2 — the abandoned result"

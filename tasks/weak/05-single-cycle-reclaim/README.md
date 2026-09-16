@@ -10,7 +10,7 @@ caused yourself is.
 | slot | question |
 |---|---|
 | `weak_gcs` | collections until a dropped `weak.Pointer`'s target is gone |
-| `finalizer_gcs` | collections until a `SetFinalizer` function runs |
+| `finalizer_within_two` | did a `SetFinalizer` function run within two collections? |
 | `cleanup_within_two` | did an `AddCleanup` function run within two collections? |
 | `pinned_survives` | does a weak pointer survive a collection while its target is still referenced? |
 

@@ -20,6 +20,7 @@ const usage = `undergo — Go katas beneath the surface
   doctor    what this machine can grade
   new       scaffold a task        --id track/NN-slug --mode M --title T
   seal      seal a task's _solution/ <id>
+  unseal    unpack a seal for editing <id>
   validate  validate every manifest
   ci-verify unseal and prove every reference solution
   ci-stubs  build every task, vet the machine-graded ones
@@ -66,6 +67,8 @@ func Run(args []string, stdout, stderr io.Writer) int {
 		runErr = New(env, rest)
 	case "seal":
 		runErr = SealCmd(env, rest)
+	case "unseal":
+		runErr = Unseal(env, rest)
 	case "validate":
 		runErr = Validate(env, rest)
 	case "ci-verify":

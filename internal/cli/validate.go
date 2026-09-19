@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 )
@@ -29,6 +30,16 @@ func Validate(e Env, _ []string) error {
 			return fmt.Errorf("%s: no README.md", t.ID)
 		}
 
+		if t.Mode == manifest.ModePredict {
+			body, err := os.ReadFile(filepath.Join(t.Dir, "README.md"))
+			if err != nil {
+				return err
+			}
+			if cmd := instrumentCommand(string(body)); cmd != "" {
+				return fmt.Errorf("%s: README.md prints an instrument command (%q) — it belongs in HINT.md, see CONTRIBUTING.md", t.ID, cmd)
+			}
+		}
+
 		entries, err := os.ReadDir(t.Dir)
 		if err != nil {
 			return err
@@ -49,4 +60,42 @@ func Validate(e Env, _ []string) error {
 	}
 	fmt.Fprintf(e.Out, "%d manifests valid\n", len(tasks))
 	return nil
+}
+
+// QuestionsHeading opens the written-questions section, which every predict
+// task carries. Everything above it is the task body.
+const QuestionsHeading = "## Questions to answer in writing"
+
+// instrumentCommand returns the first line of a fenced block in the task body
+// that looks like an instrument being run, or "" if there is none.
+//
+// The policy: a predict task's README names the instrument that judges the
+// answer but does not print the command that runs it — that belongs in HINT.md,
+// which is never gated. A command on screen invites measuring before
+// predicting, which turns a prediction into a transcription.
+//
+// Only the body is scanned. The written questions are post-prediction work, and
+// several of them deliberately ask the solver to re-run the subject under a
+// control; a README with no questions section is scanned end to end.
+func instrumentCommand(readme string) string {
+	inFence := false
+	for line := range strings.SplitSeq(readme, "\n") {
+		trimmed := strings.TrimSpace(strings.TrimRight(line, "\r"))
+		if trimmed == QuestionsHeading {
+			return ""
+		}
+		if strings.HasPrefix(trimmed, "```") {
+			inFence = !inFence
+			continue
+		}
+		if !inFence {
+			continue
+		}
+		for _, prefix := range []string{"go ", "go\t", "GODEBUG="} {
+			if strings.HasPrefix(trimmed, prefix) {
+				return trimmed
+			}
+		}
+	}
+	return ""
 }

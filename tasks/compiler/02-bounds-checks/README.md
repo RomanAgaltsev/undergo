@@ -20,11 +20,8 @@ undergo verify compiler/02-bounds-checks
 Two are checked and four are not. One of the four will probably surprise you; it
 is the one where the compiler has to do arithmetic to reach its conclusion.
 
-You can see the report yourself, after committing your answers:
-
-```
-go build -gcflags=-d=ssa/check_bce .
-```
+The judge is the compiler's own report: the test compiles this package with
+`-d=ssa/check_bce` and reads which indexes it still names.
 
 ## Questions to answer in writing
 

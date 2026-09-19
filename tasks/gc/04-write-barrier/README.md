@@ -23,12 +23,7 @@ undergo verify gc/04-write-barrier
 
 The test compiles this package with `-gcflags=-S` and looks for the barrier in
 the compiler's own assembly listing, so the answer comes from the compiler rather
-than from anyone's reasoning. You can run the same thing — after you have
-committed your answers, since the output is the answer:
-
-```
-go build -gcflags=-S . 2>&1 | grep gcWriteBarrier
-```
+than from anyone's reasoning.
 
 ## Questions to answer in writing
 

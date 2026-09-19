@@ -20,13 +20,6 @@ one to the function that contains it.
 undergo verify alloc/03-what-escapes
 ```
 
-You can run the same command yourself — but do it *after* you have committed
-your four answers, because the output names every one of them:
-
-```
-go build -gcflags=-m .
-```
-
 ## Questions to answer in writing
 
 1. `Interfaced` returns `any(h)` by value. Nothing anywhere takes the address of

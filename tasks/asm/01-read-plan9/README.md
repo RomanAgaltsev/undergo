@@ -17,12 +17,8 @@ undergo verify asm/01-read-plan9
 ```
 
 Two of these are about the calling convention and four are about what a function
-still needs the stack for. You can read the listing yourself — after committing
-your answers, since it *is* the answer:
-
-```
-go build -gcflags=-S .
-```
+still needs the stack for. The judge is the compiler's own `-S` listing: the test
+compiles this package and reads what it emitted.
 
 ## Questions to answer in writing
 

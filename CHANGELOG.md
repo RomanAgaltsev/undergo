@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/RomanAgaltsev/undergo/compare/v0.15.0...v0.16.0) (2026-09-20)
+
+
+### Features
+
+* **versions:** the go.mod line as a behaviour switch ([#27](https://github.com/RomanAgaltsev/undergo/issues/27)) ([3210fdc](https://github.com/RomanAgaltsev/undergo/commit/3210fdc7b9e254b9113b25f898264c7ab9c02406))
+
 ## [0.15.0](https://github.com/RomanAgaltsev/undergo/compare/v0.14.0...v0.15.0) (2026-09-20)
 
 

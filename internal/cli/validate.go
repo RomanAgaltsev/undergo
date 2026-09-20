@@ -66,6 +66,22 @@ func Validate(e Env, _ []string) error {
 // task carries. Everything above it is the task body.
 const QuestionsHeading = "## Questions to answer in writing"
 
+// goSubcommands are the go tool's verbs. A "go " line is only a command when
+// what follows is one of these: `go func() {…}` launches a goroutine and
+// `go 1.21` is a go.mod directive, and a task about the go line prints both.
+var goSubcommands = map[string]bool{
+	"build": true, "clean": true, "doc": true, "env": true, "fix": true,
+	"fmt": true, "generate": true, "get": true, "install": true, "list": true,
+	"mod": true, "run": true, "test": true, "tool": true, "version": true,
+	"vet": true, "work": true,
+}
+
+// commandFences are the fence info strings that hold commands. A block tagged
+// with a language — ```go, ```yaml — holds source, not something to run.
+var commandFences = map[string]bool{
+	"": true, "sh": true, "bash": true, "shell": true, "console": true, "text": true,
+}
+
 // instrumentCommand returns the first line of a fenced block in the task body
 // that looks like an instrument being run, or "" if there is none.
 //
@@ -78,21 +94,30 @@ const QuestionsHeading = "## Questions to answer in writing"
 // several of them deliberately ask the solver to re-run the subject under a
 // control; a README with no questions section is scanned end to end.
 func instrumentCommand(readme string) string {
-	inFence := false
+	inFence, isCommandFence := false, false
 	for line := range strings.SplitSeq(readme, "\n") {
 		trimmed := strings.TrimSpace(strings.TrimRight(line, "\r"))
 		if trimmed == QuestionsHeading {
 			return ""
 		}
 		if strings.HasPrefix(trimmed, "```") {
-			inFence = !inFence
+			if inFence {
+				inFence = false
+				continue
+			}
+			inFence = true
+			isCommandFence = commandFences[strings.ToLower(strings.TrimPrefix(trimmed, "```"))]
 			continue
 		}
-		if !inFence {
+		if !inFence || !isCommandFence {
 			continue
 		}
-		for _, prefix := range []string{"go ", "go\t", "GODEBUG="} {
-			if strings.HasPrefix(trimmed, prefix) {
+		if strings.HasPrefix(trimmed, "GODEBUG=") {
+			return trimmed
+		}
+		if rest, ok := strings.CutPrefix(trimmed, "go "); ok {
+			verb, _, _ := strings.Cut(strings.TrimSpace(rest), " ")
+			if goSubcommands[verb] {
 				return trimmed
 			}
 		}

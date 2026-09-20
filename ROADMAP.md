@@ -2,13 +2,14 @@
 
 ## Tracks
 
-Shipped: all fifteen internals tracks, **every one of them at five tasks or more**.
+Shipped: all sixteen internals tracks, **every one of them at five tasks or more**.
 Memory — `layout` (5 tasks), `alloc` (5),
 `types` (5). Language surface — `generics` (5), `iter` (5), `reflect` (5). Lifetime
 and collection — `weak` (5), `gc` (5). The machine — `iface` (5), `compiler` (5),
 `asm` (5), `edges` (5). Scheduling and memory — `sched` (5), `memmodel` (5),
-`concurrency` (8). Alongside the 15 `review/*` categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 249 tasks in all, 78 of them machine-graded.
+`concurrency` (8). Versions — `versions` (5). Alongside the 15 `review/*`
+categories (135 drills, imported
+from loupe) and `design` (36 katas, imported from keystone). 254 tasks in all, 83 of them machine-graded.
 
 Planned, in rough order:
 
@@ -31,6 +32,7 @@ Planned, in rough order:
 | `review/*` | review | 15 categories × 3 tiers × 3 drills — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
 | `design` | design | 36 system-design katas across 8 tracks |
 | `concurrency` | predict/build | channel handoff, abandoned results, `Cond`, the `Once` contract, `Pool` clearing, `RWMutex` admission, cancellability, close cascades — derived from `go-concurrency` |
+| `versions` | predict | the `go.mod` line as a behaviour switch: GODEBUG defaults, loop variables, language legality, and the edge where a removed switch stops answering |
 
 ## Candidate pool
 
@@ -53,6 +55,12 @@ The remaining three rows are **kata-sourced**, not radar-sourced — M9 triaged
 the fourteen `go-concurrency` katas and these three could not be built without
 adding a module dependency. The pool's rule is "records a source", and a named
 kata is one; but the count above is about the radar, so it does not move.
+
+The row count is now stable, and the **`Built` column** is the thing that moves.
+M14 claimed three rows without adding any: a lead may be built by more than one
+task, and `versions/01` and `versions/05` each join a task that was already
+there — one grading the current behaviour, the other grading the version it
+changed in. A row is retired by being built, never by being deleted.
 
 | Candidate | Track | Source | Built |
 |---|---|---|---|
@@ -113,9 +121,9 @@ kata is one; but the count above is about the radar, so it does not move.
 | `GOAMD64=v3` fused multiply-add changes the exact floating-point values a program produces | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | A Go 1.21 compiler bug delayed nil checks; the same program panics on 1.25 — a toolchain-pair task | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | `//go:linkname` to unmarked standard-library symbols is now refused | `edges` | [Go 1.23](https://go.dev/doc/go1.23) | `edges/01-linkname` |
-| Loop variables are created anew each iteration — gated on the `go.mod` language version, so one toolchain gives both answers | `edges` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| Loop variables are created anew each iteration — gated on the `go.mod` language version, so one toolchain gives both answers | `edges` | [Go 1.22](https://go.dev/doc/go1.22) | `versions/02-loop-variables` |
 | `GODEBUG` and the `go` line became the compatibility mechanism — how a behaviour change ships without breaking the Go 1 promise | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
-| `panic(nil)` stopped being nil: `recover()` now returns a `*runtime.PanicNilError`, gated on the go line | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | `edges/03-panic-vs-fatal` |
+| `panic(nil)` stopped being nil: `recover()` now returns a `*runtime.PanicNilError`, gated on the go line | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | `edges/03-panic-vs-fatal`, `versions/01-panic-nil` |
 | Package initialisation order became a specified algorithm rather than an implementation detail | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
 | The cgo call boundary got an order of magnitude cheaper — the number people quote for "cgo is slow" has a date on it | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
 | `runtime.Pinner` — pinning an object so C may hold it, and what the collector gives up to allow it | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
@@ -206,7 +214,7 @@ kata is one; but the count above is about the radar, so it does not move.
 | `reflect.MapIter` — reflective map iteration that does not allocate a slice of every key | `reflect` | [Go 1.12](https://go.dev/doc/go1.12) | — |
 | An embedded pointer to an unexported struct type used to punch a hole through the export check — `CanSet` was wrong for years | `reflect` | [Go 1.10](https://go.dev/doc/go1.10) | `reflect/03-settability` |
 | The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/05-goroutine-leak-profile` |
-| Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/03-timer-channels` |
+| Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/03-timer-channels`, `versions/05-go-line-limits` |
 | `GOMAXPROCS` is container-aware and updates itself as the cgroup quota changes | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | `testing/synctest` is GA: virtualized time in a bubble — a task, and the harness that makes `sched` and `memmodel` gradeable at all | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | `sched/02-synctest-bubble` |
 | `runtime/trace.FlightRecorder` as the data source for a trace-analyzer task | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |

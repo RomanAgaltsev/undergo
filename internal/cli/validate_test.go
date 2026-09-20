@@ -84,3 +84,29 @@ func TestValidateScansTheWholeReadmeWhenThereAreNoQuestions(t *testing.T) {
 		t.Fatal("expected validate to reject a command with no questions section to sit under")
 	}
 }
+
+// A `go` statement launches a goroutine, and a predict task about loop
+// variables prints one. Only a real go subcommand is a command.
+func TestValidateAllowsAGoStatementInAGoSnippet(t *testing.T) {
+	e := withReadme(t, "predict", "# t\n\n```go\nfor i := range 3 {\n\tgo func() { _ = i }()\n}\n```\n")
+	if err := Validate(e, nil); err != nil {
+		t.Fatalf("a go statement is not a command: %v", err)
+	}
+}
+
+// `go 1.21` is a go.mod directive. The versions track prints go.mod excerpts,
+// so the rule must not read one as an invocation of the go tool.
+func TestValidateAllowsAGoModDirective(t *testing.T) {
+	e := withReadme(t, "predict", "# t\n\n```\nmodule m\n\ngo 1.21\n```\n")
+	if err := Validate(e, nil); err != nil {
+		t.Fatalf("a go.mod directive is not a command: %v", err)
+	}
+}
+
+// A shell-tagged fence is still a command fence.
+func TestValidateRejectsACommandInAShellFence(t *testing.T) {
+	e := withReadme(t, "predict", "# t\n\n```sh\ngo test -run X .\n```\n")
+	if err := Validate(e, nil); err == nil {
+		t.Fatal("expected validate to reject a command in a ```sh fence")
+	}
+}

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/RomanAgaltsev/undergo/compare/v0.18.0...v0.19.0) (2026-09-20)
+
+
+### Features
+
+* **versions:** toolchain pairs — what the go line cannot reach ([#33](https://github.com/RomanAgaltsev/undergo/issues/33)) ([2c56508](https://github.com/RomanAgaltsev/undergo/commit/2c56508fba206a0719867bb0023ad6b7eb20a03c))
+
 ## [0.18.0](https://github.com/RomanAgaltsev/undergo/compare/v0.17.0...v0.18.0) (2026-09-20)
 
 

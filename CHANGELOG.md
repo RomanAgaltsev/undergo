@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/RomanAgaltsev/undergo/compare/v0.14.0...v0.15.0) (2026-09-20)
+
+
+### Features
+
+* instrument disclosure policy for predict tasks ([#24](https://github.com/RomanAgaltsev/undergo/issues/24)) ([0387767](https://github.com/RomanAgaltsev/undergo/commit/0387767720fff5e96f1be2c51a2df3c66a7a9b2b))
+
 ## [0.14.0](https://github.com/RomanAgaltsev/undergo/compare/v0.13.1...v0.14.0) (2026-09-16)
 
 

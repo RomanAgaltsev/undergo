@@ -6,3 +6,6 @@
 _solution/
 # Build output.
 /bin/
+# A stray root build — the Taskfile builds to bin/, which is ignored above.
+/undergo
+/undergo.exe

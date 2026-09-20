@@ -19,7 +19,7 @@ func Doctor(e Env, args []string) error {
 
 	env := manifest.CurrentEnv()
 	fmt.Fprintf(e.Out, "go        %s\nplatform  %s/%s\ntoolchains %s\nrace      %s\n\n",
-		env.GoVersion, env.GOOS, env.GOARCH, toolchainList(env.Toolchains), raceSupport())
+		env.GoVersion, env.GOOS, env.GOARCH, toolchainList(nil), raceSupport())
 
 	tasks, err := manifest.Walk(e.TasksDir())
 	if err != nil {

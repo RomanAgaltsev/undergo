@@ -3,6 +3,7 @@ package manifest
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -60,6 +61,11 @@ func TestWalkRejectsAnInvalidTask(t *testing.T) {
 }
 
 func TestGradeable(t *testing.T) {
+	// The toolchain cases must not reach for the network: stub the resolver.
+	origAvailable := ToolchainAvailable
+	t.Cleanup(func() { ToolchainAvailable = origAvailable })
+	ToolchainAvailable = func(string) bool { return false }
+
 	env := Env{GoVersion: "go1.27.0", GOOS: "linux", GOARCH: "amd64"}
 
 	tests := []struct {
@@ -87,5 +93,31 @@ func TestGradeable(t *testing.T) {
 				t.Error("a refusal must explain itself")
 			}
 		})
+	}
+}
+
+// Availability used to mean "on PATH", scanned from a hardcoded list of six
+// names that no task ever asked for. It now means "can be obtained", which is
+// a question with a network in it — so Gradeable asks through a hook that a
+// test can answer instead.
+func TestGradeableResolvesToolchainsRatherThanScanningPATH(t *testing.T) {
+	orig := ToolchainAvailable
+	t.Cleanup(func() { ToolchainAvailable = orig })
+
+	task := &Task{ID: "versions/06-x", Requires: Requires{Toolchains: []string{"go1.22.12"}}}
+	env := Env{GoVersion: "go1.27.1", GOOS: "linux", GOARCH: "amd64"}
+
+	ToolchainAvailable = func(string) bool { return true }
+	if ok, why := Gradeable(task, env); !ok {
+		t.Fatalf("a resolvable toolchain must grade: %s", why)
+	}
+
+	ToolchainAvailable = func(string) bool { return false }
+	ok, why := Gradeable(task, env)
+	if ok {
+		t.Fatal("an unobtainable toolchain must skip")
+	}
+	if !strings.Contains(why, "go1.22.12") {
+		t.Errorf("the reason must name the toolchain; got %q", why)
 	}
 }

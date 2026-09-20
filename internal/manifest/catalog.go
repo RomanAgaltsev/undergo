@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"go/version"
 	"io/fs"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"slices"
 	"sort"
 	"strings"
+
+	"github.com/RomanAgaltsev/undergo/internal/toolchain"
 )
 
 // Walk loads and validates every task.yaml under root, sorted by ID.
@@ -41,31 +42,18 @@ func Walk(root string) ([]*Task, error) {
 
 // Env is the machine a task would be graded on.
 type Env struct {
-	GoVersion  string
-	GOOS       string
-	GOARCH     string
-	Toolchains []string
+	GoVersion string
+	GOOS      string
+	GOARCH    string
 }
 
 // CurrentEnv describes this machine.
 func CurrentEnv() Env {
 	return Env{
-		GoVersion:  runtime.Version(),
-		GOOS:       runtime.GOOS,
-		GOARCH:     runtime.GOARCH,
-		Toolchains: installedToolchains(),
+		GoVersion: runtime.Version(),
+		GOOS:      runtime.GOOS,
+		GOARCH:    runtime.GOARCH,
 	}
-}
-
-// installedToolchains reports alternate Go toolchains found on PATH, e.g. go1.21.13.
-func installedToolchains() []string {
-	var out []string
-	for _, name := range []string{"go1.21.13", "go1.22.12", "go1.23.12", "go1.24.6", "go1.25.1", "go1.26.0"} {
-		if _, err := exec.LookPath(name); err == nil {
-			out = append(out, name)
-		}
-	}
-	return out
 }
 
 // Buildable reports whether a task's package can be compiled on env, and why
@@ -111,9 +99,20 @@ func Gradeable(t *Task, e Env) (bool, string) {
 		return false, fmt.Sprintf("needs %s, this is %s", strings.Join(t.Requires.OS, "/"), e.GOOS)
 	}
 	for _, want := range t.Requires.Toolchains {
-		if !slices.Contains(e.Toolchains, want) {
-			return false, fmt.Sprintf("needs the %s toolchain: go install golang.org/dl/%s@latest", want, want)
+		if !ToolchainAvailable(want) {
+			return false, fmt.Sprintf("needs the %s toolchain, which could not be "+
+				"obtained here (it is fetched on demand and needs the network once)", want)
 		}
 	}
 	return true, ""
 }
+
+// ToolchainAvailable is how Gradeable decides whether a required toolchain can
+// be obtained. It is a variable so tests can answer without the network.
+//
+// Availability used to mean "found on PATH", scanned from a hardcoded list of
+// six names. No task ever declared requires.toolchains, so that function only
+// ever returned nothing — and it could not express go1.19, which is exactly the
+// kind of version a toolchain-pair task wants. A toolchain is now obtained by
+// naming it in GOTOOLCHAIN and letting the go command fetch it.
+var ToolchainAvailable = toolchain.Available

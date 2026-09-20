@@ -1,0 +1,20 @@
+schema: 1
+id: edges/08-exit-during-test
+title: "The suite that ran nothing"
+mode: predict
+track: edges
+difficulty: 3
+estimate: 30m
+tags: [edges, testing, os-exit, exit-code, false-green]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      go_test_reports_failure,
+      output_names_os_exit,
+      later_test_ran,
+      earlier_test_ran,
+    ]
+inspired_by: "radar candidate — go test now fails a test that calls os.Exit(0) mid-run"

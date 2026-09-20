@@ -6,10 +6,10 @@ Shipped: all sixteen internals tracks, **every one of them at five tasks or more
 Memory — `layout` (5 tasks), `alloc` (5),
 `types` (5). Language surface — `generics` (5), `iter` (5), `reflect` (5). Lifetime
 and collection — `weak` (5), `gc` (5). The machine — `iface` (5), `compiler` (5),
-`asm` (5), `edges` (5). Scheduling and memory — `sched` (5), `memmodel` (5),
+`asm` (5), `edges` (10). Scheduling and memory — `sched` (5), `memmodel` (5),
 `concurrency` (8). Versions — `versions` (5). Alongside the 15 `review/*`
 categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 254 tasks in all, 83 of them machine-graded.
+from loupe) and `design` (36 katas, imported from keystone). 259 tasks in all, 88 of them machine-graded.
 
 Planned, in rough order:
 
@@ -124,7 +124,7 @@ changed in. A row is retired by being built, never by being deleted.
 | Loop variables are created anew each iteration — gated on the `go.mod` language version, so one toolchain gives both answers | `edges` | [Go 1.22](https://go.dev/doc/go1.22) | `versions/02-loop-variables` |
 | `GODEBUG` and the `go` line became the compatibility mechanism — how a behaviour change ships without breaking the Go 1 promise | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
 | `panic(nil)` stopped being nil: `recover()` now returns a `*runtime.PanicNilError`, gated on the go line | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | `edges/03-panic-vs-fatal`, `versions/01-panic-nil` |
-| Package initialisation order became a specified algorithm rather than an implementation detail | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
+| Package initialisation order became a specified algorithm rather than an implementation detail | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | `edges/07-init-order` |
 | The cgo call boundary got an order of magnitude cheaper — the number people quote for "cgo is slow" has a date on it | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
 | `runtime.Pinner` — pinning an object so C may hold it, and what the collector gives up to allow it | `edges` | [Go 1.21](https://go.dev/doc/go1.21) | — |
 | `unsafe.SliceData`, `unsafe.String` and `unsafe.StringData` completed the set — the supported spelling of the zero-copy conversion | `edges` | [Go 1.20](https://go.dev/doc/go1.20) | `types/03-zero-copy-strings` |
@@ -135,15 +135,15 @@ changed in. A row is retired by being built, never by being deleted.
 | Functions containing closures became inlinable, and one function's code pointers multiplied as a result | `edges` | [Go 1.17](https://go.dev/doc/go1.17) | — |
 | `unsafe.Add` and `unsafe.Slice` — the two operations that previously required a `uintptr` round trip | `edges` | [Go 1.17](https://go.dev/doc/go1.17) | `edges/05-unsafe-pointer-rules` |
 | `GODEBUG=inittrace=1` prints what every package `init` cost in time and bytes | `edges` | [Go 1.16](https://go.dev/doc/go1.16) | — |
-| `go test` now fails a test that calls `os.Exit(0)` mid-run — a passing suite that ran nothing | `edges` | [Go 1.16](https://go.dev/doc/go1.16) | — |
+| `go test` now fails a test that calls `os.Exit(0)` mid-run — a passing suite that ran nothing | `edges` | [Go 1.16](https://go.dev/doc/go1.16) | `edges/08-exit-during-test` |
 | Chained `unsafe.Pointer`-to-`uintptr` conversions became illegal — the loophole in pattern 3 closed | `edges` | [Go 1.15](https://go.dev/doc/go1.15) | `edges/05-unsafe-pointer-rules` |
 | `-race` and `-msan` began implying `-d=checkptr` on every platform — why the race gate finds pointer bugs that vet does not | `edges` | [Go 1.15](https://go.dev/doc/go1.15) | `edges/05-unsafe-pointer-rules` |
-| `panic` prints derived types rather than bare addresses — what a panic message is allowed to know about its value | `edges` | [Go 1.15](https://go.dev/doc/go1.15) | — |
+| `panic` prints derived types rather than bare addresses — what a panic message is allowed to know about its value | `edges` | [Go 1.15](https://go.dev/doc/go1.15) | `edges/10-what-a-panic-prints` |
 | `checkptr`'s two rules, stated exactly: alignment on conversion, and same-object arithmetic | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | `edges/05-unsafe-pointer-rules` |
 | `defer` became almost free — for *most* uses; which ones still fall back to the heap is the whole question | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | `edges/04-defer-tiers` |
 | `math.FMA(x, y, z)` and `x*y + z` can produce different `float64` values — predict which inputs expose the gap | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | — |
 | `runtime.Goexit` can no longer be aborted by a recursive `panic`/`recover` — a third exit path that is neither | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | `edges/03-panic-vs-fatal` |
-| `hash/maphash` is consistent within a process and different across them — the guarantee people accidentally rely on | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | — |
+| `hash/maphash` is consistent within a process and different across them — the guarantee people accidentally rely on | `edges` | [Go 1.14](https://go.dev/doc/go1.14) | `edges/09-maphash-seeds` |
 | `defer` got 30% faster in 1.13 and nearly free in 1.14 — two mechanisms, two consecutive releases | `edges` | [Go 1.13](https://go.dev/doc/go1.13) | `edges/04-defer-tiers` |
 | `Sin`, `Cos`, `Tan` stopped being bit-for-bit reproducible across releases — Go promises accuracy, not reproducibility | `edges` | [Go 1.12](https://go.dev/doc/go1.12) | — |
 | Converting a nil `unsafe.Pointer` to `uintptr` and back with arithmetic is invalid — the obvious-looking loophole in pattern 3 | `edges` | [Go 1.12](https://go.dev/doc/go1.12) | `edges/05-unsafe-pointer-rules` |
@@ -151,7 +151,7 @@ changed in. A row is retired by being built, never by being deleted.
 | Stack traces stopped including `<autogenerated>` wrappers, so a `runtime.Caller` skip count finally matched the source | `edges` | [Go 1.10](https://go.dev/doc/go1.10) | — |
 | Test results are cached, and `-count=1` is the documented escape — what the cache keys on, and when it is wrong | `edges` | [Go 1.10](https://go.dev/doc/go1.10) | the verifier depends on it |
 | `go test` runs a high-confidence subset of `go vet` first — which is not the same set `go vet` runs | `edges` | [Go 1.10](https://go.dev/doc/go1.10) | `edges/05-unsafe-pointer-rules` keeps snippets in testdata because of it |
-| A `time.Time` carries two clocks: which operations use the monotonic reading, which strip it, and why `==` is treacherous | `edges` | [Go 1.9](https://go.dev/doc/go1.9) | — |
+| A `time.Time` carries two clocks: which operations use the monotonic reading, which strip it, and why `==` is treacherous | `edges` | [Go 1.9](https://go.dev/doc/go1.9) | `edges/06-two-clocks` |
 | Go pointers passed to C: the sharing rules, enforced at run time, and `GODEBUG=cgocheck` | `edges` | [Go 1.6](https://go.dev/doc/go1.6) | — |
 | The runtime assumes pointer-typed means pointer: an integer in a pointer slot crashes, a pointer in an integer slot is silent and fatal later | `edges` | [Go 1.3](https://go.dev/doc/go1.3), [1.4](https://go.dev/doc/go1.4) | `edges/05-unsafe-pointer-rules` |
 | Green Tea cuts GC overhead 10–40%, and `GOEXPERIMENT=nogreenteagc` makes it an A/B within one toolchain | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |

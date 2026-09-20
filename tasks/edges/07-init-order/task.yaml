@@ -1,0 +1,20 @@
+schema: 1
+id: edges/07-init-order
+title: "Before main, in what order"
+mode: predict
+track: edges
+difficulty: 4
+estimate: 40m
+tags: [edges, initialisation, init, package-init, dependency-order]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      first_line,
+      main_first_var,
+      init_runs_after_its_package_vars,
+      full_order,
+    ]
+inspired_by: "radar candidate — package initialisation order became a specified algorithm rather than an implementation detail"

@@ -1,0 +1,24 @@
+schema: 1
+id: edges/06-two-clocks
+title: "The time that is not equal to itself"
+mode: predict
+track: edges
+difficulty: 3
+estimate: 30m
+tags: [edges, time, monotonic, equality, comparison]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      now_carries_monotonic,
+      add_keeps_monotonic,
+      utc_keeps_monotonic,
+      round_zero_keeps_monotonic,
+      json_round_trip_keeps_monotonic,
+      equal_method_says_same,
+      double_equals_says_same,
+      sub_of_stripped_pair_matches,
+    ]
+inspired_by: "radar candidate — a time.Time carries two clocks; which operations use the monotonic reading, and why == is treacherous"

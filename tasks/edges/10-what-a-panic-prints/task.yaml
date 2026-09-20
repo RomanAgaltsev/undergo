@@ -1,0 +1,20 @@
+schema: 1
+id: edges/10-what-a-panic-prints
+title: "What a panic message knows about its value"
+mode: predict
+track: edges
+difficulty: 4
+estimate: 40m
+tags: [edges, panic, formatting, error-interface, runtime]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      named_int_line,
+      named_string_line,
+      error_value_line,
+      plain_struct_line_has_address,
+    ]
+inspired_by: "radar candidate — panic prints derived types rather than bare addresses; what a panic message is allowed to know about its value"

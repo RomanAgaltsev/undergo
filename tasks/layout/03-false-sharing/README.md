@@ -20,18 +20,19 @@ undergo verify layout/03-false-sharing
 
 The throughput difference is **not** graded — a ratio depends on how many cores
 you have, and you cannot be exactly right about it. It is the subject of the
-first written question instead, and the benchmarks are here so you can measure
-it:
-
-```
-go test -bench . -cpu 8
-```
+first written question instead, and `counters_test.go` carries the two
+benchmarks that measure it.
 
 ## Questions to answer in writing
 
 1. Before running them, predict the ratio between `BenchmarkNaive` and
-   `BenchmarkPadded` on your machine. Then run both and account for the gap
-   between your guess and the measurement.
+   `BenchmarkPadded` on your machine. Then run both
+
+   ```
+   go test -bench . -cpu 8
+   ```
+
+   and account for the gap between your guess and the measurement.
 2. The benchmark increments through a plain `*uint64` with no lock and no
    atomic. Why does that not change the shape of the result — and why would you
    never ship it?

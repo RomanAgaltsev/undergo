@@ -26,13 +26,7 @@ one.
 undergo verify generics/01-instantiation-count
 ```
 
-The test builds this package into an **archive** and reads its symbol table. You
-can run the same thing yourself — but do it *after* you have committed your
-answers, because the output is the answer:
-
-```
-go build -o /tmp/shapes.a . && go tool nm /tmp/shapes.a
-```
+The test builds this package into an **archive** and reads its symbol table.
 
 Note that a symbol table holds more than function bodies. Deciding what counts as
 an instantiation is part of the question.

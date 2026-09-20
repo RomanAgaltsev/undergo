@@ -22,13 +22,6 @@ number you should be able to name afterwards.
 undergo verify asm/03-register-abi
 ```
 
-You can read the listing yourself — but do it **after** committing your answers,
-because the listing *is* the answer:
-
-```
-go build -gcflags=-S .
-```
-
 ## Questions to answer in writing
 
 1. `Nine` and `Ten` differ by one argument and one of them spills to the stack.

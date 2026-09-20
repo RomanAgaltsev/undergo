@@ -32,6 +32,15 @@ and an `_solution/` directory. Then:
 - **Declare what your answer depends on.** If a `predict` answer differs by
   architecture or Go version, say so in `requires`. The harness will skip rather
   than mark a correct solver wrong — that is far better than a wrong grade.
+- **Name the instrument; do not print the command.** In a `predict` task the
+  README says what judges the answer — "the test compiles this package with
+  `-gcflags=-m` and reads the compiler's own diagnostics" — but the command that
+  runs it lives in `HINT.md`, never in the README. A README that prints
+  `go build -gcflags=-m .` invites measuring before predicting, which turns a
+  prediction into a transcription. The hint rung is never gated, so the command
+  is still one `undergo hint <id>` away: available, but asked for. In `build` and
+  `optimize` tasks the README may print it, because there measuring is the work
+  rather than the answer. `undergo validate` enforces this.
 - **Never weaken a frozen test** to make a solution pass.
 - Conventional Commits. `task ci` must be green.
 

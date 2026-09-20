@@ -30,3 +30,18 @@ attempt fails loudly instead of quietly reaching for the network.
 
 Nothing in this track needs the network. Every program is a few lines of
 standard library.
+
+## The second half: toolchain pairs
+
+Tasks 06 and up change the **toolchain** instead of the go line. `GOTOOLCHAIN`
+names a version and the go command fetches it, so behaviour that no go line can
+select — a GODEBUG that has been removed, a package that did not exist, a
+compiler that made a different choice — is reachable after all.
+
+These tasks declare `requires.toolchains` and need the network **once** per
+toolchain; afterwards it is in the module cache. Where it cannot be fetched they
+skip with an explanation, and `undergo doctor` says which ones resolve. CI runs
+`ci-verify --require-toolchains`, so there they are proven or the gate is red.
+
+The two halves answer different questions. The go line asks *what does my module
+declare*; the toolchain asks *what does my compiler have*.

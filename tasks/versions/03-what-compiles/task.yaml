@@ -1,0 +1,22 @@
+schema: 1
+id: versions/03-what-compiles
+title: "Is this valid Go?"
+mode: predict
+track: versions
+difficulty: 4
+estimate: 40m
+tags: [versions, language, lang-flag, legality, go1.21, go1.22, go1.23, go1.26]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      clear_min_max_at_go120,
+      range_int_at_go121,
+      range_func_at_go122,
+      new_expr_at_go125,
+      generic_alias_at_go123,
+      diagnostic_names_lang_flag,
+    ]
+inspired_by: "radar candidates Go 1.21/1.22/1.23/1.26 — 'which of these compiles, and on which release'"

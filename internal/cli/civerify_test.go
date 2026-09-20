@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -137,5 +138,48 @@ func TestFailureLogPathStaysUnderDotUndergo(t *testing.T) {
 	want := filepath.FromSlash("/repo/.undergo/ci-failures/layout/01-struct-padding.log")
 	if got != want {
 		t.Errorf("FailureLogPath = %q, want %q", got, want)
+	}
+}
+
+// toolchainRepo is a repo whose only task declares requires.toolchains.
+func toolchainRepo(t *testing.T) Env {
+	t.Helper()
+	e := repo(t)
+	e.Out = io.Discard
+	e.Err = io.Discard
+	p := filepath.Join(e.TaskDir("layout/01-struct-padding"), "task.yaml")
+	b, err := os.ReadFile(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	y := strings.Replace(string(b), `requires: {go: "1.27"}`,
+		"requires:\n  go: \"1.27\"\n  toolchains: [go1.22.12]", 1)
+	if err := os.WriteFile(p, []byte(y), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return e
+}
+
+// A skip nobody is told about is indistinguishable from success: if CI lost
+// the network for a moment these tasks would stop being proven and the gate
+// would stay green. --require-toolchains is what makes that impossible.
+func TestCIVerifyRequireToolchainsTurnsAToolchainSkipIntoAFailure(t *testing.T) {
+	orig := manifest.ToolchainAvailable
+	t.Cleanup(func() { manifest.ToolchainAvailable = orig })
+	manifest.ToolchainAvailable = func(string) bool { return false }
+
+	e := toolchainRepo(t)
+
+	if err := CIVerify(e, nil); err != nil {
+		t.Fatalf("without the flag an unobtainable toolchain is a skip: %v", err)
+	}
+	err := CIVerify(e, []string{"--require-toolchains"})
+	if err == nil {
+		t.Fatal("with the flag it must fail")
+	}
+	// An undefined flag also returns an error, which would satisfy the check
+	// above while proving nothing. The failure has to be about the task.
+	if !strings.Contains(err.Error(), "layout/01-struct-padding") {
+		t.Fatalf("the failure must name the unproven task; got: %v", err)
 	}
 }

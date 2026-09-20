@@ -23,4 +23,7 @@ jobs:
           go-version: '1.27'
       # Reference solutions must never reach a public log: ci-verify captures
       # all test output and prints only a verdict per task.
-      - run: go run ./cmd/undergo ci-verify
+      # Toolchain-pair tasks fetch an old toolchain. In CI they must be proven,
+      # not skipped: a silent skip would mean they are never checked again and
+      # nobody is told.
+      - run: go run ./cmd/undergo ci-verify --require-toolchains

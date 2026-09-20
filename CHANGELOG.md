@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/RomanAgaltsev/undergo/compare/v0.17.0...v0.18.0) (2026-09-20)
+
+
+### Features
+
+* **edges:** depth — edges reaches ten ([#31](https://github.com/RomanAgaltsev/undergo/issues/31)) ([0f758e9](https://github.com/RomanAgaltsev/undergo/commit/0f758e952ebcc359f8667f225f37615fd523eb7c))
+
 ## [0.17.0](https://github.com/RomanAgaltsev/undergo/compare/v0.16.0...v0.17.0) (2026-09-20)
 
 

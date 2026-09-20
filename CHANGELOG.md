@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/RomanAgaltsev/undergo/compare/v0.16.0...v0.17.0) (2026-09-20)
+
+
+### Features
+
+* **cli:** validate checks the README's counts against the catalogue ([#29](https://github.com/RomanAgaltsev/undergo/issues/29)) ([5b114be](https://github.com/RomanAgaltsev/undergo/commit/5b114bebdcf44addbf4f9ee9642661fee58ce836))
+
 ## [0.16.0](https://github.com/RomanAgaltsev/undergo/compare/v0.15.0...v0.16.0) (2026-09-20)
 
 

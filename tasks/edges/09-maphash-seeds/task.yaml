@@ -1,0 +1,20 @@
+schema: 1
+id: edges/09-maphash-seeds
+title: "The hash that is only a promise within one process"
+mode: predict
+track: edges
+difficulty: 3
+estimate: 30m
+tags: [edges, maphash, hashing, determinism, seeds]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      same_seed_same_key_agrees,
+      different_seeds_agree,
+      string_and_bytes_agree,
+      two_processes_agree,
+    ]
+inspired_by: "radar candidate — hash/maphash is consistent within a process and different across them, the guarantee people accidentally rely on"

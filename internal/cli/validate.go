@@ -58,6 +58,10 @@ func Validate(e Env, _ []string) error {
 			}
 		}
 	}
+	if err := checkReadmeCounts(e.Root, countCatalogue(tasks)); err != nil {
+		return err
+	}
+
 	fmt.Fprintf(e.Out, "%d manifests valid\n", len(tasks))
 	return nil
 }

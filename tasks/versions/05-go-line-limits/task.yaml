@@ -1,0 +1,20 @@
+schema: 1
+id: versions/05-go-line-limits
+title: "What the go line cannot reach"
+mode: predict
+track: versions
+difficulty: 4
+estimate: 40m
+tags: [versions, godebug, asynctimerchan, removal, fatal, go1.23, go1.27]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      after_cap_at_go119,
+      after_cap_at_go127,
+      init_ran_with_removed_godebug,
+      output_says_fatal_error,
+    ]
+inspired_by: "radar Go 1.27 — timer channels are always unbuffered now that asynctimerchan is gone"

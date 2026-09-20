@@ -41,6 +41,12 @@ and an `_solution/` directory. Then:
   is still one `undergo hint <id>` away: available, but asked for. In `build` and
   `optimize` tasks the README may print it, because there measuring is the work
   rather than the answer. `undergo validate` enforces this.
+- **The README's counts are checked.** `README.md` states how many tasks ship,
+  how many are machine-graded, and how many tracks, drills and katas there are.
+  `undergo validate` compares each of those numbers with the catalogue, so
+  adding a task means updating the sentence. A claim the README does not make is
+  not checked — the rule catches a number that has stopped being true, not
+  missing prose.
 - **Never weaken a frozen test** to make a solution pass.
 - Conventional Commits. `task ci` must be green.
 

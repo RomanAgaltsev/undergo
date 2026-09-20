@@ -1,0 +1,19 @@
+schema: 1
+id: versions/04-rand-seed
+title: "The change that says nothing"
+mode: predict
+track: versions
+difficulty: 3
+estimate: 30m
+tags: [versions, godebug, randseednop, math-rand, go1.24, determinism]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      seed_honoured_at_go123,
+      seed_honoured_at_go124,
+      seed_honoured_at_go124_with_randseednop_0,
+    ]
+inspired_by: "$GOROOT/src/internal/godebugs/table.go — randseednop, Changed: 24"

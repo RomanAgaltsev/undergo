@@ -1,0 +1,20 @@
+schema: 1
+id: versions/02-loop-variables
+title: "The bug that stopped existing"
+mode: predict
+track: versions
+difficulty: 3
+estimate: 30m
+tags: [versions, loopvar, closures, go1.22, compatibility]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      plain_at_go121,
+      plain_at_go122,
+      shadowed_at_go121,
+      shadowed_at_go122,
+    ]
+inspired_by: "radar candidate Go 1.22 — loop variables are created anew each iteration"

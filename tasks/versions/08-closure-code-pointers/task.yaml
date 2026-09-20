@@ -1,0 +1,21 @@
+schema: 1
+id: versions/08-closure-code-pointers
+title: "Two closures, one code pointer"
+mode: predict
+track: versions
+difficulty: 4
+estimate: 40m
+tags: [versions, toolchain, closures, reflect, function-identity, go1.27]
+requires:
+  go: "1.27"
+  toolchains: [go1.26.0]
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      same_site_shares_on_local,
+      same_site_shares_under_go1_26,
+      distinct_literals_share_on_local,
+      distinct_literals_share_under_go1_26,
+    ]
+inspired_by: "radar Go 1.27 — closures may now share a code pointer, so comparing function pointers misleads in more cases"

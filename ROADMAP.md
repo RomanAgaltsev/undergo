@@ -7,9 +7,9 @@ Memory — `layout` (5 tasks), `alloc` (5),
 `types` (5). Language surface — `generics` (5), `iter` (5), `reflect` (5). Lifetime
 and collection — `weak` (5), `gc` (5). The machine — `iface` (5), `compiler` (5),
 `asm` (5), `edges` (10). Scheduling and memory — `sched` (5), `memmodel` (5),
-`concurrency` (8). Versions — `versions` (5). Alongside the 15 `review/*`
+`concurrency` (8). Versions — `versions` (8). Alongside the 15 `review/*`
 categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 259 tasks in all, 88 of them machine-graded.
+from loupe) and `design` (36 katas, imported from keystone). 262 tasks in all, 91 of them machine-graded.
 
 Planned, in rough order:
 
@@ -32,7 +32,7 @@ Planned, in rough order:
 | `review/*` | review | 15 categories × 3 tiers × 3 drills — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
 | `design` | design | 36 system-design katas across 8 tracks |
 | `concurrency` | predict/build | channel handoff, abandoned results, `Cond`, the `Once` contract, `Pool` clearing, `RWMutex` admission, cancellability, close cascades — derived from `go-concurrency` |
-| `versions` | predict | the `go.mod` line as a behaviour switch: GODEBUG defaults, loop variables, language legality, and the edge where a removed switch stops answering |
+| `versions` | predict | the `go.mod` line as a behaviour switch: GODEBUG defaults, loop variables, language legality, and the edge where a removed switch stops answering; and its second half, where the toolchain changes instead and reaches what no go line can |
 
 ## Candidate pool
 
@@ -114,7 +114,7 @@ changed in. A row is retired by being built, never by being deleted.
 | `errgroup`'s first error wins and its siblings' errors are silently discarded — the mechanism is an internal `errOnce sync.Once` | `concurrency` | go-concurrency kata 09 | — (costs `golang.org/x/sync`) |
 | `singleflight` deletes the key on success **and on error** before `Do` returns — and `DoChan` allocates five times what `Do` does | `concurrency` | go-concurrency kata 12 | — (costs `golang.org/x/sync`) |
 | Three rate limiters behind one interface: which can burst, and why the `time.Ticker` one strictly cannot | `concurrency` | go-concurrency kata 14 | — (costs `golang.org/x/time`) |
-| Closures may now share a code pointer, so comparing function pointers misleads in more cases | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
+| Closures may now share a code pointer, so comparing function pointers misleads in more cases | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | `versions/08-closure-code-pointers` |
 | A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | cgo call overhead is down about 30% — measure the boundary | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | The heap base address is randomized on 64-bit: which observations stop being reproducible, and which never were | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
@@ -214,7 +214,7 @@ changed in. A row is retired by being built, never by being deleted.
 | `reflect.MapIter` — reflective map iteration that does not allocate a slice of every key | `reflect` | [Go 1.12](https://go.dev/doc/go1.12) | — |
 | An embedded pointer to an unexported struct type used to punch a hole through the export check — `CanSet` was wrong for years | `reflect` | [Go 1.10](https://go.dev/doc/go1.10) | `reflect/03-settability` |
 | The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/05-goroutine-leak-profile` |
-| Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/03-timer-channels`, `versions/05-go-line-limits` |
+| Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/03-timer-channels`, `versions/05-go-line-limits`, `versions/06-timer-channel-buffer` |
 | `GOMAXPROCS` is container-aware and updates itself as the cgroup quota changes | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | `testing/synctest` is GA: virtualized time in a bubble — a task, and the harness that makes `sched` and `memmodel` gradeable at all | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | `sched/02-synctest-bubble` |
 | `runtime/trace.FlightRecorder` as the data source for a trace-analyzer task | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |

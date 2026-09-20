@@ -47,6 +47,8 @@ func CIVerify(e Env, args []string) error {
 	fs := flag.NewFlagSet("ci-verify", flag.ContinueOnError)
 	fs.SetOutput(e.Err)
 	race := fs.Bool("race", false, "run every reference solution under the race detector")
+	requireToolchains := fs.Bool("require-toolchains", false,
+		"fail rather than skip when a task's required toolchain cannot be obtained")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -74,6 +76,12 @@ func CIVerify(e Env, args []string) error {
 			continue
 		}
 		if ok, why := manifest.Gradeable(t, manifest.CurrentEnv()); !ok {
+			// A skip nobody is told about is indistinguishable from success.
+			// In CI these tasks are proven or the gate is red.
+			if *requireToolchains && len(t.Requires.Toolchains) > 0 {
+				failed = append(failed, fmt.Sprintf("%s: %s", t.ID, why))
+				continue
+			}
 			fmt.Fprintf(e.Out, "skip  %s: %s\n", t.ID, why)
 			skipped++
 			continue

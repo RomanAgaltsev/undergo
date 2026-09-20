@@ -1,0 +1,20 @@
+schema: 1
+id: versions/06-timer-channel-buffer
+title: "The channel that was buffered"
+mode: predict
+track: versions
+difficulty: 4
+estimate: 40m
+tags: [versions, toolchain, asynctimerchan, timers, go1.23, go1.27]
+requires:
+  go: "1.27"
+  toolchains: [go1.22.12]
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      cap_on_local,
+      cap_under_go1_22,
+      cap_on_local_at_go_line_119,
+    ]
+inspired_by: "radar Go 1.27 — timer channels are always unbuffered now that asynctimerchan is gone"

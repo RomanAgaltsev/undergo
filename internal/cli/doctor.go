@@ -3,8 +3,9 @@ package cli
 import (
 	"flag"
 	"fmt"
+	"maps"
 	"os/exec"
-	"strings"
+	"slices"
 
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 )
@@ -17,14 +18,17 @@ func Doctor(e Env, args []string) error {
 		return err
 	}
 
-	env := manifest.CurrentEnv()
-	fmt.Fprintf(e.Out, "go        %s\nplatform  %s/%s\ntoolchains %s\nrace      %s\n\n",
-		env.GoVersion, env.GOOS, env.GOARCH, toolchainList(env.Toolchains), raceSupport())
-
 	tasks, err := manifest.Walk(e.TasksDir())
 	if err != nil {
 		return err
 	}
+
+	env := manifest.CurrentEnv()
+	fmt.Fprintf(e.Out, "go        %s\nplatform  %s/%s\nrace      %s\n",
+		env.GoVersion, env.GOOS, env.GOARCH, raceSupport())
+	reportToolchains(e, tasks)
+	fmt.Fprintln(e.Out)
+
 	var blocked int
 	for _, t := range tasks {
 		if ok, why := manifest.Gradeable(t, env); !ok {
@@ -55,9 +59,30 @@ func raceSupport() string {
 	return "no C toolchain and no docker; the race gate cannot run here — CI is authoritative"
 }
 
-func toolchainList(t []string) string {
-	if len(t) == 0 {
-		return "(none besides the default)"
+// reportToolchains says, for every toolchain the catalogue asks for, whether
+// this machine can obtain it.
+//
+// A toolchain is no longer something you install and this command finds on
+// PATH: it is named in GOTOOLCHAIN and fetched on demand, so the only useful
+// question is whether it resolves here. Answering it may cost a download the
+// first time, which also warms the cache for the run that follows.
+func reportToolchains(e Env, tasks []*manifest.Task) {
+	seen := map[string]bool{}
+	for _, t := range tasks {
+		for _, name := range t.Requires.Toolchains {
+			seen[name] = true
+		}
 	}
-	return strings.Join(t, ", ")
+	if len(seen) == 0 {
+		fmt.Fprintln(e.Out, "toolchains no task requires one")
+		return
+	}
+	wanted := slices.Sorted(maps.Keys(seen))
+	for _, name := range wanted {
+		status := "resolves"
+		if !manifest.ToolchainAvailable(name) {
+			status = "cannot be obtained here — it is fetched on demand and needs the network once"
+		}
+		fmt.Fprintf(e.Out, "toolchain %s  %s\n", name, status)
+	}
 }

@@ -1,0 +1,20 @@
+schema: 1
+id: versions/07-weak-not-in-std
+title: "The package that did not exist"
+mode: predict
+track: versions
+difficulty: 3
+estimate: 30m
+tags: [versions, toolchain, stdlib, weak, go1.24]
+requires:
+  go: "1.27"
+  toolchains: [go1.23.12]
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      compiles_on_local,
+      compiles_under_go1_23,
+      diagnostic_says_not_in_std,
+    ]
+inspired_by: "the weak package arrived in Go 1.24; the standard library belongs to the toolchain, not to the language version"

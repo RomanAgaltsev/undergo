@@ -81,13 +81,78 @@ func TestValidateRejectsAStaleTrackCountWrittenAsAWord(t *testing.T) {
 	}
 }
 
-// A README that claims nothing is not lying. The rule catches wrong numbers,
-// not missing prose — and a repo with no README at all is a fixture, not a fault.
-func TestValidateIgnoresAReadmeThatMakesNoClaims(t *testing.T) {
-	if err := Validate(countingRepo(t, "# undergo\n\nNo numbers here.\n"), nil); err != nil {
-		t.Fatalf("a README with no counts must pass: %v", err)
+// A README that exists and claims nothing used to pass, on the reasoning that
+// it is not lying. That leniency is what let the rule go vacuous: "not lying"
+// and "reworded so the regex no longer matches" are the same state from here,
+// and only one of them is intended. A README that has stopped making a checked
+// claim is now a failure; retiring a claim means editing countedDocs.
+//
+// A repository with no README at all is still not a fault — that is a fixture,
+// and the distinction is presence, not content.
+func TestValidateRequiresTheReadmeToKeepMakingItsClaims(t *testing.T) {
+	err := Validate(countingRepo(t, "# undergo\n\nNo numbers here.\n"), nil)
+	if err == nil {
+		t.Fatal("a README that makes none of its checked claims must fail")
+	}
+	if !strings.Contains(err.Error(), "no longer states") {
+		t.Errorf("the error should say which claims went missing; got: %v", err)
 	}
 	if err := Validate(countingRepo(t, ""), nil); err != nil {
 		t.Fatalf("no README at all must pass: %v", err)
+	}
+}
+
+// The check binds to exact prose, so a reworded sentence stops matching — and
+// used to stop being checked, silently, leaving the gate green. That is a check
+// going vacuous, which is the failure the whole rule exists to prevent one level
+// up. A claim is now required, and retiring one means editing countedDocs.
+func TestValidateRejectsARewordedClaim(t *testing.T) {
+	e := countingRepo(t, "4 tasks ship today: 2 machine-graded across all two internals tracks, "+
+		"1 review drills across 1 categories, and 1 system-design katas.\n")
+	if err := Validate(e, nil); err != nil {
+		t.Fatalf("the accurate README must pass first: %v", err)
+	}
+
+	// Same numbers, different wording. Nothing has become untrue; the check has
+	// simply lost sight of it.
+	reworded := "4 tasks are available today: 2 machine-graded across all two internals tracks, " +
+		"1 review drills across 1 categories, and 1 system-design katas.\n"
+	if err := os.WriteFile(filepath.Join(e.Root, "README.md"), []byte(reworded), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	err := Validate(e, nil)
+	if err == nil {
+		t.Fatal("validate accepted a README that had stopped making a checked claim")
+	}
+	if !strings.Contains(err.Error(), "no longer states") {
+		t.Errorf("the error should say the claim went missing; got: %v", err)
+	}
+}
+
+// ROADMAP.md drifted one milestone after M15 gave README.md its check, because
+// the bookkeeping updated the README alone. Both documents are checked now.
+func TestValidateChecksRoadmapCountsToo(t *testing.T) {
+	e := countingRepo(t, "4 tasks ship today: 2 machine-graded across all two internals tracks, "+
+		"1 review drills across 1 categories, and 1 system-design katas.\n")
+
+	roadmap := filepath.Join(e.Root, "ROADMAP.md")
+	accurate := "# Roadmap\n\nall two internals tracks. 4 tasks ship today, 2 machine-graded.\n"
+	if err := os.WriteFile(roadmap, []byte(accurate), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := Validate(e, nil); err != nil {
+		t.Fatalf("an accurate ROADMAP must pass: %v", err)
+	}
+
+	stale := "# Roadmap\n\nall two internals tracks. 9 tasks ship today, 2 machine-graded.\n"
+	if err := os.WriteFile(roadmap, []byte(stale), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	err := Validate(e, nil)
+	if err == nil {
+		t.Fatal("validate accepted a stale count in ROADMAP.md")
+	}
+	if !strings.Contains(err.Error(), "ROADMAP.md") {
+		t.Errorf("the error should name the document; got: %v", err)
 	}
 }

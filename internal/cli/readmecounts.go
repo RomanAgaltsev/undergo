@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -74,45 +75,88 @@ type readmeClaim struct {
 	truth func(catalogueCounts) int
 }
 
-var readmeClaims = []readmeClaim{
-	{"tasks", regexp.MustCompile(`([0-9]+) tasks ship today`), func(c catalogueCounts) int { return c.total }},
-	{"machine-graded tasks", regexp.MustCompile(`([0-9]+) machine-graded`), func(c catalogueCounts) int { return c.gradeable }},
-	{"internals tracks", regexp.MustCompile(`all ([a-z]+|[0-9]+) internals tracks`), func(c catalogueCounts) int { return c.tracks }},
-	{"review drills", regexp.MustCompile(`([0-9]+) review drills`), func(c catalogueCounts) int { return c.review }},
-	{"review categories", regexp.MustCompile(`across ([0-9]+) categories`), func(c catalogueCounts) int { return c.reviewCategories }},
-	{"design katas", regexp.MustCompile(`([0-9]+) system-design katas`), func(c catalogueCounts) int { return c.design }},
+var (
+	claimTasks    = readmeClaim{"tasks", regexp.MustCompile(`([0-9]+) tasks ship today`), func(c catalogueCounts) int { return c.total }}
+	claimGraded   = readmeClaim{"machine-graded tasks", regexp.MustCompile(`([0-9]+) machine-graded`), func(c catalogueCounts) int { return c.gradeable }}
+	claimTracks   = readmeClaim{"internals tracks", regexp.MustCompile(`all ([a-z]+|[0-9]+) internals tracks`), func(c catalogueCounts) int { return c.tracks }}
+	claimDrills   = readmeClaim{"review drills", regexp.MustCompile(`([0-9]+) review drills`), func(c catalogueCounts) int { return c.review }}
+	claimCategory = readmeClaim{"review categories", regexp.MustCompile(`across ([0-9]+) categories`), func(c catalogueCounts) int { return c.reviewCategories }}
+	claimKatas    = readmeClaim{"design katas", regexp.MustCompile(`([0-9]+) system-design katas`), func(c catalogueCounts) int { return c.design }}
+)
+
+// countedDoc is a document that states the catalogue's size, and the claims it
+// is required to keep making.
+//
+// Two documents, because the failure has now happened in both. README.md
+// drifted for two milestones before M15 gave it a check, and ROADMAP.md drifted
+// one milestone after that — the same bookkeeping task updated the README alone,
+// and ROADMAP.md carried a paragraph admitting nothing checked it.
+//
+// The claims are *required*, not merely checked where present. A regex binds to
+// exact prose, so rewording "267 tasks ship today" into "267 tasks are
+// available" would silently stop that claim being checked and the gate would
+// stay green — a check that quietly goes vacuous, which is the failure this
+// whole rule exists to prevent, one level up. Retiring a claim means deleting it
+// from this list, deliberately.
+type countedDoc struct {
+	name   string
+	claims []readmeClaim
 }
 
-// checkReadmeCounts compares the top-level README's claims with the catalogue.
-//
-// A claim the README does not make is not checked: a README that says no
-// numbers is not lying, and a repository without one at all is a fixture rather
-// than a fault. The rule catches a number that has stopped being true, which is
-// the only failure this has ever actually had.
+var countedDocs = []countedDoc{
+	{"README.md", []readmeClaim{claimTasks, claimGraded, claimTracks, claimDrills, claimCategory, claimKatas}},
+	{"ROADMAP.md", []readmeClaim{claimTasks, claimGraded, claimTracks}},
+}
+
+// checkReadmeCounts compares every counted document's claims with the catalogue.
 func checkReadmeCounts(root string, c catalogueCounts) error {
-	body, err := os.ReadFile(filepath.Join(root, "README.md"))
+	var problems []string
+	for _, doc := range countedDocs {
+		if err := checkOneDoc(root, doc, c); err != nil {
+			problems = append(problems, err.Error())
+		}
+	}
+	if len(problems) > 0 {
+		return errors.New(strings.Join(problems, "\n"))
+	}
+	return nil
+}
+
+// checkOneDoc checks one document's required claims.
+//
+// A document that is absent entirely is not a fault: the test fixtures are
+// repositories with no README, and a repository without one is not lying about
+// anything. A document that exists and has stopped making a claim is a fault,
+// because that is indistinguishable from a check that has gone vacuous.
+func checkOneDoc(root string, doc countedDoc, c catalogueCounts) error {
+	body, err := os.ReadFile(filepath.Join(root, doc.name))
 	if err != nil {
-		return nil //nolint:nilerr // no README is not a claim
+		return nil //nolint:nilerr // an absent document makes no claims
 	}
 
-	var wrong []string
-	for _, claim := range readmeClaims {
+	var wrong, missing []string
+	for _, claim := range doc.claims {
 		m := claim.re.FindStringSubmatch(string(body))
 		if m == nil {
+			missing = append(missing, claim.what)
 			continue
 		}
 		said, ok := readNumber(m[1])
 		if !ok {
-			wrong = append(wrong, fmt.Sprintf("%s: README says %q, which is not a number this check knows",
+			wrong = append(wrong, fmt.Sprintf("%s: says %q, which is not a number this check knows",
 				claim.what, m[1]))
 			continue
 		}
 		if want := claim.truth(c); said != want {
-			wrong = append(wrong, fmt.Sprintf("%s: README says %q, the catalogue has %d", claim.what, m[1], want))
+			wrong = append(wrong, fmt.Sprintf("%s: says %q, the catalogue has %d", claim.what, m[1], want))
 		}
 	}
+	if len(missing) > 0 {
+		wrong = append(wrong, fmt.Sprintf("no longer states %s — restore the wording, or remove "+
+			"the claim from countedDocs deliberately", strings.Join(missing, ", ")))
+	}
 	if len(wrong) > 0 {
-		return fmt.Errorf("README.md is out of date:\n  %s", strings.Join(wrong, "\n  "))
+		return fmt.Errorf("%s is out of date:\n  %s", doc.name, strings.Join(wrong, "\n  "))
 	}
 	return nil
 }

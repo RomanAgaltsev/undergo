@@ -80,8 +80,10 @@ tasks:
       # directive is blind to exactly the toolchain-pin advisories this exists to
       # catch — and would report a cheerful all-clear while CI, running the
       # pinned toolchain everybody else gets, goes red.
+      # Same pinned version and same patterns as ci.yml, so the only difference
+      # between this and the authoritative run is the toolchain.
       - echo "NOTE -- this reports against YOUR toolchain. The ci.yml job runs the pinned one."
-      - go run golang.org/x/vuln/cmd/govulncheck@latest ./cmd/... ./internal/...
+      - go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./cmd/... ./internal/...
 
   stubs:
     desc: Gate 1 — every task builds; machine-graded tasks also vet clean

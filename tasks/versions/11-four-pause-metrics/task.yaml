@@ -1,0 +1,22 @@
+schema: 1
+id: versions/11-four-pause-metrics
+title: "One number became four"
+mode: predict
+track: versions
+difficulty: 3
+estimate: 30m
+tags: [versions, toolchain, runtime-metrics, gc, stop-the-world, go1.22]
+requires:
+  go: "1.27"
+  toolchains: [go1.21.13]
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      pause_metric_count_on_local,
+      pause_metric_count_under_go1_21,
+      gc_pauses_seconds_present_on_local,
+      sched_pauses_total_gc_present_on_local,
+      sched_pauses_total_gc_present_under_go1_21,
+    ]
+inspired_by: "radar Go 1.22 — stop-the-world pauses split into a stopping phase and a total"

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.1](https://github.com/RomanAgaltsev/undergo/compare/v0.20.0...v0.20.1) (2026-09-21)
+
+
+### Documentation
+
+* **roadmap:** the pool's floor, and why it is lower than it looks ([#37](https://github.com/RomanAgaltsev/undergo/issues/37)) ([97942ba](https://github.com/RomanAgaltsev/undergo/commit/97942baf56378193669cc639028580cb38fa9807))
+
 ## [0.20.0](https://github.com/RomanAgaltsev/undergo/compare/v0.19.0...v0.20.0) (2026-09-21)
 
 

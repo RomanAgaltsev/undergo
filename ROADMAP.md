@@ -7,9 +7,13 @@ Memory — `layout` (5 tasks), `alloc` (5),
 `types` (5). Language surface — `generics` (5), `iter` (5), `reflect` (5). Lifetime
 and collection — `weak` (5), `gc` (5). The machine — `iface` (5), `compiler` (5),
 `asm` (5), `edges` (10). Scheduling and memory — `sched` (5), `memmodel` (5),
-`concurrency` (8). Versions — `versions` (8). Alongside the 15 `review/*`
+`concurrency` (8). Versions — `versions` (13). Alongside the 15 `review/*`
 categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 262 tasks in all, 91 of them machine-graded.
+from loupe) and `design` (36 katas, imported from keystone). 267 tasks in all, 96 of them machine-graded.
+
+These counts are **not** checked by anything. `undergo validate` compares the
+catalogue against `README.md` only, so this paragraph drifted from M16 until
+somebody happened to read it. Treat it with suspicion, or give it a check.
 
 Planned, in rough order:
 
@@ -62,11 +66,87 @@ task, and `versions/01` and `versions/05` each join a task that was already
 there — one grading the current behaviour, the other grading the version it
 changed in. A row is retired by being built, never by being deleted.
 
+### What the pool cannot supply
+
+The row count is not a backlog and it is not a budget. M15 found that most rows
+cannot become tasks as written, and M16 measured how many: **97 rows were
+unbuilt, and they yielded five tasks.** Three rules do most of that cutting, and
+none of them was written down before now.
+
+**The Go 1.21 floor.** `GOTOOLCHAIN` is itself a Go 1.21 feature, so
+`internal/toolchain` cannot name anything older — `minToolchain` enforces it. A
+version *pair* needs a "before" as well as an "after", so the oldest usable
+"before" is 1.21 and the oldest gradeable *change* is one that landed in
+**1.22**. Measured at v0.19.0, every unbuilt row cited exactly one version:
+
+| band | unbuilt rows |
+|---|---|
+| ≤ Go 1.20 | **68** |
+| Go 1.21 | 6 — reachable only through a GODEBUG knob |
+| ≥ Go 1.22 | 23 |
+
+Seventy percent of the unbuilt pool is out of reach of a toolchain pair, and no
+amount of effort changes that. M14b learned it the expensive way: the spec named
+the Go 1.13 escape-analysis rewrite as its best candidate, and the candidate was
+unreachable.
+
+**The answer form.** A duration, a rate or a ratio cannot be graded — it is a
+fact about the machine that ran it. This kills more leads than anything except
+the floor, because the release notes are full of performance claims: the two
+Green Tea rows, cgo overhead, size-specialized allocation, `sync.Map`'s
+contention curve. Some survive by being re-asked: "stop-the-world pauses split
+in two" is a duration, but *which metric names exist* is an exact string, and
+that became `versions/11`.
+
+**The platform rule, which is not what it looks like.** Gate 2 proves every task
+on ubuntu and macos, so it is tempting to say a task must answer the same on
+both. That is wrong, and `versions/13` proved it: `0xc000` is the arena hint
+from the `default` arm of `runtime/malloc.go`, and `GOARCH == "arm64"` takes its
+own, so the task failed on macos and passed on ubuntu.
+
+The rule this repo actually keeps is **one correct answer on every platform a
+task claims**. Eleven tasks already pin `requires.arch` or `requires.os` — the
+whole `asm` track among them — and `Gradeable` skips them off-platform by
+design. So a platform-specific lead is **pinned, not struck**. What disqualifies
+a lead is having no single correct answer on a platform it claims, not having a
+different answer on a platform it never claimed.
+
+### Three genres, and only one of them downloads anything
+
+The `versions` track is not "the toolchain-pair track". Choosing the wrong genre
+makes a task more expensive and less portable than it needs to be.
+
+| genre | tasks | mechanism | downloads? |
+|---|---|---|---|
+| GODEBUG / `-lang` gate | `versions/01`–`05`, `09` | `internal/goline`, the go.mod `go` line | **no** |
+| toolchain pair | `versions/06`–`08`, `10`–`13` | `internal/toolchain` | yes |
+| GOEXPERIMENT A/B | none yet | one toolchain, two environments | no |
+
+Since Go 1.21 the go line is the compatibility switch, so genre 1 reaches any
+change shipped with a GODEBUG knob and any *language legality* change at any
+version — including changes far below the 1.21 floor, because `-lang` has
+accepted old language versions for years. Reach for it first.
+
+Genre 3 belongs to a lead's home track rather than to `versions`: a
+`GOEXPERIMENT` is a property of one toolchain, not a difference between two.
+
+The cost of a pair task is **per distinct toolchain, not per task**. M16 added
+five tasks for two new downloads, because two of them reused toolchains already
+required, and gate 2 grew by 22s on ubuntu and 31s on macos — about what M14b's
+three tasks cost. A candidate that reuses a toolchain already named by some task
+is materially cheaper than an equally good one that does not.
+
+### Counting rows overstates the leads
+
+At least one lead appears twice, under `alloc` and under `layout`. Both are
+struck below for the same reason, and they had to be struck together. Any future
+count should say whether it is counting rows or leads.
+
 | Candidate | Track | Source | Built |
 |---|---|---|---|
 | Size-specialized allocation routines make small allocations (<80 bytes) up to 30% cheaper — A/B it with `GOEXPERIMENT=nosizespecializedmalloc` | `alloc` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Slice backing stores are stack-allocated in more cases — predict which `make` calls reach the heap, with `-d=variablemakehash=n` as the control | `alloc` | [Go 1.25](https://go.dev/doc/go1.25), extended in [1.26](https://go.dev/doc/go1.26) | `alloc/03-what-escapes`, `types/01-cap-growth` |
-| Heap metadata moved next to the object and allocation alignment fell from 16 bytes to 8 — which size classes changed, and by how much | `alloc` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| Heap metadata moved next to the object and allocation alignment fell from 16 bytes to 8 — which size classes changed, and by how much. **Probed thin 2026-09-21:** effective bytes per allocation are identical under 1.21 and 1.22 at every size from 1 to 128, so the answer as asked is "none of them". Not visible through `TotalAlloc`. Same lead as the `layout` row below; strike both or neither | `alloc` | [Go 1.22](https://go.dev/doc/go1.22) | — |
 | A goroutine's starting stack is sized from the average of its predecessors, not from a constant — so a function's first allocation depends on program history | `alloc` | [Go 1.19](https://go.dev/doc/go1.19) | — |
 | `strings.Trim` and friends became allocation-free for the no-op case — predict `AllocsPerRun` before and after | `alloc` | [Go 1.18](https://go.dev/doc/go1.18) | — |
 | `os.File.WriteString` stopped copying to a `[]byte` — one allocation removed by a compiler-level conversion rule | `alloc` | [Go 1.17](https://go.dev/doc/go1.17) | — |
@@ -94,7 +174,7 @@ changed in. A row is retired by being built, never by being deleted.
 | `math/bits` functions are intrinsics: the portable Go body ships, compiles, and almost never runs — which ones, on which GOARCH | `asm` | [Go 1.9](https://go.dev/doc/go1.9) | `asm/05-carry-chain` |
 | PGO build overhead collapsed, and PGO now aligns hot loop blocks for 1–1.5% | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | `compiler/04-pgo-devirtualization` |
 | The compiler overlaps stack slots of locals with disjoint live ranges — predict a frame size, then move one line | `compiler` | [Go 1.23](https://go.dev/doc/go1.23) | `compiler/03-stack-slots` — which measured that it does NOT happen for address-taken locals |
-| An inliner that weighs the call site and not just the callee — a panic path discourages inlining where 1.11 encouraged it | `compiler` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| An inliner that weighs the call site and not just the callee — a panic path discourages inlining where 1.11 encouraged it. **Genre 3, not a version task:** probed 2026-09-21, it does not flip across a 1.21/1.22 pair because `newinliner` is still an opt-in `GOEXPERIMENT` at Go 1.27. Under it the compiler prints exact inlining scores — the panic path `-9`, a plain call `4`, `fmt.Println` `72` — and `main` becomes inlinable. Gradeable as a GOEXPERIMENT A/B here in `compiler`; `toolchain.Run` already accepts env vars | `compiler` | [Go 1.22](https://go.dev/doc/go1.22) | — |
 | PGO devirtualizes more, and devirtualization now interleaves with inlining rather than running before it | `compiler` | [Go 1.22](https://go.dev/doc/go1.22) | `compiler/04-pgo-devirtualization` |
 | Linker symbol prefixes changed from `go.` to `go:` — every tool that parsed `-S` output by prefix broke | `compiler` | [Go 1.20](https://go.dev/doc/go1.20) | — |
 | PGO arrived as a preview that only inlined — the baseline any PGO measurement is against | `compiler` | [Go 1.20](https://go.dev/doc/go1.20) | `compiler/04-pgo-devirtualization` |
@@ -118,7 +198,7 @@ changed in. A row is retired by being built, never by being deleted.
 | A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | `versions/09-promoted-field-keys` |
 | cgo call overhead is down about 30% — measure the boundary | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | The heap base address is randomized on 64-bit: which observations stop being reproducible, and which never were | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | `versions/13-heap-base` |
-| `GOAMD64=v3` fused multiply-add changes the exact floating-point values a program produces | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
+| `GOAMD64=v3` fused multiply-add changes the exact floating-point values a program produces. **Pin candidate:** amd64-only, which is not a strike — see the platform rule above. `requires.arch: [amd64]` is how `versions/13` handles the same problem | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | A Go 1.21 compiler bug delayed nil checks; the same program panics on 1.25 — a toolchain-pair task | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | `//go:linkname` to unmarked standard-library symbols is now refused | `edges` | [Go 1.23](https://go.dev/doc/go1.23) | `edges/01-linkname` |
 | Loop variables are created anew each iteration — gated on the `go.mod` language version, so one toolchain gives both answers | `edges` | [Go 1.22](https://go.dev/doc/go1.22) | `versions/02-loop-variables` |
@@ -186,7 +266,7 @@ changed in. A row is retired by being built, never by being deleted.
 | `go vet` learned to spot impossible interface assertions — same method name, different signature | `iface` | [Go 1.15](https://go.dev/doc/go1.15) | — |
 | Overlapping interface embedding became legal, but only for *identical* signatures — predict which declarations compile | `iface` | [Go 1.14](https://go.dev/doc/go1.14) | — |
 | Range-over-function iterators and the `iter` package — what `break`, `return` and `goto` do to the yield contract | `iter` | [Go 1.23](https://go.dev/doc/go1.23) | `iter/02-yield-contract`, `iter/01-adapters`, `iter/04-goto-and-labels` |
-| Heap metadata moved next to the object and alignment fell from 16 to 8 — what that does to a struct's real footprint | `layout` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| Heap metadata moved next to the object and alignment fell from 16 to 8 — what that does to a struct's real footprint. **Probed thin 2026-09-21**, with the `alloc` row above: the same lead, and the same measurement kills both | `layout` | [Go 1.22](https://go.dev/doc/go1.22) | — |
 | `atomic.Int64` aligns itself even on 32-bit, where a bare `int64` field does not — the fix for a decade of alignment panics | `layout` | [Go 1.19](https://go.dev/doc/go1.19) | `layout/05-alignment-64bit` |
 | Functions became 32-byte aligned to dodge a CPU erratum — code alignment as a correctness measure, not a performance one | `layout` | [Go 1.15](https://go.dev/doc/go1.15) | — |
 | `int` is implementation-defined and became 64-bit on 64-bit platforms in 1.1 — so `unsafe.Sizeof` is a property of the build | `layout` | [Go 1.1](https://go.dev/doc/go1.1) | `layout/01-struct-padding` |
@@ -215,7 +295,7 @@ changed in. A row is retired by being built, never by being deleted.
 | An embedded pointer to an unexported struct type used to punch a hole through the export check — `CanSet` was wrong for years | `reflect` | [Go 1.10](https://go.dev/doc/go1.10) | `reflect/03-settability` |
 | The `goroutineleak` profile is generally available — plant a leak of each shape and make the profile name them | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/05-goroutine-leak-profile` |
 | Timer channels are always unbuffered now that `asynctimerchan` is gone | `sched` | [Go 1.27](https://go.dev/doc/go1.27) | `sched/03-timer-channels`, `versions/05-go-line-limits`, `versions/06-timer-channel-buffer` |
-| `GOMAXPROCS` is container-aware and updates itself as the cgroup quota changes | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
+| `GOMAXPROCS` is container-aware and updates itself as the cgroup quota changes. **Pin candidate:** needs Linux cgroups, which is not a strike — `requires.os: [linux]`. Note gate 2 would then prove it on one runner only | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | `testing/synctest` is GA: virtualized time in a bubble — a task, and the harness that makes `sched` and `memmodel` gradeable at all | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | `sched/02-synctest-bubble` |
 | `runtime/trace.FlightRecorder` as the data source for a trace-analyzer task | `sched` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | A new runtime-internal mutex (`GOEXPERIMENT=nospinbitmutex`) — only worth a task if the spin/park boundary can be made visible | `sched` | [Go 1.24](https://go.dev/doc/go1.24) | — |

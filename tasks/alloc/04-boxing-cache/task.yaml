@@ -6,9 +6,6 @@ track: alloc
 difficulty: 3
 estimate: 25m
 tags: [allocation, interfaces, runtime, boxing]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [allocs_0, allocs_255, allocs_256, allocs_100000, first_allocating]
 inspired_by: "https://go.dev/src/runtime/iface.go"

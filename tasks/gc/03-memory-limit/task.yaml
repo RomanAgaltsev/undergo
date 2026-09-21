@@ -6,9 +6,6 @@ track: gc
 difficulty: 5
 estimate: 40m
 tags: [gc, gomemlimit, gogc, heap-goal]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [clamped_gogc800_limit16, clamped_gogc100_limit512, clamped_gogc_off_limit32, clamped_gogc100_limit_huge, limit_can_be_exceeded]
 inspired_by: "https://tip.golang.org/doc/gc-guide"

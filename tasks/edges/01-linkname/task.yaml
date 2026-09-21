@@ -6,9 +6,6 @@ track: edges
 difficulty: 4
 estimate: 35m
 tags: [edges, linkname, compatibility, linker, go1.23]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [gcstart_links, nanotime_links, mallocgc_links, own_package_links, gcstart_links_with_optout]
 inspired_by: "https://go.dev/doc/go1.23"

@@ -6,9 +6,6 @@ track: layout
 difficulty: 4
 estimate: 35m
 tags: [layout, alignment, atomic, hostlayout, go1.23]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [int64_align, atomic_size, plain_offset, guarded_offset, hostlayout_same_size]
 inspired_by: "https://pkg.go.dev/sync/atomic#pkg-note-BUG"

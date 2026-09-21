@@ -6,9 +6,6 @@ track: iface
 difficulty: 4
 estimate: 35m
 tags: [iface, type-assertion, itab, runtime, compiler]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [concrete_comma_ok_calls_runtime, concrete_panicking_calls_runtime, empty_to_interface_calls_runtime, interface_to_interface_calls_runtime, type_switch_calls_runtime]
 inspired_by: "https://research.swtch.com/interfaces"

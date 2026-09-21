@@ -7,9 +7,7 @@ difficulty: 4
 estimate: 45m
 tags: [memmodel, race, tearing, compiler, atomics]
 requires:
-  go: "1.27"
   default_build: true
-verify: "go test ./..."
 predict:
   slots: [torn_uint64_seen, torn_struct_seen, spin_loop_exits]
 inspired_by: "https://go.dev/ref/mem"

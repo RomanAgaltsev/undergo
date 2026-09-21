@@ -6,9 +6,6 @@ track: edges
 difficulty: 3
 estimate: 30m
 tags: [edges, testing, os-exit, exit-code, false-green]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

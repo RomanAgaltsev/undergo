@@ -6,9 +6,6 @@ track: sched
 difficulty: 4
 estimate: 35m
 tags: [sched, timers, ticker, gc, go1.23, go1.27]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [timer_cap, ticker_cap, after_cap, dropped_ticker_collected]
 inspired_by: "https://go.dev/doc/go1.27"

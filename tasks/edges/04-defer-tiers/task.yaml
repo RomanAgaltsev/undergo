@@ -6,9 +6,6 @@ track: edges
 difficulty: 4
 estimate: 35m
 tags: [edges, defer, compiler, open-coded]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [one_uses_heap_defer, several_uses_heap_defer, in_loop_uses_heap_defer, in_branch_uses_heap_defer, many_uses_heap_defer, with_recover_uses_heap_defer]
 inspired_by: "https://go.dev/src/runtime/panic.go"

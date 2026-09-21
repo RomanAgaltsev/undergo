@@ -6,9 +6,6 @@ track: iter
 difficulty: 4
 estimate: 40m
 tags: [iter, yield, goto, rangefunc, panic, go1.23]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [complete_calls, break_calls, goto_calls, labelled_break_calls, return_calls, panic_calls, break_last_return, panic_last_return]
 inspired_by: "https://go.dev/doc/go1.23"

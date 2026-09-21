@@ -6,9 +6,6 @@ track: edges
 difficulty: 3
 estimate: 30m
 tags: [edges, maphash, hashing, determinism, seeds]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

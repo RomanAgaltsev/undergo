@@ -6,9 +6,6 @@ track: iface
 difficulty: 3
 estimate: 30m
 tags: [iface, nil, errors, reflect]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [true_nil_is_nil, nil_pointer_in_interface_is_nil, returned_nil_pointer_is_nil, comparing_to_typed_nil_works, reflect_says_nil, errors_is_nil_agrees_with_equality]
 inspired_by: "https://go.dev/doc/faq#nil_error"

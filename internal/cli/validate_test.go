@@ -121,25 +121,25 @@ func TestValidateRejectsAPlatformNoRunnerHas(t *testing.T) {
 		requires   string
 		wantReject bool
 	}{
-		{name: "no pin at all", requires: "requires: {go: \"1.27\"}"},
-		{name: "amd64, which ubuntu-latest is", requires: "requires: {go: \"1.27\", arch: [amd64]}"},
-		{name: "arm64, which macos-latest is", requires: "requires: {go: \"1.27\", arch: [arm64]}"},
-		{name: "both architectures", requires: "requires: {go: \"1.27\", arch: [amd64, arm64]}"},
+		{name: "no pin at all", requires: "requires: {}"},
+		{name: "amd64, which ubuntu-latest is", requires: "requires: {arch: [amd64]}"},
+		{name: "arm64, which macos-latest is", requires: "requires: {arch: [arm64]}"},
+		{name: "both architectures", requires: "requires: {arch: [amd64, arm64]}"},
 		{
 			name:       "an architecture no runner has",
-			requires:   "requires: {go: \"1.27\", arch: [riscv64]}",
+			requires:   "requires: {arch: [riscv64]}",
 			wantReject: true,
 		},
 		{
 			name:       "an operating system no runner has",
-			requires:   "requires: {go: \"1.27\", os: [windows]}",
+			requires:   "requires: {os: [windows]}",
 			wantReject: true,
 		},
 		{
 			// Each half is covered by a different runner and neither covers
 			// both, so the pair is reachable nowhere.
 			name:       "an arch and an os that no single runner pairs",
-			requires:   "requires: {go: \"1.27\", arch: [amd64], os: [darwin]}",
+			requires:   "requires: {arch: [amd64], os: [darwin]}",
 			wantReject: true,
 		},
 	}
@@ -152,7 +152,7 @@ func TestValidateRejectsAPlatformNoRunnerHas(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			y := strings.Replace(string(b), `requires: {go: "1.27"}`, tc.requires, 1)
+			y := strings.Replace(string(b), `requires: {}`, tc.requires, 1)
 			if err := os.WriteFile(p, []byte(y), 0o644); err != nil {
 				t.Fatal(err)
 			}
@@ -192,6 +192,65 @@ func TestValidateRejectsPlaintextSolutionDirectories(t *testing.T) {
 			}
 			if !strings.Contains(err.Error(), name) {
 				t.Errorf("error does not name %s/: %v", name, err)
+			}
+		})
+	}
+}
+
+// requires.go is meant to record a floor ABOVE the module's own. Below it the
+// pin is vacuous — go.mod declares a version and GOTOOLCHAIN fetches it, so a
+// machine running this repo at all is already past it. It said "1.27" on all
+// 267 tasks, and the cost was not cosmetic: Gradeable compares it against the
+// running toolchain, so `undergo doctor` answered "0 of 267 gradeable" on Go
+// 1.26 — false for the 171 prose tasks and unhelpful for the rest.
+func TestValidateRejectsAVacuousVersionPin(t *testing.T) {
+	tests := []struct {
+		name       string
+		requires   string
+		wantReject bool
+	}{
+		{name: "no pin", requires: "requires: {}"},
+		{
+			name:       "the module's own floor",
+			requires:   `requires: {go: "1.27"}`,
+			wantReject: true,
+		},
+		{
+			name:       "below the module's floor",
+			requires:   `requires: {go: "1.21"}`,
+			wantReject: true,
+		},
+		{
+			// The only shape that can rule anything out.
+			name:     "above the module's floor",
+			requires: `requires: {go: "1.28"}`,
+		},
+		{
+			// max_go is the counterpart that discriminates by construction.
+			name:     "a ceiling",
+			requires: `requires: {max_go: "1.27"}`,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			e := withReadme(t, "predict", "# t\n\nPredict the size.\n")
+			p := filepath.Join(e.TaskDir("layout/01-struct-padding"), "task.yaml")
+			b, err := os.ReadFile(p)
+			if err != nil {
+				t.Fatal(err)
+			}
+			y := strings.Replace(string(b), "requires: {}", tc.requires, 1)
+			if err := os.WriteFile(p, []byte(y), 0o644); err != nil {
+				t.Fatal(err)
+			}
+
+			err = Validate(e, nil)
+			if tc.wantReject && err == nil {
+				t.Fatalf("validate accepted %s", tc.requires)
+			}
+			if !tc.wantReject && err != nil {
+				t.Fatalf("validate rejected %s: %v", tc.requires, err)
 			}
 		})
 	}

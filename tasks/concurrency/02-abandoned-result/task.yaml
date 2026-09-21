@@ -6,9 +6,6 @@ track: concurrency
 difficulty: 3
 estimate: 35m
 tags: [concurrency, goroutine-leak, channels, select, timeout, pprof]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

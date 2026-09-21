@@ -6,9 +6,6 @@ track: weak
 difficulty: 4
 estimate: 40m
 tags: [weak, cleanup, finalizer, gc, go1.24, go1.25]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [weak_gcs, finalizer_within_two, cleanup_within_two, pinned_survives]
 inspired_by: "https://pkg.go.dev/runtime#AddCleanup"

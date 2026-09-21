@@ -6,9 +6,6 @@ track: versions
 difficulty: 3
 estimate: 30m
 tags: [versions, goline, lang, struct-literals, embedding, go1.27]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

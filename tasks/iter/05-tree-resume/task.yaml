@@ -6,8 +6,5 @@ track: iter
 difficulty: 5
 estimate: 55m
 tags: [iter, pull, coroutine, tree, leaks]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 inspired_by: "https://pkg.go.dev/iter#Pull"
 deprecated: false

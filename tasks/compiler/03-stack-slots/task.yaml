@@ -6,9 +6,6 @@ track: compiler
 difficulty: 5
 estimate: 40m
 tags: [compiler, stack, frame-size, liveness, go1.23]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [helper_frame_is_zero, unused_array_costs_frame, one_array_costs_frame, two_live_is_about_double_one, disjoint_scopes_reduce_frame]
 inspired_by: "https://go.dev/doc/go1.23"

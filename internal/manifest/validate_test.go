@@ -92,3 +92,65 @@ func TestValidateRejectsIDShapes(t *testing.T) {
 		})
 	}
 }
+
+// A requires block used to be checked for shape and not for values, so
+// `arch: [amd46]` validated and produced a task no machine in the world could
+// build or grade — skipped everywhere and reported to nobody.
+func TestValidateChecksRequiresValues(t *testing.T) {
+	tests := []struct {
+		name       string
+		requires   Requires
+		wantReject bool
+	}{
+		{name: "nothing pinned"},
+		{name: "real arch and os", requires: Requires{Arch: []string{"amd64"}, OS: []string{"linux"}}},
+		{
+			name:       "a plausible GOARCH typo",
+			requires:   Requires{Arch: []string{"amd46"}},
+			wantReject: true,
+		},
+		{
+			name:       "a GOOS that does not exist",
+			requires:   Requires{OS: []string{"linus"}},
+			wantReject: true,
+		},
+		{
+			name:     "a full toolchain name",
+			requires: Requires{Toolchains: []string{"go1.22.12"}},
+		},
+		{
+			// A language version is not a toolchain. Getting this wrong makes
+			// the toolchain unobtainable rather than the manifest invalid, and
+			// the error would then blame the network.
+			name:       "a language version where a toolchain belongs",
+			requires:   Requires{Toolchains: []string{"go1.22"}},
+			wantReject: true,
+		},
+		{
+			// GOTOOLCHAIN is itself a Go 1.21 feature, so nothing older can be
+			// selected this way.
+			name:       "a toolchain older than GOTOOLCHAIN itself",
+			requires:   Requires{Toolchains: []string{"go1.19.13"}},
+			wantReject: true,
+		},
+		{
+			name:       "a floor above its own ceiling",
+			requires:   Requires{Go: "1.28", MaxGo: "1.27"},
+			wantReject: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			task := valid()
+			task.Requires = tc.requires
+			err := Validate(task)
+			if tc.wantReject && err == nil {
+				t.Fatalf("Validate accepted %+v", tc.requires)
+			}
+			if !tc.wantReject && err != nil {
+				t.Fatalf("Validate rejected %+v: %v", tc.requires, err)
+			}
+		})
+	}
+}

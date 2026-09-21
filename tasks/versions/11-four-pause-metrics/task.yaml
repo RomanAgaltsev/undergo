@@ -7,9 +7,7 @@ difficulty: 3
 estimate: 30m
 tags: [versions, toolchain, runtime-metrics, gc, stop-the-world, go1.22]
 requires:
-  go: "1.27"
   toolchains: [go1.21.13]
-verify: "go test ./..."
 predict:
   slots:
     [

@@ -6,8 +6,5 @@ track: types
 difficulty: 4
 estimate: 40m
 tags: [unsafe, strings, slices, zero-copy]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 inspired_by: "https://pkg.go.dev/unsafe#String"
 deprecated: false

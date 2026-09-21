@@ -6,9 +6,6 @@ track: concurrency
 difficulty: 4
 estimate: 35m
 tags: [concurrency, sync, rwmutex, starvation, admission, pprof]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

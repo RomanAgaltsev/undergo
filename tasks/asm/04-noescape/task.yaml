@@ -7,9 +7,7 @@ difficulty: 5
 estimate: 45m
 tags: [asm, escape, pragma, alloc, plan9]
 requires:
-  go: "1.27"
   arch: [amd64]
-verify: "go test ./..."
 predict:
   slots: [call_free_allocs, call_kept_allocs, same_result]
 inspired_by: "https://pkg.go.dev/cmd/compile#hdr-Compiler_Directives"

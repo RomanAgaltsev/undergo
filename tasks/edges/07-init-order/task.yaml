@@ -6,9 +6,6 @@ track: edges
 difficulty: 4
 estimate: 40m
 tags: [edges, initialisation, init, package-init, dependency-order]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 )
@@ -26,10 +25,38 @@ func New(e Env, args []string) error {
 		return fmt.Errorf("usage: undergo new --id track/NN-slug --mode M --title T [--difficulty N]")
 	}
 
-	track, _, ok := strings.Cut(*id, "/")
-	if !ok {
-		return fmt.Errorf("id %q must be track/NN-slug", *id)
+	// The track is the id minus its FINAL segment, which is what Validate
+	// checks. Cutting at the first slash instead gave a grouped id the track
+	// "review" where "review/concurrency" was wanted, so `undergo new --id
+	// review/concurrency/NN-slug` — the documented way to add any of the 135
+	// review drills — scaffolded a manifest that gate 3 then rejected. Nobody
+	// hit it because those 135 came from the importer, not from here.
+	track := path.Dir(*id)
+	if track == "." || track == "/" {
+		return fmt.Errorf("id %q must be track/NN-slug or track/group/NN-slug", *id)
 	}
+
+	// Build the manifest as a value and validate it before touching the disk. A
+	// scaffold that has to be hand-repaired before `task ci` passes is not a
+	// scaffold, and this also catches a bad --mode, an out-of-range
+	// --difficulty and a slug that does not match the id grammar — all of which
+	// used to be written out happily and rejected later by gate 3.
+	t := &manifest.Task{
+		Schema: manifest.SchemaVersion, ID: *id, Title: *title,
+		Mode: manifest.Mode(*mode), Track: track, Difficulty: *difficulty,
+	}
+	switch t.Mode {
+	case manifest.ModePredict:
+		t.Predict = &manifest.Predict{Slots: []string{"replace_me"}}
+	case manifest.ModeOptimize:
+		t.Optimize = &manifest.Optimize{
+			Baseline: "BenchmarkBaseline", TargetMetric: "allocs", Target: 1,
+		}
+	}
+	if err := manifest.Validate(t); err != nil {
+		return fmt.Errorf("those flags do not describe a valid task: %w", err)
+	}
+
 	dir := e.TaskDir(*id)
 	if _, err := os.Stat(dir); err == nil {
 		return fmt.Errorf("%s already exists", dir)
@@ -39,13 +66,17 @@ func New(e Env, args []string) error {
 	}
 
 	var extra string
-	switch manifest.Mode(*mode) {
+	switch t.Mode {
 	case manifest.ModePredict:
 		extra = "predict:\n  slots: [replace_me]\n"
 	case manifest.ModeOptimize:
 		extra = "optimize:\n  baseline: BenchmarkBaseline\n  target_metric: allocs\n  target: 1\n"
 	}
 
+	// No requires block and no verify line. The old template hardcoded
+	// `go: "1.27"`, which is the module's own floor and so ruled nothing out —
+	// that is how all 267 manifests came to carry the same meaningless pin — and
+	// a `verify:` that no code has ever read.
 	files := map[string]string{
 		"task.yaml": fmt.Sprintf(`schema: 1
 id: %s
@@ -55,9 +86,6 @@ track: %s
 difficulty: %d
 estimate: 30m
 tags: []
-requires:
-  go: "1.27"
-verify: "go test ./..."
 %sinspired_by: ""
 deprecated: false
 `, *id, *title, *mode, track, *difficulty, extra),

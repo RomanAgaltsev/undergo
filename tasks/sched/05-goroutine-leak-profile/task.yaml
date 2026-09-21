@@ -6,9 +6,6 @@ track: sched
 difficulty: 4
 estimate: 40m
 tags: [sched, pprof, goroutineleak, profiling, go1.27]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

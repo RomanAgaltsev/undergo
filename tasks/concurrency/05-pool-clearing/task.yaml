@@ -7,13 +7,11 @@ difficulty: 4
 estimate: 40m
 tags: [concurrency, sync, pool, gc, victim-cache, go1.13]
 requires:
-  go: "1.27"
   # The race detector perturbs the victim cache: survives_one_gc measured
   # false 1 run in 8 under -race, and 12/12 true without it. No data race
   # exists — Measure runs on one goroutine at GOMAXPROCS=1 and the detector
   # reports none. This is reason 1: a runtime behaviour -race changes.
   default_build: true
-verify: "go test ./..."
 predict:
   slots:
     [

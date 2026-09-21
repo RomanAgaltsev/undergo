@@ -6,9 +6,6 @@ track: versions
 difficulty: 4
 estimate: 40m
 tags: [versions, godebug, asynctimerchan, removal, fatal, go1.23, go1.27]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

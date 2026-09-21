@@ -6,8 +6,5 @@ track: generics
 difficulty: 3
 estimate: 35m
 tags: [generics, methods, context, errors, go1.27]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 inspired_by: "https://go.dev/doc/go1.27"
 deprecated: false

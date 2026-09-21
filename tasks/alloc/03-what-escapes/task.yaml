@@ -6,9 +6,6 @@ track: alloc
 difficulty: 4
 estimate: 35m
 tags: [escape-analysis, allocation, compiler]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [local_escapes, returned_escapes, stored_escapes, interfaced_escapes]
 inspired_by: "https://go.dev/doc/faq#stack_or_heap"

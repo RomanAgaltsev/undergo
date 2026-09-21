@@ -6,9 +6,6 @@ track: versions
 difficulty: 3
 estimate: 30m
 tags: [versions, godebug, panicnil, go1.21, compatibility]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

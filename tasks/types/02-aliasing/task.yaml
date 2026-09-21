@@ -6,9 +6,6 @@ track: types
 difficulty: 4
 estimate: 35m
 tags: [slices, aliasing, append, copy]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [cap_two_index, cap_three_index, base_4, base_1, base_3, grown_0, len_two_index]
 inspired_by: "https://go.dev/ref/spec#Slice_expressions"

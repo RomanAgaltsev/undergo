@@ -6,9 +6,6 @@ track: edges
 difficulty: 4
 estimate: 40m
 tags: [edges, panic, formatting, error-interface, runtime]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

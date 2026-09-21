@@ -7,9 +7,7 @@ difficulty: 3
 estimate: 25m
 tags: [sched, runnext, gomaxprocs, runqueue]
 requires:
-  go: "1.27"
   default_build: true
-verify: "go test ./..."
 predict:
   slots: [first, second, third, fourth]
 inspired_by: "https://go.dev/src/runtime/proc.go"

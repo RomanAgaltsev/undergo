@@ -25,11 +25,19 @@ type catalogueCounts struct {
 }
 
 func countCatalogue(tasks []*manifest.Task) catalogueCounts {
-	c := catalogueCounts{total: len(tasks)}
+	var c catalogueCounts
 	tracks := map[string]bool{}
 	categories := map[string]bool{}
 
 	for _, t := range tasks {
+		// A retired task is not one that ships, so it does not inflate the
+		// number the README promises. Without this, deprecating a task would
+		// make the README's count wrong and gate 3 would then enforce the
+		// wrong number.
+		if t.Deprecated {
+			continue
+		}
+		c.total++
 		top, _, _ := strings.Cut(t.Track, "/")
 		switch t.Mode {
 		case manifest.ModeReview:

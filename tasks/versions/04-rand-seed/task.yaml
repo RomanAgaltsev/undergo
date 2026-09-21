@@ -6,9 +6,6 @@ track: versions
 difficulty: 3
 estimate: 30m
 tags: [versions, godebug, randseednop, math-rand, go1.24, determinism]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

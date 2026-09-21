@@ -152,7 +152,7 @@ func toolchainRepo(t *testing.T) Env {
 	if err != nil {
 		t.Fatal(err)
 	}
-	y := strings.Replace(string(b), `requires: {go: "1.27"}`,
+	y := strings.Replace(string(b), `requires: {}`,
 		"requires:\n  go: \"1.27\"\n  toolchains: [go1.22.12]", 1)
 	if err := os.WriteFile(p, []byte(y), 0o644); err != nil {
 		t.Fatal(err)
@@ -196,8 +196,8 @@ func archRepo(t *testing.T) Env {
 	if err != nil {
 		t.Fatal(err)
 	}
-	y := strings.Replace(string(b), `requires: {go: "1.27"}`,
-		"requires:\n  go: \"1.27\"\n  arch: [nosucharch]\n  toolchains: [go1.22.12]", 1)
+	y := strings.Replace(string(b), `requires: {}`,
+		"requires:\n  go: \"1.27\"\n  arch: [s390x]\n  toolchains: [go1.22.12]", 1)
 	if err := os.WriteFile(p, []byte(y), 0o644); err != nil {
 		t.Fatal(err)
 	}

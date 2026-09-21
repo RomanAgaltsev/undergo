@@ -34,6 +34,12 @@ func Show(e Env, args []string) error {
 
 	fmt.Fprintf(e.Out, "%s  [%s, track %s, difficulty %d]\n%s\n\n",
 		t.ID, t.Mode, t.Track, t.Difficulty, t.Title)
+	if t.Deprecated {
+		// Before the README, not after it: whoever is about to spend an hour on
+		// this should learn it is retired first.
+		fmt.Fprint(e.Out, "DEPRECATED: this task is retired. It is kept only so that an "+
+			"existing progress file still resolves.\n\n")
+	}
 	if ok, why := manifest.Gradeable(t, manifest.CurrentEnv()); !ok {
 		fmt.Fprintf(e.Out, "NOT GRADEABLE HERE: %s\n\n", why)
 	}

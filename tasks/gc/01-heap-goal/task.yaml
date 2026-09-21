@@ -6,9 +6,6 @@ track: gc
 difficulty: 4
 estimate: 35m
 tags: [gc, gogc, heap-goal, runtime-metrics]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [formula_gogc_100, large_heap_ratio_gogc_100, large_heap_ratio_gogc_400, small_heap_exceeds_formula, large_heap_matches_formula, gap_shrinks_as_heap_grows]
 inspired_by: "https://tip.golang.org/doc/gc-guide"

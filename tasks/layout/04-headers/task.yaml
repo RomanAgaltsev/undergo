@@ -6,9 +6,6 @@ track: layout
 difficulty: 3
 estimate: 30m
 tags: [layout, unsafe, headers, sizeof]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [string_size, slice_size, map_size, iface_size, total_size, map_offset, big_slice_size]
 inspired_by: "https://go.dev/blog/slices-intro"

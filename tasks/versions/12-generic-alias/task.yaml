@@ -7,9 +7,7 @@ difficulty: 3
 estimate: 30m
 tags: [versions, toolchain, generics, aliases, reflect, go1.24]
 requires:
-  go: "1.27"
   toolchains: [go1.23.12]
-verify: "go test ./..."
 predict:
   slots:
     [

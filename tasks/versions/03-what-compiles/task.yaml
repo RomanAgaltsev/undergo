@@ -6,9 +6,6 @@ track: versions
 difficulty: 4
 estimate: 40m
 tags: [versions, language, lang-flag, legality, go1.21, go1.22, go1.23, go1.26]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots:
     [

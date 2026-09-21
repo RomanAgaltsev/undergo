@@ -6,9 +6,6 @@ track: iface
 difficulty: 4
 estimate: 35m
 tags: [iface, comparison, panic, comparable]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [slices_panic, maps_panic, funcs_panic, struct_slice_panics, array_of_slice_panics, plain_struct_panics, array_panics, different_types_panic, plain_struct_equal]
 inspired_by: "https://go.dev/ref/spec#Comparison_operators"

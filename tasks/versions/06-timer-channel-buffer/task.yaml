@@ -7,9 +7,7 @@ difficulty: 4
 estimate: 40m
 tags: [versions, toolchain, asynctimerchan, timers, go1.23, go1.27]
 requires:
-  go: "1.27"
   toolchains: [go1.22.12]
-verify: "go test ./..."
 predict:
   slots:
     [

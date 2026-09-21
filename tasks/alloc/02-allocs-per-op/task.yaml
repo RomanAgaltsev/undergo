@@ -6,9 +6,6 @@ track: alloc
 difficulty: 3
 estimate: 30m
 tags: [allocation, escape-analysis, strings]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [concat_two, sprintf_int, itoa_int, builder_join, make_local]
 inspired_by: "https://go.dev/doc/diagnostics#profiling"

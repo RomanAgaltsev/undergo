@@ -3,6 +3,7 @@ package cli
 import (
 	"flag"
 	"fmt"
+	"slices"
 	"strings"
 	"text/tabwriter"
 
@@ -16,7 +17,9 @@ func List(e Env, args []string) error {
 	fs.SetOutput(e.Err)
 	track := fs.String("track", "", "only this track")
 	mode := fs.String("mode", "", "only this mode")
+	tag := fs.String("tag", "", "only tasks carrying this tag")
 	unsolved := fs.Bool("unsolved", false, "hide solved tasks")
+	deprecated := fs.Bool("deprecated", false, "include retired tasks")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -37,6 +40,14 @@ func List(e Env, args []string) error {
 			continue
 		}
 		if *mode != "" && string(t.Mode) != *mode {
+			continue
+		}
+		if *tag != "" && !slices.Contains(t.Tags, *tag) {
+			continue
+		}
+		// A retired task is kept only so that an existing progress file still
+		// resolves; it is not something to pick up today.
+		if t.Deprecated && !*deprecated {
 			continue
 		}
 		entry := rec.Get(t.ID)

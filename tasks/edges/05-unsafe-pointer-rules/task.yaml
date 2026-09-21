@@ -6,9 +6,6 @@ track: edges
 difficulty: 5
 estimate: 50m
 tags: [edges, unsafe, vet, checkptr, gc]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [vet_rejects_p1, vet_rejects_p2, vet_rejects_p3, vet_rejects_p4, vet_rejects_p5, vet_rejects_v1, vet_rejects_v2, vet_rejects_v3]
 inspired_by: "https://pkg.go.dev/unsafe#Pointer"

@@ -6,7 +6,4 @@ track: concurrency
 difficulty: 4
 estimate: 50m
 tags: [concurrency, sync, cond, broadcast, bounded-queue, synctest]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 inspired_by: "go-concurrency kata 07 Q1 — why Wait must sit in a for loop"

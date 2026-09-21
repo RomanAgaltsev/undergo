@@ -21,7 +21,7 @@ func countingRepo(t *testing.T, readme string) Env {
 			t.Fatal(err)
 		}
 		y := "schema: 1\nid: " + id + "\ntitle: \"t\"\nmode: " + mode +
-			"\ntrack: " + track + "\ndifficulty: 1\nrequires: {go: \"1.27\"}\n"
+			"\ntrack: " + track + "\ndifficulty: 1\nrequires: {}\n"
 		if err := os.WriteFile(filepath.Join(dir, "task.yaml"), []byte(y), 0o644); err != nil {
 			t.Fatal(err)
 		}

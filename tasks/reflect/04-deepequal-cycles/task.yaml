@@ -6,8 +6,5 @@ track: reflect
 difficulty: 4
 estimate: 55m
 tags: [reflect, deepequal, cycles, recursion]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 inspired_by: "https://pkg.go.dev/reflect#DeepEqual"
 deprecated: false

@@ -6,9 +6,6 @@ track: gc
 difficulty: 4
 estimate: 35m
 tags: [gc, gogc, runtime-metrics, determinism]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [gogc50_beats_gogc400, gogc100_beats_gogc800, gogc400_beats_gogc100, gogc800_beats_gogc50, gogc50_beats_gogc800]
 inspired_by: "https://tip.golang.org/doc/gc-guide"

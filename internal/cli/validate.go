@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"go/version"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,10 @@ import (
 // and no plaintext solution has been committed.
 func Validate(e Env, _ []string) error {
 	tasks, err := manifest.Walk(e.TasksDir())
+	if err != nil {
+		return err
+	}
+	moduleGo, err := moduleGoLine(e.Root)
 	if err != nil {
 		return err
 	}
@@ -51,6 +56,9 @@ func Validate(e Env, _ []string) error {
 		}
 
 		if err := checkPlatformIsReachable(t); err != nil {
+			return err
+		}
+		if err := checkVersionPinDiscriminates(t, moduleGo); err != nil {
 			return err
 		}
 
@@ -113,6 +121,47 @@ func checkPlatformIsReachable(t *manifest.Task) error {
 	return fmt.Errorf("%s: requires arch %v and os %v, which no CI runner has (%s) — "+
 		"it would be built nowhere and skipped everywhere; widen the pin or add a runner",
 		t.ID, t.Requires.Arch, t.Requires.OS, strings.Join(covered, ", "))
+}
+
+// moduleGoLine reads the go directive of the module the catalogue belongs to.
+// It is the floor every task already stands on, because GOTOOLCHAIN fetches
+// whatever go.mod asks for.
+func moduleGoLine(root string) (string, error) {
+	b, err := os.ReadFile(filepath.Join(root, "go.mod"))
+	if err != nil {
+		return "", err
+	}
+	for line := range strings.SplitSeq(string(b), "\n") {
+		if rest, ok := strings.CutPrefix(strings.TrimSpace(line), "go "); ok {
+			return "go" + strings.TrimSpace(rest), nil
+		}
+	}
+	return "", fmt.Errorf("%s: go.mod has no go directive", root)
+}
+
+// checkVersionPinDiscriminates refuses a requires.go that cannot rule anything
+// out.
+//
+// The field's job is to record a floor ABOVE the module's own, which is rare.
+// Below it the pin is vacuous: go.mod already declares a version and GOTOOLCHAIN
+// fetches it, so a machine running this repo at all is already past it. It said
+// "1.27" on all 267 tasks — the module's own line — and the cost was not
+// cosmetic: Gradeable compares it against the running toolchain, so on a Go 1.26
+// machine `undergo doctor` reported "0 of 267 tasks gradeable here", which is
+// false for the 171 prose tasks and unhelpful for the rest.
+//
+// A vacuous pin is indistinguishable from one nobody thought about, so it is
+// rejected rather than ignored.
+func checkVersionPinDiscriminates(t *manifest.Task, moduleGo string) error {
+	if t.Requires.Go == "" {
+		return nil
+	}
+	if version.Compare("go"+t.Requires.Go, moduleGo) <= 0 {
+		return fmt.Errorf("%s: requires.go %q is at or below the module's own %s, so it rules "+
+			"nothing out — drop it, or pin the release this task's answers actually need",
+			t.ID, t.Requires.Go, moduleGo)
+	}
+	return nil
 }
 
 // QuestionsHeading opens the written-questions section, which every predict

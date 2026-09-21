@@ -26,7 +26,21 @@ const (
 
 // Requires states the environment a task can be graded in.
 type Requires struct {
-	Go         string   `yaml:"go"`
+	// Go is a floor ABOVE the module's own go directive, and is almost always
+	// empty.
+	//
+	// It used to say "1.27" on all 267 tasks, including the 171 prose ones that
+	// need no toolchain at all, so it discriminated nothing — and it made
+	// `undergo doctor` answer "0 of 267 gradeable" on a Go 1.26 machine, which
+	// was both useless and false. It is redundant below the module's floor in
+	// any case: go.mod declares a version and GOTOOLCHAIN fetches it, so nobody
+	// runs this repo on anything older. Validate rejects a pin at or below that
+	// floor, because such a pin cannot discriminate and is indistinguishable
+	// from not having thought about the question.
+	Go string `yaml:"go"`
+
+	// MaxGo is the counterpart that can discriminate: a ceiling, for a task
+	// whose answer stopped holding at some release.
 	MaxGo      string   `yaml:"max_go"`
 	Arch       []string `yaml:"arch"`
 	OS         []string `yaml:"os"`
@@ -86,11 +100,19 @@ type Task struct {
 	Estimate   string    `yaml:"estimate"`
 	Tags       []string  `yaml:"tags"`
 	Requires   Requires  `yaml:"requires"`
-	Verify     string    `yaml:"verify"`
 	Predict    *Predict  `yaml:"predict"`
 	Optimize   *Optimize `yaml:"optimize"`
 	InspiredBy string    `yaml:"inspired_by"`
-	Deprecated bool      `yaml:"deprecated"`
+
+	// Deprecated retires a task without renaming or deleting it.
+	//
+	// Ids are permanent — renaming one invalidates every solver's progress file
+	// — so this is the only way out, and §11's SemVer contract rests on it. It
+	// is honoured by list (hidden unless --deprecated), by show (which says so
+	// before printing the README) and by the README counts (a retired task is
+	// not one that ships). Gate 2 still proves it, so a retired task cannot rot
+	// into a failing seal unnoticed.
+	Deprecated bool `yaml:"deprecated"`
 
 	// Dir is the directory the manifest was loaded from. Not serialised.
 	Dir string `yaml:"-"`

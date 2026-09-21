@@ -6,8 +6,5 @@ track: reflect
 difficulty: 3
 estimate: 45m
 tags: [reflect, struct-tags, settability]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 inspired_by: ""
 deprecated: false

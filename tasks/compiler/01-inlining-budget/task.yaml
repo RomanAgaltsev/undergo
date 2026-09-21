@@ -6,9 +6,6 @@ track: compiler
 difficulty: 4
 estimate: 40m
 tags: [compiler, inlining, cost-model]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [inline_budget, trivial_cost, loop_cost, calls_inlinable_cost, sprawling_cost, with_defer_inlines, with_go_inlines]
 inspired_by: "https://go.dev/src/cmd/compile/internal/inline/inl.go"

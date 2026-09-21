@@ -7,9 +7,7 @@ difficulty: 4
 estimate: 45m
 tags: [memmodel, happens-before, channels, sync, atomics]
 requires:
-  go: "1.27"
   default_build: true
-verify: "go test ./..."
 predict:
   slots:
     [

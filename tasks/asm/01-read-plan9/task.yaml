@@ -7,9 +7,7 @@ difficulty: 4
 estimate: 40m
 tags: [asm, plan9, register-abi, amd64, compiler]
 requires:
-  go: "1.27"
   arch: [amd64]
-verify: "go test ./..."
 predict:
   slots: [add_frame_bytes, add_is_nosplit, add_uses_ax_and_bx, lenof_moves_bx_to_ax, firstof_can_panic, divmod_frame_is_zero]
 inspired_by: "https://go.dev/doc/asm"

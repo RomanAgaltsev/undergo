@@ -39,7 +39,7 @@ func Verify(e Env, args []string) error {
 		return fmt.Errorf("no work directory — run: undergo start %s", t.ID)
 	}
 
-	passed, err := RunTests(e, t, work)
+	passed, err := RunTests(e, work)
 	if err != nil {
 		return err
 	}
@@ -73,10 +73,12 @@ const TaskTimeout = 5 * time.Minute
 
 // RunTests runs `go test` in dir with the task's environment, streaming output.
 //
-// The task is taken but unused in v1: every mode is verified the same way, by
-// running the frozen tests in the work directory. It stays in the signature
-// because task.yaml carries an overridable verify command.
-func RunTests(e Env, _ *manifest.Task, dir string) (bool, error) {
+// Every mode is verified the same way: by running the frozen tests in the work
+// directory. The parameter here used to be an unused *manifest.Task, kept in the
+// signature for task.yaml's `verify` field — a field no code ever read, on all
+// 267 manifests, for sixteen milestones. The field is gone and so is the
+// parameter; dir is what this needs.
+func RunTests(e Env, dir string) (bool, error) {
 	args := []string{"test", "-count=1", "-v"}
 	if e.Race {
 		args = append(args, "-race")

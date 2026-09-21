@@ -6,8 +6,5 @@ track: reflect
 difficulty: 4
 estimate: 40m
 tags: [reflect, structof, tags, json, projection]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 inspired_by: "https://pkg.go.dev/reflect#StructOf"
 deprecated: false

@@ -162,7 +162,7 @@ func proveOne(e Env, t *manifest.Task) error {
 	// Capture everything: a reference solution must never reach a CI log.
 	var sink bytes.Buffer
 	quiet := Env{Root: e.Root, Out: &sink, Err: &sink, Race: e.Race}
-	passed, err := RunTests(quiet, t, work)
+	passed, err := RunTests(quiet, work)
 	if err != nil {
 		return err
 	}

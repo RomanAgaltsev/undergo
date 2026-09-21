@@ -6,9 +6,6 @@ track: generics
 difficulty: 4
 estimate: 40m
 tags: [generics, stenciling, dictionaries, symbols, go1.27]
-requires:
-  go: "1.27"
-verify: "go test ./..."
 predict:
   slots: [method_shape_bodies, method_concrete_wrappers, method_dicts, func_shape_bodies, func_concrete_wrappers, func_dicts]
 inspired_by: "https://go.dev/blog/generics-implementation"

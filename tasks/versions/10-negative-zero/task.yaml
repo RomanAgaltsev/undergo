@@ -1,0 +1,27 @@
+schema: 1
+id: versions/10-negative-zero
+title: "The zero that was not zero"
+mode: predict
+track: versions
+difficulty: 4
+estimate: 40m
+tags: [versions, toolchain, reflect, float, iszero, go1.22]
+requires:
+  go: "1.27"
+  toolchains: [go1.21.13]
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      scalar_is_zero_on_local,
+      scalar_is_zero_under_go1_21,
+      small_struct_is_zero_on_local,
+      small_struct_is_zero_under_go1_21,
+      big_struct_is_zero_on_local,
+      big_struct_is_zero_under_go1_21,
+      array_is_zero_on_local,
+      array_is_zero_under_go1_21,
+      field_is_zero_on_local,
+      field_is_zero_under_go1_21,
+    ]
+inspired_by: "radar Go 1.22 — reflect.Value.IsZero agrees with == for negative zero"

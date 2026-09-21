@@ -16,7 +16,11 @@ go run ./cmd/undergo list --track review/concurrency
 go run ./cmd/undergo start design/01-rate-limiter
 ```
 
-No install, no account, no network after the clone — dependencies are vendored.
+No install and no account. Dependencies are vendored, so almost every task works
+offline after the clone; the seven toolchain-pair tasks in `versions/` fetch an
+older Go the first time you run them, which `GOTOOLCHAIN` does on demand without
+installing anything. `undergo doctor` says what this machine can grade, and a task
+it cannot grade **skips with a reason** rather than marking you wrong.
 
 ## The five modes
 

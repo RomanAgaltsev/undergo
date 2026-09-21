@@ -8,9 +8,11 @@ vars:
   # platform CI runs on. `go run ./cmd/undergo doctor` reports which of these
   # this machine can do.
   #
-  # Never ./... here either: the repo root holds 193 task packages, and the
+  # Never ./... here either: the repo root holds a package per task, and the
   # predict ones fail without a prediction.yaml. Tasks are raced through
-  # `ci-verify --race`, which supplies each one its own.
+  # `ci-verify --race`, which supplies each one its own. (This comment used to
+  # quote a count. It was right at M6 and wrong for ten milestones after, which
+  # is what a number in prose with nothing checking it does.)
   GO_IMAGE: "golang:1.27"
   DOCKER_RUN: >-
     docker run --rm
@@ -28,7 +30,9 @@ tasks:
   test:
     desc: Unit-test the machinery (never the tasks themselves)
     cmds:
-      - go test {{.PKGS}}
+      # Shuffled, because a test-order dependency and a data race fail the same
+      # way at 3am and only one of them needs cgo to find.
+      - go test -shuffle=on {{.PKGS}}
 
   lint:
     desc: golangci-lint v2
@@ -36,7 +40,7 @@ tasks:
       - golangci-lint run
 
   ci:
-    desc: Everything CI runs except the race gate — that needs cgo, see `task race`
+    desc: Every gate CI runs except gate 6, the race detector — that needs cgo (see `task race`)
     cmds:
       - task: test
       - task: lint
@@ -74,9 +78,12 @@ tasks:
       - go run ./cmd/undergo ci-stubs
 
   seals:
-    desc: Gate 2 — every sealed reference solution compiles and passes
+    desc: Gate 2 — every sealed reference solution compiles and passes, as CI runs it
     cmds:
-      - go run ./cmd/undergo ci-verify
+      # --require-toolchains matches CI. Without it the seven versions tasks
+      # SKIP locally when a toolchain is not cached and FAIL in CI, so a green
+      # local run would mean nothing for exactly the tasks most likely to break.
+      - go run ./cmd/undergo ci-verify --require-toolchains
 
   validate:
     desc: Gate 3 — every task manifest is valid

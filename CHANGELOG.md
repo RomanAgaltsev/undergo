@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.0](https://github.com/RomanAgaltsev/undergo/compare/v0.19.0...v0.20.0) (2026-09-21)
+
+
+### Features
+
+* **versions:** depth — versions reaches thirteen ([#35](https://github.com/RomanAgaltsev/undergo/issues/35)) ([f3e4276](https://github.com/RomanAgaltsev/undergo/commit/f3e42762844c401001d3b5c0a6449188b2737871))
+
 ## [0.19.0](https://github.com/RomanAgaltsev/undergo/compare/v0.18.0...v0.19.0) (2026-09-20)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0](https://github.com/RomanAgaltsev/undergo/compare/v0.21.1...v0.22.0) (2026-09-21)
+
+
+### Features
+
+* **cli:** close the remaining review findings ([#47](https://github.com/RomanAgaltsev/undergo/issues/47)) ([29040a1](https://github.com/RomanAgaltsev/undergo/commit/29040a135ebf07b9f421642d022297015b9446c1))
+
 ## [0.21.1](https://github.com/RomanAgaltsev/undergo/compare/v0.21.0...v0.21.1) (2026-09-21)
 
 

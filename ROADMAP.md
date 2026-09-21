@@ -8,12 +8,15 @@ Memory — `layout` (5 tasks), `alloc` (5),
 and collection — `weak` (5), `gc` (5). The machine — `iface` (5), `compiler` (5),
 `asm` (5), `edges` (10). Scheduling and memory — `sched` (5), `memmodel` (5),
 `concurrency` (8). Versions — `versions` (13). Alongside the 15 `review/*`
-categories (135 drills, imported
-from loupe) and `design` (36 katas, imported from keystone). 267 tasks in all, 96 of them machine-graded.
+categories (135 drills, imported from loupe) and `design` (36 katas, imported from
+keystone).
 
-These counts are **not** checked by anything. `undergo validate` compares the
-catalogue against `README.md` only, so this paragraph drifted from M16 until
-somebody happened to read it. Treat it with suspicion, or give it a check.
+**267 tasks ship today, 96 machine-graded.** `undergo validate` checks that
+sentence against the catalogue, the same way it checks `README.md`'s — the two
+documents share one vocabulary for counts precisely so that one check can read
+both. This paragraph drifted from M16 until somebody happened to read it, which
+is what the check now prevents; a claim that stops matching is a failure, not a
+silent exemption.
 
 Planned, in rough order:
 

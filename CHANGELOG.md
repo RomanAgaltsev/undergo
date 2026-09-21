@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.21.1](https://github.com/RomanAgaltsev/undergo/compare/v0.21.0...v0.21.1) (2026-09-21)
+
+
+### Documentation
+
+* check ROADMAP's counts too, and stop promising what versions cannot ([#45](https://github.com/RomanAgaltsev/undergo/issues/45)) ([2537030](https://github.com/RomanAgaltsev/undergo/commit/253703049361b850ecfe7e791b9708e0a15c0612))
+
+## [0.21.0](https://github.com/RomanAgaltsev/undergo/compare/v0.20.2...v0.21.0) (2026-09-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **manifest:** task.yaml no longer has a `verify` field. Nothing read it, so no behaviour changes, but a manifest schema is a public contract and removing a field from it is a major. requires.go is now rejected at or below the module's go directive.
+
+### Features
+
+* **manifest:** retire two dead fields and make a third discriminate ([#43](https://github.com/RomanAgaltsev/undergo/issues/43)) ([699ec8b](https://github.com/RomanAgaltsev/undergo/commit/699ec8b37f182fcadf90949609fbb979fc914de8))
+
 ## [0.20.2](https://github.com/RomanAgaltsev/undergo/compare/v0.20.1...v0.20.2) (2026-09-21)
 
 

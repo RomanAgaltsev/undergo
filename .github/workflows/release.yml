@@ -26,6 +26,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # Pinned to a commit rather than a tag. A tag is mutable, and this is the
-      # one workflow that runs with contents: write and pull-requests: write.
+      # The one action in this repository pinned by digest rather than by major
+      # tag, and the only one that needs to be: every other workflow runs a
+      # third-party action with contents: read, while this one hands one
+      # contents: write and pull-requests: write on a public repository. A major
+      # tag is mutable, so whoever controls it controls what runs here.
+      #
+      # Everywhere else the tag stays, because consistency across this family of
+      # repositories is worth more than hardening an action that can only read.
+      # Renovate updates the digest and keeps the trailing comment current.
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5

@@ -8,9 +8,8 @@ on:
 permissions:
   contents: read
 
-# Actions are pinned to a commit, not a tag. A tag is mutable, and these run
-# with the repository's token; Renovate keeps the digests current and the
-# trailing comment is the human-readable anchor.
+# Actions are pinned by major tag here, matching the other repositories in this
+# family. release.yml is the one exception and says why at the site.
 jobs:
   build:
     # The job id is the check name, and the `main` ruleset requires it by that
@@ -20,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: '1.27'
       - name: Unit tests
@@ -47,8 +46,8 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: '1.27'
       - name: Unit tests
@@ -58,15 +57,46 @@ jobs:
       - name: Gate 3 — manifests valid
         run: go run ./cmd/undergo validate
 
+  # govulncheck reports only vulnerabilities in code paths that are actually
+  # reached, so it is quiet by construction — but it is the only thing here that
+  # watches the Go toolchain itself, which matters more for this repository than
+  # for most. There is exactly one third-party dependency, vendored, so almost
+  # every advisory that could affect undergo is a standard-library one.
+  #
+  # It must run in CI to mean anything. Locally, a machine whose Go is newer than
+  # go.mod's directive is blind to exactly the toolchain-pin advisories this is
+  # here to catch: govulncheck reports against the toolchain it runs under, and
+  # the pinned one is the toolchain everybody else gets.
+  #
+  # Scoped to the machinery. ./... would sweep 231 task packages whose oddities
+  # are deliberate and whose dependencies are the standard library.
+  govulncheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+      # Run directly rather than through golang/govulncheck-action, which passes
+      # its go-package input as ONE shell-quoted argument: two patterns become a
+      # single pattern with a space in it and govulncheck answers "no packages
+      # matched the provided patterns", which is an exit 2 that reads exactly
+      # like a finding.
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+      - name: Scan the machinery
+        run: govulncheck ./cmd/... ./internal/...
+
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: '1.27'
-      - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
+      - uses: golangci/golangci-lint-action@v9
         with:
           # Must be built with Go >= the go directive in go.mod, or the linter
           # refuses to load the config.

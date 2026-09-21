@@ -77,8 +77,12 @@ func CIVerify(e Env, args []string) error {
 		}
 		if ok, why := manifest.Gradeable(t, manifest.CurrentEnv()); !ok {
 			// A skip nobody is told about is indistinguishable from success.
-			// In CI these tasks are proven or the gate is red.
-			if *requireToolchains && len(t.Requires.Toolchains) > 0 {
+			// In CI these tasks are proven or the gate is red — but only when
+			// the reason is a toolchain. Declaring requires.toolchains is not
+			// the same as being skipped for one: a task may also be pinned to
+			// an architecture, and failing that here would send whoever reads
+			// the log hunting for a fetch that never failed.
+			if *requireToolchains && unobtainableToolchain(t) != "" {
 				failed = append(failed, fmt.Sprintf("%s: %s", t.ID, why))
 				continue
 			}
@@ -225,4 +229,16 @@ func writeReferencePredictions(staging, work string) error {
 		return fmt.Errorf("a predict task's blob must carry prediction.yaml: %w", err)
 	}
 	return os.WriteFile(filepath.Join(work, "prediction.yaml"), b, 0o644)
+}
+
+// unobtainableToolchain returns the first toolchain the task requires that
+// cannot be obtained here, or "" when every one of them can — including when
+// the task requires none at all.
+func unobtainableToolchain(t *manifest.Task) string {
+	for _, want := range t.Requires.Toolchains {
+		if !manifest.ToolchainAvailable(want) {
+			return want
+		}
+	}
+	return ""
 }

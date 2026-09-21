@@ -115,9 +115,9 @@ changed in. A row is retired by being built, never by being deleted.
 | `singleflight` deletes the key on success **and on error** before `Do` returns — and `DoChan` allocates five times what `Do` does | `concurrency` | go-concurrency kata 12 | — (costs `golang.org/x/sync`) |
 | Three rate limiters behind one interface: which can burst, and why the `time.Ticker` one strictly cannot | `concurrency` | go-concurrency kata 14 | — (costs `golang.org/x/time`) |
 | Closures may now share a code pointer, so comparing function pointers misleads in more cases | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | `versions/08-closure-code-pointers` |
-| A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | — |
+| A struct literal key may be any valid field selector, not just a top-level field name | `edges` | [Go 1.27](https://go.dev/doc/go1.27) | `versions/09-promoted-field-keys` |
 | cgo call overhead is down about 30% — measure the boundary | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
-| The heap base address is randomized on 64-bit: which observations stop being reproducible, and which never were | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | — |
+| The heap base address is randomized on 64-bit: which observations stop being reproducible, and which never were | `edges` | [Go 1.26](https://go.dev/doc/go1.26) | `versions/13-heap-base` |
 | `GOAMD64=v3` fused multiply-add changes the exact floating-point values a program produces | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | A Go 1.21 compiler bug delayed nil checks; the same program panics on 1.25 — a toolchain-pair task | `edges` | [Go 1.25](https://go.dev/doc/go1.25) | — |
 | `//go:linkname` to unmarked standard-library symbols is now refused | `edges` | [Go 1.23](https://go.dev/doc/go1.23) | `edges/01-linkname` |
@@ -156,7 +156,7 @@ changed in. A row is retired by being built, never by being deleted.
 | The runtime assumes pointer-typed means pointer: an integer in a pointer slot crashes, a pointer in an integer slot is silent and fatal later | `edges` | [Go 1.3](https://go.dev/doc/go1.3), [1.4](https://go.dev/doc/go1.4) | `edges/05-unsafe-pointer-rules` |
 | Green Tea cuts GC overhead 10–40%, and `GOEXPERIMENT=nogreenteagc` makes it an A/B within one toolchain | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
 | Green Tea's further ~10% on Ice Lake / Zen 4 and newer — an answer that depends on the CPU | `gc` | [Go 1.26](https://go.dev/doc/go1.26) | — |
-| Stop-the-world pauses split into a stopping phase and a total — two numbers where the trace used to report one | `gc` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| Stop-the-world pauses split into a stopping phase and a total — two numbers where the trace used to report one | `gc` | [Go 1.22](https://go.dev/doc/go1.22) | `versions/11-four-pause-metrics` |
 | Transparent huge pages are managed explicitly on Linux — the runtime overriding a kernel policy, with a measurable result | `gc` | [Go 1.21](https://go.dev/doc/go1.21) | — |
 | `GOGC` and `GOMEMLIMIT` became readable as `runtime/metrics` values — configuration a program can inspect about itself | `gc` | [Go 1.21](https://go.dev/doc/go1.21) | — |
 | The collector's own internal structures got 2% cheaper — the cost of the collector's bookkeeping, separate from its work | `gc` | [Go 1.20](https://go.dev/doc/go1.20) | — |
@@ -173,7 +173,7 @@ changed in. A row is retired by being built, never by being deleted.
 | Stop-the-world stack rescanning was eliminated by the hybrid write barrier: pauses fell from milliseconds to microseconds | `gc` | [Go 1.8](https://go.dev/doc/go1.8) | — |
 | The collector became concurrent — the release every fact in the `gc` track dates from | `gc` | [Go 1.5](https://go.dev/doc/go1.5) | — |
 | Generic methods: how many instantiations does GC-shape stenciling emit, and how does it differ from a generic function? | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | `generics/01-instantiation-count`, `generics/02-generic-methods` |
-| Generic type aliases are fully supported — does a parameterized alias add an instantiation, or share one? | `generics` | [Go 1.24](https://go.dev/doc/go1.24) | — |
+| Generic type aliases are fully supported — does a parameterized alias add an instantiation, or share one? | `generics` | [Go 1.24](https://go.dev/doc/go1.24) | `versions/12-generic-alias` |
 | `new` accepts an expression, so `new(f(x))` compiles — a version-diff task a pre-1.26 model gets wrong | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
 | A generic type may refer to itself in its own type parameter list (`type Adder[A Adder[A]]`) | `generics` | [Go 1.26](https://go.dev/doc/go1.26) | `generics/04-new-and-self-reference` |
 | Function type inference generalized to assignment and conversion contexts — not gated by the go.mod language version, so a true A/B needs an older toolchain | `generics` | [Go 1.27](https://go.dev/doc/go1.27) | `generics/05-inference-limits` — the assignment shape only; no 1.26-vs-1.27 A/B, see the radar note |
@@ -244,7 +244,7 @@ changed in. A row is retired by being built, never by being deleted.
 | The builtin map is a Swiss table — predict real memory for a key count, A/B with `GOEXPERIMENT=noswissmap` | `types` | [Go 1.24](https://go.dev/doc/go1.24) | `types/04-map-memory` — memory half only; the `noswissmap` A/B is still open |
 | `sync.Map` is a hash-trie — the contention curve, and what the old implementation was warming up | `types` | [Go 1.24](https://go.dev/doc/go1.24) | — |
 | Shrinking a slice now zeroes the tail beyond the new length — `s = s[:0]` stopped keeping its elements alive | `types` | [Go 1.22](https://go.dev/doc/go1.22) | `types/02-aliasing` |
-| `reflect.Value.IsZero` agrees with `==` for negative zero — a correction to a definition that looked obvious | `types` | [Go 1.22](https://go.dev/doc/go1.22) | — |
+| `reflect.Value.IsZero` agrees with `==` for negative zero — a correction to a definition that looked obvious | `types` | [Go 1.22](https://go.dev/doc/go1.22) | `versions/10-negative-zero` |
 | Slice-to-array conversion (not to array *pointer*) — which lengths panic, and at what point | `types` | [Go 1.20](https://go.dev/doc/go1.20) | — |
 | `append`'s growth formula changed: the 1024-element doubling threshold became a smooth 1.25× ramp | `types` | [Go 1.18](https://go.dev/doc/go1.18) | `types/01-cap-growth` |
 | `strings.Clone` exists specifically to stop sharing memory — when a substring keeps a megabyte alive | `types` | [Go 1.18](https://go.dev/doc/go1.18) | `types/02-aliasing` |

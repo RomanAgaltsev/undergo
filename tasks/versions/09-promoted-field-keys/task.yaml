@@ -1,0 +1,20 @@
+schema: 1
+id: versions/09-promoted-field-keys
+title: "A key that is not a field name"
+mode: predict
+track: versions
+difficulty: 3
+estimate: 30m
+tags: [versions, goline, lang, struct-literals, embedding, go1.27]
+requires:
+  go: "1.27"
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      promoted_once_compiles_under_go1_26,
+      promoted_twice_compiles_under_go1_26,
+      promoted_once_compiles_under_go1_27,
+      shadowed_key_sets_depth,
+    ]
+inspired_by: "radar Go 1.27 — a key in a struct literal may be any valid field selector for the struct type"

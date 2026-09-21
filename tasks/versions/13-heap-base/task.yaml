@@ -1,0 +1,19 @@
+schema: 1
+id: versions/13-heap-base
+title: "The heap that moved"
+mode: predict
+track: versions
+difficulty: 3
+estimate: 30m
+tags: [versions, toolchain, runtime, addresses, aslr, go1.26]
+requires:
+  go: "1.27"
+  # 0xc000 is the amd64 arena hint. runtime/malloc.go gives arm64 its own
+  # (0x0040<<32), so the prefix this task grades is not a Go-wide fact and
+  # the answers are amd64-specific.
+  arch: [amd64]
+  toolchains: [go1.25.7]
+verify: "go test ./..."
+predict:
+  slots: [base_prefix_is_c000_on_local, base_prefix_is_c000_under_go1_25]
+inspired_by: "radar Go 1.26 — the heap base address is randomized on 64-bit"

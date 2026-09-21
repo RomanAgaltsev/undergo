@@ -1,11 +1,13 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 	"github.com/RomanAgaltsev/undergo/internal/predict"
@@ -57,6 +59,18 @@ func Verify(e Env, args []string) error {
 	return nil
 }
 
+// TaskTimeout bounds one task's frozen tests.
+//
+// A frozen test can hang rather than fail. A synctest bubble waiting on a mutex
+// never returns, which is a trap the concurrency track found by falling into it,
+// and gate 2 runs 96 packages one after another. go test's own -timeout is per
+// package and defaults to ten minutes, so one task that never returns could hold
+// a runner for hours before anybody saw a diagnostic.
+//
+// The slowest task measured is well under a minute. This is a wide margin, not a
+// budget: it exists to turn a hang into a named failure, not to police speed.
+const TaskTimeout = 5 * time.Minute
+
 // RunTests runs `go test` in dir with the task's environment, streaming output.
 //
 // The task is taken but unused in v1: every mode is verified the same way, by
@@ -69,7 +83,10 @@ func RunTests(e Env, _ *manifest.Task, dir string) (bool, error) {
 	}
 	args = append(args, ".")
 
-	cmd := exec.Command("go", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), TaskTimeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Dir = dir
 	cmd.Stdout = e.Out
 	cmd.Stderr = e.Err
@@ -79,6 +96,12 @@ func RunTests(e Env, _ *manifest.Task, dir string) (bool, error) {
 	err := cmd.Run()
 	if err == nil {
 		return true, nil
+	}
+	// A killed process exits non-zero like a failing one, so the deadline is
+	// checked first: "did not pass" and "never returned" are different answers
+	// and only one of them is about the solution.
+	if ctx.Err() != nil {
+		return false, fmt.Errorf("timed out after %s — the frozen tests are not returning", TaskTimeout)
 	}
 	// A non-zero exit is a failed task, not a broken harness.
 	var exit *exec.ExitError

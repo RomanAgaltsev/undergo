@@ -111,6 +111,63 @@ func TestValidateRejectsACommandInAShellFence(t *testing.T) {
 	}
 }
 
+// Gate 1 skips what its host cannot build, which is only safe while some host
+// builds everything. Gate 1 cannot check that — it sees one platform — so gate 3
+// does. A task pinned where no runner runs would be built nowhere and skipped
+// everywhere, and a skip nobody is told about reads exactly like a pass.
+func TestValidateRejectsAPlatformNoRunnerHas(t *testing.T) {
+	tests := []struct {
+		name       string
+		requires   string
+		wantReject bool
+	}{
+		{name: "no pin at all", requires: "requires: {go: \"1.27\"}"},
+		{name: "amd64, which ubuntu-latest is", requires: "requires: {go: \"1.27\", arch: [amd64]}"},
+		{name: "arm64, which macos-latest is", requires: "requires: {go: \"1.27\", arch: [arm64]}"},
+		{name: "both architectures", requires: "requires: {go: \"1.27\", arch: [amd64, arm64]}"},
+		{
+			name:       "an architecture no runner has",
+			requires:   "requires: {go: \"1.27\", arch: [riscv64]}",
+			wantReject: true,
+		},
+		{
+			name:       "an operating system no runner has",
+			requires:   "requires: {go: \"1.27\", os: [windows]}",
+			wantReject: true,
+		},
+		{
+			// Each half is covered by a different runner and neither covers
+			// both, so the pair is reachable nowhere.
+			name:       "an arch and an os that no single runner pairs",
+			requires:   "requires: {go: \"1.27\", arch: [amd64], os: [darwin]}",
+			wantReject: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			e := withReadme(t, "predict", "# t\n\nPredict the size.\n")
+			p := filepath.Join(e.TaskDir("layout/01-struct-padding"), "task.yaml")
+			b, err := os.ReadFile(p)
+			if err != nil {
+				t.Fatal(err)
+			}
+			y := strings.Replace(string(b), `requires: {go: "1.27"}`, tc.requires, 1)
+			if err := os.WriteFile(p, []byte(y), 0o644); err != nil {
+				t.Fatal(err)
+			}
+
+			err = Validate(e, nil)
+			if tc.wantReject && err == nil {
+				t.Fatalf("validate accepted %s", tc.requires)
+			}
+			if !tc.wantReject && err != nil {
+				t.Fatalf("validate rejected a reachable platform: %v", err)
+			}
+		})
+	}
+}
+
 // Spec §13 answers its top risk — solved work leaking into the public etalon —
 // with "CI gate 3 rejects a committed plaintext solution/". It did not: the
 // check named _solution/ alone, and so did .gitignore, while `solution/` is the

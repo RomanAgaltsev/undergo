@@ -10,11 +10,15 @@ permissions:
 
 jobs:
   race:
+    # The `main` ruleset requires this check by its exact name, and a matrix
+    # would append the matrix value to it — silently disarming the requirement.
+    # So amd64 keeps this name and arm64 is a separate job below.
     name: Gate 6 — the race detector
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: '1.27'
 
@@ -31,4 +35,22 @@ jobs:
       # nothing else. Reproduce it locally with
       # `go run ./cmd/undergo start <id>`, overlay the solution, and
       # `go test -race .` — or `task race:docker` for the whole gate.
+      - run: go run ./cmd/undergo ci-verify --race
+
+  # Every reference solution was proven on two architectures and raced on one.
+  # That is the easy half: amd64 is total-store-order, and the memmodel, sched
+  # and concurrency tracks exist because weakly-ordered hardware disagrees with
+  # it. macOS caught memmodel/02 tearing on amd64 and not on arm64 — a two-word
+  # struct is two MOVQs there and a single STP here — and that was gate 2
+  # noticing, with the detector never run on the architecture in question.
+  race-arm64:
+    name: Gate 6 — the race detector (arm64)
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: '1.27'
+      - run: go test -race -shuffle=on ./cmd/... ./internal/...
       - run: go run ./cmd/undergo ci-verify --race

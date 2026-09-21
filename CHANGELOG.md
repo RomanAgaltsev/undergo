@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.2](https://github.com/RomanAgaltsev/undergo/compare/v0.20.1...v0.20.2) (2026-09-21)
+
+
+### Bug Fixes
+
+* **seal:** contain blob extraction, and reject a plaintext solution/ ([#39](https://github.com/RomanAgaltsev/undergo/issues/39)) ([888f61b](https://github.com/RomanAgaltsev/undergo/commit/888f61b73002ea0e4447ce435e2afa37cf19420b))
+
 ## [0.20.1](https://github.com/RomanAgaltsev/undergo/compare/v0.20.0...v0.20.1) (2026-09-21)
 
 

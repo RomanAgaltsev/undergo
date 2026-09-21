@@ -183,3 +183,39 @@ func TestCIVerifyRequireToolchainsTurnsAToolchainSkipIntoAFailure(t *testing.T) 
 		t.Fatalf("the failure must name the unproven task; got: %v", err)
 	}
 }
+
+// archRepo is a repo whose only task declares both a toolchain and an arch it
+// cannot run on here.
+func archRepo(t *testing.T) Env {
+	t.Helper()
+	e := repo(t)
+	e.Out = io.Discard
+	e.Err = io.Discard
+	p := filepath.Join(e.TaskDir("layout/01-struct-padding"), "task.yaml")
+	b, err := os.ReadFile(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	y := strings.Replace(string(b), `requires: {go: "1.27"}`,
+		"requires:\n  go: \"1.27\"\n  arch: [nosucharch]\n  toolchains: [go1.22.12]", 1)
+	if err := os.WriteFile(p, []byte(y), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return e
+}
+
+// --require-toolchains is about toolchains. A task skipped because its answers
+// are specific to another architecture has nothing to do with the network, and
+// reporting it as an unobtainable toolchain would send whoever reads the log
+// looking for a fetch that never failed.
+func TestCIVerifyRequireToolchainsStillSkipsAnArchMismatch(t *testing.T) {
+	orig := manifest.ToolchainAvailable
+	t.Cleanup(func() { manifest.ToolchainAvailable = orig })
+	manifest.ToolchainAvailable = func(string) bool { return true }
+
+	e := archRepo(t)
+
+	if err := CIVerify(e, []string{"--require-toolchains"}); err != nil {
+		t.Fatalf("an arch mismatch is a skip even with the flag: %v", err)
+	}
+}

@@ -6,6 +6,10 @@ meaningful on sight.
 
 Go 1.26 randomizes the heap base on 64-bit platforms.
 
+**This task is pinned to amd64**, and working out why is part of it. The pin is
+not about the 1.26 change — that applies everywhere. It is about the value the
+change replaced.
+
 ## The program
 
 ```go
@@ -63,6 +67,9 @@ how often would that assumption hold?
    wrong with the argument, and was it wrong before 1.26 too?
 3. Why would a language runtime randomize this on purpose? Name what it costs
    and who it protects against.
-4. Answer the question in the section above: why is the run-to-run observation
+4. This task refuses to run on arm64. Find the reason in the runtime's source
+   rather than guessing — and say whether it is the Go 1.26 change that is
+   architecture-specific, or the thing it replaced.
+5. Answer the question in the section above: why is the run-to-run observation
    taught here in prose instead of graded as a slot? What would the test have to
    do to grade it honestly, and what would that cost?

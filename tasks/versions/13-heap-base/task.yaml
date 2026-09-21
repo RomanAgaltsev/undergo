@@ -8,6 +8,10 @@ estimate: 30m
 tags: [versions, toolchain, runtime, addresses, aslr, go1.26]
 requires:
   go: "1.27"
+  # 0xc000 is the amd64 arena hint. runtime/malloc.go gives arm64 its own
+  # (0x0040<<32), so the prefix this task grades is not a Go-wide fact and
+  # the answers are amd64-specific.
+  arch: [amd64]
   toolchains: [go1.25.7]
 verify: "go test ./..."
 predict:

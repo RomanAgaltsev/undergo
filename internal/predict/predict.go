@@ -15,14 +15,36 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"testing"
 )
 
 // DefaultFile is where a prediction lives inside a work directory.
 const DefaultFile = "prediction.yaml"
 
+// TB is the part of *testing.T that Check uses.
+//
+// It exists so that Check can be tested at all, which matters more here than the
+// indirection costs. Check grades 77 of the 96 machine-graded tasks and is the
+// only thing standing between a wrong prediction and a pass — and gate 2 cannot
+// prove it works, because gate 2 only ever feeds it reference answers, which are
+// correct by construction. A Check that accepted everything would leave every
+// gate in this repository green.
+//
+// Taking *testing.T concretely made that test impossible twice over: testing.TB
+// has an unexported method, so it cannot be implemented outside the testing
+// package, and a failing subtest fails its parent, so t.Run's bool cannot express
+// "this grading should have failed" either.
+//
+// *testing.T satisfies this interface, so every task's predict.Check(t, ...) is
+// unchanged.
+type TB interface {
+	Helper()
+	Errorf(format string, args ...any)
+	Fatalf(format string, args ...any)
+	Logf(format string, args ...any)
+}
+
 // Check compares each measured slot against the solver's prediction file.
-func Check(t *testing.T, measured map[string]any) {
+func Check(t TB, measured map[string]any) {
 	t.Helper()
 
 	path := os.Getenv("UNDERGO_PREDICTION")

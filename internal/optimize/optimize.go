@@ -61,8 +61,21 @@ func Measure(m Metric, target float64, baseline, candidate func(*testing.B)) (Re
 	return r, nil
 }
 
+// TB is the part of *testing.T that Check uses.
+//
+// As in internal/predict, it is here so that Check can be tested: gate 2 proves
+// only that a reference solution passes, so a Check that never failed would be
+// invisible to every gate. *testing.T satisfies it, so a task's optimize.Check(t,
+// ...) is unchanged.
+type TB interface {
+	Helper()
+	Errorf(format string, args ...any)
+	Fatal(args ...any)
+	Logf(format string, args ...any)
+}
+
 // Check runs Measure and fails the test when the target is missed.
-func Check(t *testing.T, m Metric, target float64, baseline, candidate func(*testing.B)) {
+func Check(t TB, m Metric, target float64, baseline, candidate func(*testing.B)) {
 	t.Helper()
 
 	r, err := Measure(m, target, baseline, candidate)

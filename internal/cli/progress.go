@@ -9,7 +9,10 @@ import (
 )
 
 // Progress prints the solver's record, per track.
-func Progress(e Env, _ []string) error {
+func Progress(e Env, args []string) error {
+	if err := noArgs("progress", args); err != nil {
+		return err
+	}
 	tasks, err := manifest.Walk(e.TasksDir())
 	if err != nil {
 		return err

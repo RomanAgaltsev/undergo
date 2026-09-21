@@ -25,7 +25,7 @@ func Start(e Env, args []string) error {
 		return err
 	}
 	if id == "" || fs2.NArg() != 0 {
-		return fmt.Errorf("usage: undergo start <id> [--force]")
+		return fmt.Errorf("usage: undergo start <id> [--force]: %w", ErrUsage)
 	}
 
 	t, err := find(e, id)
@@ -48,7 +48,20 @@ func Start(e Env, args []string) error {
 	return nil
 }
 
-// copyTask copies everything except the sealed solution.
+// copyTask copies everything except the sealed solution and any plaintext
+// authoring directory left behind.
+//
+// The seal is the obvious exclusion. _solution/ is the one that bites: after
+// `undergo unseal <id>` — the documented way to edit a shipped hint — the task
+// directory holds the answer in plaintext, and copying it would put that answer
+// beside the stub in work/, which is the one place the whole design exists to
+// keep it out of. Only a maintainer can reach that state, and a maintainer
+// checking their own fix is exactly who would.
+//
+// Only the top level is excluded, because that is where both names can appear
+// in a task directory. gate 2 overlays a blob's own solution/ through this same
+// function, and there its contents are the children of src rather than a
+// directory within it, so that copy is unaffected.
 func copyTask(src, dst string) error {
 	return filepath.WalkDir(src, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -59,12 +72,19 @@ func copyTask(src, dst string) error {
 			return err
 		}
 		if d.IsDir() {
+			if rel == AuthoringDir || rel == SolutionSubdir {
+				return fs.SkipDir
+			}
 			return os.MkdirAll(filepath.Join(dst, rel), 0o755)
 		}
 		if d.Name() == SealName {
 			return nil
 		}
-		b, err := os.ReadFile(p)
+		// G122 flags a read by path inside a WalkDir callback as symlink-TOCTOU
+		// prone. src here is either a task directory in this checkout or a tree
+		// seal.Extract has already written under an os.Root, so the paths are
+		// this repository's own rather than an attacker's.
+		b, err := os.ReadFile(p) //nolint:gosec // G122: src is repo-owned or root-extracted
 		if err != nil {
 			return err
 		}

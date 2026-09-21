@@ -20,6 +20,31 @@ import (
 // DefaultFile is where a prediction lives inside a work directory.
 const DefaultFile = "prediction.yaml"
 
+// CIEnv is set by `undergo ci-verify` to say that the reader of this grading is
+// a maintainer rather than a solver.
+const CIEnv = "UNDERGO_CI"
+
+// namesWrongSlots reports whether the grading may say WHICH slots are wrong.
+//
+// It may not, for a solver. `undergo verify` runs `go test -v`, so every t.Logf
+// reaches the screen, and 34 of the 77 predict tasks grade booleans only — some
+// of them nine or ten of them. Per-slot feedback turns that into a perfect
+// oracle: answer everything true, read back which slots came out wrong, flip
+// exactly those, and the task falls in two runs with no understanding at all.
+// That is a different thing from the seal, which is deliberately only
+// obfuscation: opening a seal is a deliberate act and is recorded as a peek,
+// while hill-climbing is neither.
+//
+// Withholding the names costs the solver nothing they need. "You were wrong,
+// and here is how many" is the signal; "slot 4 was wrong" is the ladder.
+//
+// ci-verify sets CIEnv because there the reader is the maintainer, the answers
+// are already known to be correct, and naming the failing slots is what turned
+// two blind gate-2 failures into a one-run diagnosis in M10. Slot names are
+// public in task.yaml, and this package never prints a measured value either
+// way.
+func namesWrongSlots() bool { return os.Getenv(CIEnv) != "" }
+
 // TB is the part of *testing.T that Check uses.
 //
 // It exists so that Check can be tested at all, which matters more here than the
@@ -60,22 +85,35 @@ func Check(t TB, measured map[string]any) {
 		t.Fatalf("%s: %v", path, err)
 	}
 
+	named := namesWrongSlots()
+
 	correct := 0
 	slots := slices.Sorted(maps.Keys(measured))
+	var wrong []string
 	for _, slot := range slots {
 		answer, ok := got[slot]
 		if !ok || answer == "" {
+			// Which slot is unanswered is not a hint about any answer, so this
+			// one is always named.
 			t.Errorf("slot %q: no prediction", slot)
 			continue
 		}
 		if canonical(answer) == canonical(measured[slot]) {
-			t.Logf("slot %q: correct", slot)
+			if named {
+				t.Logf("slot %q: correct", slot)
+			}
 			correct++
 			continue
 		}
-		t.Errorf("slot %q: incorrect", slot)
+		wrong = append(wrong, slot)
+		if named {
+			t.Errorf("slot %q: incorrect", slot)
+		}
 	}
-	for slot := range got {
+	if !named && len(wrong) > 0 {
+		t.Errorf("%d of %d slots incorrect", len(wrong), len(slots))
+	}
+	for _, slot := range slices.Sorted(maps.Keys(got)) {
 		if _, ok := measured[slot]; !ok {
 			t.Errorf("slot %q: not a slot in this task", slot)
 		}

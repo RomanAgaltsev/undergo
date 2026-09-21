@@ -17,7 +17,7 @@ import (
 // nowhere else, _solution/ being gitignored.
 func Unseal(e Env, args []string) error {
 	if len(args) != 1 {
-		return fmt.Errorf("usage: undergo unseal <id>")
+		return fmt.Errorf("usage: undergo unseal <id>: %w", ErrUsage)
 	}
 	t, err := find(e, args[0])
 	if err != nil {

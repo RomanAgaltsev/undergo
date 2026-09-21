@@ -50,6 +50,27 @@ and an `_solution/` directory. Then:
 - **Never weaken a frozen test** to make a solution pass.
 - Conventional Commits. `task ci` must be green.
 
+## Difficulty
+
+`difficulty` is 1–5, and it is the only ordering signal a newcomer has for
+choosing among 267 tasks — so it is worth calibrating rather than guessing.
+
+| | Meaning |
+|---|---|
+| **1** | One rule, recalled. Rare here, and usually a sign the question is too small: see *What makes a good task*. |
+| **2** | One mechanism, in isolation, with the instrument named. `layout/01` — what does this struct weigh? |
+| **3** | One mechanism, but the answer turns on a boundary or an interaction the obvious reading misses. |
+| **4** | Two mechanisms at once, or one whose behaviour differs by platform, version or build mode. |
+| **5** | The answer is not reachable by reasoning alone — it has to be measured, and measuring it correctly is itself the exercise. |
+
+Two things this scale does not yet say honestly, worth knowing before you trust it:
+
+- **No task is a 1.** The floor in practice is 2, which matches §14's "assumes you
+  already write Go". Do not reach for 1 to make a track look approachable.
+- **All 36 design katas are 4**, because the importer assigned a constant. A rate
+  limiter and an LSM-tree KV are not the same exercise, and spreading them is an
+  open editorial job.
+
 ## What makes a good task
 
 The test is whether a solver can be *vaguely right*. "Does this allocate?" is a

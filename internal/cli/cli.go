@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -10,22 +11,34 @@ import (
 
 const usage = `undergo — Go katas beneath the surface
 
-  list      list tasks            [--track T] [--mode M] [--unsolved]
-  show      show one task         <id>
-  start     copy a task into work/ <id> [--force]
-  verify    grade your work        <id>
-  hint      open the first rung    <id>
-  reveal    open the solution      <id> [--stuck]
-  progress  your record
-  doctor    what this machine can grade
-  new       scaffold a task        --id track/NN-slug --mode M --title T
-  seal      seal a task's _solution/ <id>
-  unseal    unpack a seal for editing <id>
-  validate  validate every manifest
-  ci-verify unseal and prove every reference solution
-  ci-stubs  build every task, vet the machine-graded ones
-  radar-check validate the release radar against the catalogue
+  list         list tasks              [--track T] [--mode M] [--tag T] [--unsolved] [--deprecated]
+  show         show one task           <id>
+  start        copy a task into work/  <id> [--force]
+  verify       grade your work         <id>
+  hint         open the first rung     <id>
+  reveal       open the solution       <id> [--stuck]
+  progress     your record
+  doctor       what this machine can grade
+
+  new          scaffold a task         --id track/NN-slug --mode M --title T [--difficulty N]
+  seal         seal a task's _solution/   <id>
+  unseal       unpack a seal for editing  <id>
+
+  validate     gate 3 — validate every manifest and the counts the docs claim
+  ci-stubs     gate 1 — build every task, vet the machine-graded ones
+  ci-verify    gate 2 — unseal and prove every reference solution [--race] [--require-toolchains]
+  radar-check  validate the release radar against the catalogue
 `
+
+// ErrUsage marks a command that was invoked wrongly, as opposed to one that ran
+// and reported a failure.
+//
+// The distinction is worth an exit code because it is real: `undergo verify
+// <id>` exiting 1 means a solution does not pass, which a script might act on,
+// while exiting 1 because the id was missing means the script itself is wrong.
+// Everything but an unknown command used to exit 1, so the two were
+// indistinguishable.
+var ErrUsage = errors.New("usage")
 
 // Run dispatches a command. It returns the process exit code.
 func Run(args []string, stdout, stderr io.Writer) int {
@@ -87,7 +100,22 @@ func Run(args []string, stdout, stderr io.Writer) int {
 	}
 	if runErr != nil {
 		fmt.Fprintln(stderr, runErr)
+		if errors.Is(runErr, ErrUsage) {
+			return 2
+		}
 		return 1
 	}
 	return 0
+}
+
+// noArgs rejects anything handed to a command that takes none.
+//
+// Four commands took `_ []string` and ignored whatever arrived, so `undergo
+// ci-stubs --race` exited 0 having raced nothing — a plausible thing to type,
+// accepted, and silently not done.
+func noArgs(name string, args []string) error {
+	if len(args) > 0 {
+		return fmt.Errorf("undergo %s takes no arguments, got %v: %w", name, args, ErrUsage)
+	}
+	return nil
 }

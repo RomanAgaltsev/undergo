@@ -116,7 +116,9 @@ func invoke(name, goLine, src string, env []string, args ...string) (Result, err
 	ctx, cancel := context.WithTimeout(context.Background(), Timeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "go", args...)
+	// The binary is the literal "go" and args are this package's own verbs;
+	// name is checked by checkToolchain before reaching here.
+	cmd := exec.CommandContext(ctx, "go", args...) //nolint:gosec // G204: fixed binary, validated args
 	cmd.Dir = dir
 	cmd.Env = append(append(os.Environ(), "GOTOOLCHAIN="+name), env...)
 

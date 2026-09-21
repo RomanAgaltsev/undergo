@@ -31,10 +31,13 @@ func readSeal(e Env, id string) (string, error) {
 // Hint prints the first rung. It is never gated: being stuck is not a failure.
 func Hint(e Env, args []string) error {
 	if len(args) != 1 {
-		return fmt.Errorf("usage: undergo hint <id>")
+		return fmt.Errorf("usage: undergo hint <id>: %w", ErrUsage)
 	}
-	id := args[0]
-	blob, err := readSeal(e, id)
+	t, err := find(e, args[0])
+	if err != nil {
+		return err
+	}
+	blob, err := readSeal(e, t.ID)
 	if err != nil {
 		return err
 	}
@@ -50,7 +53,7 @@ func Hint(e Env, args []string) error {
 	if err != nil {
 		return err
 	}
-	rec.RecordHint(id)
+	rec.RecordHint(t.ID)
 	return rec.Save(e.ProgressPath())
 }
 
@@ -65,25 +68,35 @@ func Reveal(e Env, args []string) error {
 		return err
 	}
 	if id == "" || fs.NArg() != 0 {
-		return fmt.Errorf("usage: undergo reveal <id> [--stuck]")
+		return fmt.Errorf("usage: undergo reveal <id> [--stuck]: %w", ErrUsage)
+	}
+
+	// Resolve the task before consulting the record. Asking the record first
+	// answered a mistyped id with "it is not passing yet", offered a --stuck
+	// peek at a task that does not exist, and — because Get inserts on miss —
+	// wrote the typo into progress.yaml on the next save.
+	t, err := find(e, id)
+	if err != nil {
+		return err
 	}
 
 	rec, err := progress.Load(e.ProgressPath())
 	if err != nil {
 		return err
 	}
-	solved := rec.Get(id).Solved
+	solved := rec.Get(t.ID).Solved
 	if !solved && !*stuck {
 		return fmt.Errorf("%s is not passing yet.\n"+
 			"Try: undergo hint %s\n"+
-			"If you are genuinely stuck: undergo reveal %s --stuck (recorded as a peek)", id, id, id)
+			"If you are genuinely stuck: undergo reveal %s --stuck (recorded as a peek)",
+			t.ID, t.ID, t.ID)
 	}
 
-	blob, err := readSeal(e, id)
+	blob, err := readSeal(e, t.ID)
 	if err != nil {
 		return err
 	}
-	dest := e.RevealDir(id)
+	dest := e.RevealDir(t.ID)
 	if err := seal.Extract(blob, dest); err != nil {
 		return err
 	}
@@ -95,7 +108,7 @@ func Reveal(e Env, args []string) error {
 	fmt.Fprintf(e.Out, "\n→ %s\n", dest)
 
 	if !solved {
-		rec.RecordPeek(id)
+		rec.RecordPeek(t.ID)
 		return rec.Save(e.ProgressPath())
 	}
 	return nil

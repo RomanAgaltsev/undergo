@@ -56,7 +56,7 @@ func TestSealHidesPlaintext(t *testing.T) {
 			t.Errorf("blob leaks %q in plaintext", secret)
 		}
 	}
-	for _, line := range strings.Split(strings.TrimSpace(blob), "\n") {
+	for line := range strings.SplitSeq(strings.TrimSpace(blob), "\n") {
 		if len(line) > 76 {
 			t.Fatalf("line of %d chars, want <= 76", len(line))
 		}

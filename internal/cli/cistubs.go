@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 )
@@ -24,7 +25,10 @@ import (
 // architectures: ubuntu-latest is amd64 and builds every amd64-pinned task,
 // macos-latest is arm64 and builds everything else. A task pinning a platform
 // no runner has would be built nowhere, and nobody would be told.
-func CIStubs(e Env, _ []string) error {
+func CIStubs(e Env, args []string) error {
+	if err := noArgs("ci-stubs", args); err != nil {
+		return err
+	}
 	tasks, err := manifest.Walk(e.TasksDir())
 	if err != nil {
 		return err
@@ -33,15 +37,11 @@ func CIStubs(e Env, _ []string) error {
 		return hasGoFiles(filepath.Join(e.Root, filepath.FromSlash(pkg)))
 	})
 
-	if len(build) > 0 {
-		if err := runGo(e, append([]string{"build"}, build...)); err != nil {
-			return fmt.Errorf("gate 1: a task stub does not compile: %w", err)
-		}
+	if err := runGoOver(e, "build", build); err != nil {
+		return fmt.Errorf("gate 1: a task stub does not compile: %w", err)
 	}
-	if len(vet) > 0 {
-		if err := runGo(e, append([]string{"vet"}, vet...)); err != nil {
-			return fmt.Errorf("gate 1: a task stub does not vet clean: %w", err)
-		}
+	if err := runGoOver(e, "vet", vet); err != nil {
+		return fmt.Errorf("gate 1: a task stub does not vet clean: %w", err)
 	}
 	for _, s := range skipped {
 		fmt.Fprintf(e.Out, "skip  %s\n", s)
@@ -89,6 +89,26 @@ func hasGoFiles(dir string) bool {
 	return false
 }
 
+// buildBatch is how many package paths go to one invocation of the go tool.
+//
+// Windows caps a command line at 32,767 characters and a task path averages
+// about 45, so a single invocation ceilings out near 700 packages. The
+// catalogue is at 231 and grows every milestone — and the cliff would appear on
+// the maintainer's own machine first, while CI stayed green, because Linux and
+// macOS have far more headroom. Chunking removes the ceiling; the build cache
+// makes the extra invocations nearly free.
+const buildBatch = 200
+
+// runGoOver runs one go subcommand over pkgs, in batches.
+func runGoOver(e Env, verb string, pkgs []string) error {
+	for chunk := range slices.Chunk(pkgs, buildBatch) {
+		if err := runGo(e, append([]string{verb}, chunk...)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func runGo(e Env, args []string) error {
 	// Gate 1 hands the go tool every task package at once, so this is the
 	// longest-running child process in the harness. Bounded for the same reason
@@ -97,7 +117,9 @@ func runGo(e Env, args []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), TaskTimeout*2)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "go", args...)
+	// The binary is the literal "go"; args are package paths this repository
+	// built from its own catalogue, never anything a user typed.
+	cmd := exec.CommandContext(ctx, "go", args...) //nolint:gosec // G204: fixed binary, catalogue-derived args
 	cmd.Dir = e.Root
 	cmd.Stdout = e.Out
 	cmd.Stderr = e.Err

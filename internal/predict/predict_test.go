@@ -46,15 +46,33 @@ func (r *recorder) all() string {
 	return strings.Join(append(append([]string{}, r.errs...), r.logs...), "\n") + "\n" + r.fatal
 }
 
-// grade writes a prediction file and runs Check against it, on its own goroutine
-// so that a Fatalf can end that goroutine without ending the test.
+// grade writes a prediction file and runs Check against it as a SOLVER sees it,
+// on its own goroutine so that a Fatalf can end that goroutine without ending
+// the test.
 func grade(t *testing.T, file string, measured map[string]any) *recorder {
+	t.Helper()
+	return gradeIn(t, file, measured, false)
+}
+
+// gradeAsCI is the same grading as ci-verify sees it, where the reader is a
+// maintainer and the failing slots may be named.
+func gradeAsCI(t *testing.T, file string, measured map[string]any) *recorder {
+	t.Helper()
+	return gradeIn(t, file, measured, true)
+}
+
+func gradeIn(t *testing.T, file string, measured map[string]any, ci bool) *recorder {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), DefaultFile)
 	if err := os.WriteFile(path, []byte(file), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	t.Setenv("UNDERGO_PREDICTION", path)
+	if ci {
+		t.Setenv(CIEnv, "1")
+	} else {
+		t.Setenv(CIEnv, "")
+	}
 
 	r := &recorder{}
 	done := make(chan struct{})
@@ -147,14 +165,67 @@ func TestCheckRejectsWrongAnswers(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := grade(t, tc.file, measured())
-			if got := r.failed(); got != tc.wantFailed {
-				t.Errorf("failed = %v, want %v\n%s", got, tc.wantFailed, r.all())
-			}
-			if tc.mentions != "" && !strings.Contains(r.all(), tc.mentions) {
-				t.Errorf("output does not mention %q:\n%s", tc.mentions, r.all())
+			// The verdict must be the same for both readers. Only the detail
+			// differs, which is what the next two tests are about.
+			for _, as := range []struct {
+				name  string
+				grade func(*testing.T, string, map[string]any) *recorder
+			}{{"solver", grade}, {"ci", gradeAsCI}} {
+				t.Run(as.name, func(t *testing.T) {
+					r := as.grade(t, tc.file, measured())
+					if got := r.failed(); got != tc.wantFailed {
+						t.Errorf("failed = %v, want %v\n%s", got, tc.wantFailed, r.all())
+					}
+					if as.name == "ci" && tc.mentions != "" && !strings.Contains(r.all(), tc.mentions) {
+						t.Errorf("CI output does not mention %q:\n%s", tc.mentions, r.all())
+					}
+				})
 			}
 		})
+	}
+}
+
+// `undergo verify` runs `go test -v`, so a solver reads every line of this. 34
+// of the 77 predict tasks grade booleans only, several of them nine or ten at a
+// time — and naming the wrong ones turns that into a perfect oracle: answer all
+// true, read back which came out wrong, flip exactly those, done in two runs
+// with no understanding at all. That is not what the seal trades away; opening
+// a seal is deliberate and is recorded as a peek, while this was free.
+func TestCheckDoesNotTellASolverWhichSlotsAreWrong(t *testing.T) {
+	r := grade(t, "sizeof_header: 999\nescapes: false\ncaps: wrong\n", measured())
+	if !r.failed() {
+		t.Fatal("expected a failure to inspect")
+	}
+	for _, slot := range []string{"sizeof_header", "escapes", "caps"} {
+		if strings.Contains(r.all(), `slot "`+slot+`": incorrect`) {
+			t.Errorf("a solver was told %q is the wrong one:\n%s", slot, r.all())
+		}
+	}
+	// The count is the signal the solver does need.
+	if !strings.Contains(r.all(), "3 of 3 slots incorrect") {
+		t.Errorf("a solver should still learn how many are wrong:\n%s", r.all())
+	}
+}
+
+// ci-verify is the other reader: the answers are already known to be correct,
+// the whole output is captured, and naming the failing slots is what turned two
+// blind gate-2 failures into a one-run diagnosis in M10.
+func TestCheckTellsCIWhichSlotsAreWrong(t *testing.T) {
+	r := gradeAsCI(t, "sizeof_header: 999\nescapes: true\ncaps: 1 2 4 8\n", measured())
+	if !r.failed() {
+		t.Fatal("expected a failure to inspect")
+	}
+	if !strings.Contains(r.all(), `slot "sizeof_header": incorrect`) {
+		t.Errorf("CI was not told which slot failed:\n%s", r.all())
+	}
+}
+
+// An unanswered slot is named to both readers: which question you left blank is
+// not a hint about any answer.
+func TestCheckAlwaysNamesAnUnansweredSlot(t *testing.T) {
+	r := grade(t, "sizeof_header: 24\nescapes: true\n", measured())
+	if !strings.Contains(r.all(), `slot "caps": no prediction`) {
+		t.Errorf("a missing answer should name its slot:\n%s", r.all())
 	}
 }
 

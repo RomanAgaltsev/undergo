@@ -3,7 +3,7 @@
 Source: https://go.dev/doc/go1.23
 
 ## structs.HostLayout, and what the spec does not guarantee about layout
-→ invalidates | layout/01-struct-padding
+→ resolved | layout/01-struct-padding
 The new `structs` package exists because "without this marker, struct layout
 order is not guaranteed by the language spec". The sealed **hint** for
 `layout/01-struct-padding` opened with "Go lays a struct out in declaration

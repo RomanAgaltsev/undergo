@@ -12,7 +12,10 @@ import (
 
 // Validate is CI gate 3: every manifest parses and validates, IDs are unique,
 // and no plaintext solution has been committed.
-func Validate(e Env, _ []string) error {
+func Validate(e Env, args []string) error {
+	if err := noArgs("validate", args); err != nil {
+		return err
+	}
 	tasks, err := manifest.Walk(e.TasksDir())
 	if err != nil {
 		return err

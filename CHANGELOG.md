@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.1](https://github.com/RomanAgaltsev/undergo/compare/v0.21.0...v0.21.1) (2026-09-21)
+
+
+### Documentation
+
+* check ROADMAP's counts too, and stop promising what versions cannot ([#45](https://github.com/RomanAgaltsev/undergo/issues/45)) ([2537030](https://github.com/RomanAgaltsev/undergo/commit/253703049361b850ecfe7e791b9708e0a15c0612))
+
 ## [0.21.0](https://github.com/RomanAgaltsev/undergo/compare/v0.20.2...v0.21.0) (2026-09-21)
 
 

@@ -6,10 +6,36 @@ linters:
     - bodyclose
     - errorlint
     - gocritic
+    # G305 in particular: internal/seal extracts an archive supplied as
+    # untrusted input, because reviewing a contributed task means unsealing the
+    # contributor's own blob. That extractor did escape its destination on
+    # Windows, and gosec is the tool whose job that is.
+    - gosec
     - misspell
+    # Old-style Go that has a modern replacement — this module is at 1.27 and
+    # was still calling sort.Slice.
+    - modernize
     - revive
     - unconvert
   settings:
+    gosec:
+      # gosec is here for one rule above all: G305, the tar slip. internal/seal
+      # extracts an archive supplied as untrusted input — reviewing a contributed
+      # task means unsealing the contributor's own blob — and that extractor did
+      # escape its destination on Windows. G204 matters too, since the harness
+      # builds go invocations.
+      #
+      # The rules below are excluded because they describe a threat model this
+      # program does not have, and leaving them on would train the reader to
+      # ignore the tool. undergo is a local CLI operating on a checkout the user
+      # already owns: every path it reads comes from that checkout's own
+      # catalogue, and 0644/0755 is what a file in a git working tree should be.
+      excludes:
+        - G301 # directory permissions
+        - G302 # file permissions on chmod/open
+        - G304 # file inclusion via variable — reading catalogue paths IS the job
+        - G306 # WriteFile permissions
+        - G703 # path traversal via taint analysis — same as G304 here
     errcheck:
       # Terminal output is the CLI's whole job and a failed write to a closed
       # stdout is not actionable; every other error return stays checked.
@@ -27,6 +53,14 @@ linters:
       - path: tasks/
         linters: [revive]
         text: unused-parameter|stutters
+
+      # A task is an exercise about the machine, not production code. asm/05
+      # seeds a PCG deliberately so its answers reproduce, compiler/03 narrows an
+      # int to a byte because the narrowing is the subject, and alloc/01 builds a
+      # string with += in a loop because removing that is the exercise. Both
+      # linters are right about all three in a service and wrong about them here.
+      - path: tasks/
+        linters: [gosec, modernize]
 
     paths:
       # Planted defects live here. Linting them would print the answer, which is

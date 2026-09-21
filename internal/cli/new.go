@@ -22,7 +22,7 @@ func New(e Env, args []string) error {
 		return err
 	}
 	if *id == "" || *mode == "" || *title == "" {
-		return fmt.Errorf("usage: undergo new --id track/NN-slug --mode M --title T [--difficulty N]")
+		return fmt.Errorf("usage: undergo new --id track/NN-slug --mode M --title T [--difficulty N]: %w", ErrUsage)
 	}
 
 	// The track is the id minus its FINAL segment, which is what Validate

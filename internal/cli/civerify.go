@@ -2,6 +2,8 @@ package cli
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -53,7 +55,7 @@ func CIVerify(e Env, args []string) error {
 		return err
 	}
 	if fs.NArg() != 0 {
-		return fmt.Errorf("usage: undergo ci-verify [--race]")
+		return fmt.Errorf("usage: undergo ci-verify [--race] [--require-toolchains]: %w", ErrUsage)
 	}
 	e.Race = *race
 	if e.Race {
@@ -159,9 +161,25 @@ func proveOne(e Env, t *manifest.Task) error {
 		}
 	}
 
-	// Capture everything: a reference solution must never reach a CI log.
+	// Vet the reference solution before running it.
+	//
+	// Gate 1 vets the stub; nothing vetted the answer. A sealed blob is opaque
+	// to every tool by design, and .golangci.yml excludes the work tree, so no
+	// reference solution in this repository had ever been read by a linter or by
+	// vet — 96 solutions over sixteen milestones, held up as exemplary Go.
+	//
+	// Output goes to the same sink for the same reason the tests do: a vet
+	// diagnostic on a solution can quote the solution.
 	var sink bytes.Buffer
-	quiet := Env{Root: e.Root, Out: &sink, Err: &sink, Race: e.Race}
+	if err := vetSolution(work, &sink); err != nil {
+		if path, werr := writeFailureLog(e, t.ID, sink.Bytes()); werr == nil {
+			return fmt.Errorf("%w; output written to %s", err, path)
+		}
+		return err
+	}
+
+	// Capture everything: a reference solution must never reach a CI log.
+	quiet := Env{Root: e.Root, Out: &sink, Err: &sink, Race: e.Race, CI: true}
 	passed, err := RunTests(quiet, work)
 	if err != nil {
 		return err
@@ -175,6 +193,24 @@ func proveOne(e Env, t *manifest.Task) error {
 			return fmt.Errorf("frozen tests did not pass (%s)%s", verdicts, where)
 		}
 		return fmt.Errorf("frozen tests did not pass%s", where)
+	}
+	return nil
+}
+
+// vetSolution runs go vet over the unsealed reference solution, writing any
+// diagnostic to sink rather than to the log.
+func vetSolution(work string, sink *bytes.Buffer) error {
+	ctx, cancel := context.WithTimeout(context.Background(), TaskTimeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "go", "vet", ".")
+	cmd.Dir = work
+	cmd.Stdout, cmd.Stderr = sink, sink
+	if err := cmd.Run(); err != nil {
+		if ctx.Err() != nil {
+			return fmt.Errorf("go vet timed out after %s", TaskTimeout)
+		}
+		return errors.New("the reference solution does not vet clean")
 	}
 	return nil
 }
@@ -193,7 +229,7 @@ func slotVerdicts(t *manifest.Task, output string) string {
 		return ""
 	}
 	var wrong []string
-	for _, line := range strings.Split(output, "\n") {
+	for line := range strings.SplitSeq(output, "\n") {
 		text := strings.TrimSpace(line)
 		i := strings.Index(text, `slot "`)
 		if i < 0 || strings.HasSuffix(text, ": correct") {

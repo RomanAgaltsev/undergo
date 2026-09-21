@@ -25,7 +25,7 @@ func find(e Env, id string) (*manifest.Task, error) {
 // Show prints a task's manifest summary and its README.
 func Show(e Env, args []string) error {
 	if len(args) != 1 {
-		return fmt.Errorf("usage: undergo show <id>")
+		return fmt.Errorf("usage: undergo show <id>: %w", ErrUsage)
 	}
 	t, err := find(e, args[0])
 	if err != nil {

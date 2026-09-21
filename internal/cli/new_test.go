@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
+	"github.com/RomanAgaltsev/undergo/internal/seal"
 )
 
 func TestNewScaffoldsAValidTask(t *testing.T) {
@@ -148,6 +149,71 @@ func TestNewScaffoldsNoDeadFields(t *testing.T) {
 	for _, dead := range []string{"verify:", `go: "1.27"`} {
 		if strings.Contains(string(b), dead) {
 			t.Errorf("scaffold still writes %q", dead)
+		}
+	}
+}
+
+// SealCmd deletes the only plaintext copy of an answer: _solution/ is
+// gitignored, so a blob that does not decode would take the hint, the
+// explanation, the reference solution and the answer sheet with it, silently,
+// until the next gate 2. It now proves the round trip first.
+func TestSealRefusesWhenTheRoundTripWouldLoseSomething(t *testing.T) {
+	src := t.TempDir()
+	if err := os.WriteFile(filepath.Join(src, "HINT.md"), []byte("a nudge\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	blob, err := seal.Seal(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := verifySeal(src, blob); err != nil {
+		t.Fatalf("a good blob must verify: %v", err)
+	}
+
+	// The file changes after the blob was made, which is what a lost or
+	// corrupted entry looks like from here.
+	if err := os.WriteFile(filepath.Join(src, "HINT.md"), []byte("a different nudge\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := verifySeal(src, blob); err == nil {
+		t.Error("verifySeal accepted a blob that no longer matches the plaintext")
+	}
+
+	// A file the blob has never heard of.
+	if err := os.WriteFile(filepath.Join(src, "EXTRA.md"), []byte("new\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := verifySeal(src, blob); err == nil {
+		t.Error("verifySeal accepted a blob missing a file that exists")
+	}
+}
+
+// After `undergo unseal`, the task directory holds the answer in plaintext.
+// copyTask used to carry it into work/ beside the stub — the one place the whole
+// design exists to keep it out of. Only a maintainer can reach that state, and a
+// maintainer checking their own fix is exactly who would.
+func TestStartDoesNotCopyPlaintextSolutions(t *testing.T) {
+	e := repo(t)
+	e.Out = &bytes.Buffer{}
+	dir := e.TaskDir("layout/01-struct-padding")
+
+	for _, name := range []string{AuthoringDir, SolutionSubdir} {
+		if err := os.MkdirAll(filepath.Join(dir, name), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, name, "answer.go"),
+			[]byte("package answer\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := Start(e, []string{"layout/01-struct-padding"}); err != nil {
+		t.Fatalf("Start: %v", err)
+	}
+	work := e.WorkDir("layout/01-struct-padding")
+	for _, name := range []string{AuthoringDir, SolutionSubdir} {
+		if _, err := os.Stat(filepath.Join(work, name)); err == nil {
+			t.Errorf("start copied %s/ into the solver's work directory", name)
 		}
 	}
 }

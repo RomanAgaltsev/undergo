@@ -48,15 +48,43 @@ func Load(path string) (*File, error) {
 }
 
 // Save writes the record, creating its directory if needed.
+//
+// The write goes to a temporary file in the same directory and is renamed over
+// the target, because os.WriteFile truncates before it writes. This is the only
+// record of a solver's work, it is deliberately gitignored so there is no
+// backup, and Save runs on every verify, hint and reveal — an interrupt during
+// a long verify is an ordinary event, not a disaster scenario. A same-directory
+// rename is atomic on both Windows and POSIX.
 func (f *File) Save(path string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
 	b, err := yaml.Marshal(f)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, b, 0o644)
+
+	tmp, err := os.CreateTemp(dir, ".progress-*.yaml")
+	if err != nil {
+		return err
+	}
+	// A no-op once the rename has succeeded; on any earlier return it is what
+	// stops a failed save leaving litter beside the record.
+	defer func() { _ = os.Remove(tmp.Name()) }()
+
+	if _, err := tmp.Write(b); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Sync(); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tmp.Name(), path)
 }
 
 // Get returns a task's entry, creating it if absent.

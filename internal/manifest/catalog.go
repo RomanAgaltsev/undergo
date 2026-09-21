@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/RomanAgaltsev/undergo/internal/toolchain"
@@ -36,7 +35,7 @@ func Walk(root string) ([]*Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	slices.SortFunc(out, func(a, b *Task) int { return strings.Compare(a.ID, b.ID) })
 	return out, nil
 }
 

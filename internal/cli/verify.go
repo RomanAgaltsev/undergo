@@ -17,7 +17,7 @@ import (
 // Verify grades the solver's work directory and records the outcome.
 func Verify(e Env, args []string) error {
 	if len(args) != 1 {
-		return fmt.Errorf("usage: undergo verify <id>")
+		return fmt.Errorf("usage: undergo verify <id>: %w", ErrUsage)
 	}
 	t, err := find(e, args[0])
 	if err != nil {
@@ -94,6 +94,9 @@ func RunTests(e Env, dir string) (bool, error) {
 	cmd.Stderr = e.Err
 	cmd.Env = append(os.Environ(),
 		"UNDERGO_PREDICTION="+filepath.Join(dir, predict.DefaultFile))
+	if e.CI {
+		cmd.Env = append(cmd.Env, predict.CIEnv+"=1")
+	}
 
 	err := cmd.Run()
 	if err == nil {
@@ -106,8 +109,7 @@ func RunTests(e Env, dir string) (bool, error) {
 		return false, fmt.Errorf("timed out after %s — the frozen tests are not returning", TaskTimeout)
 	}
 	// A non-zero exit is a failed task, not a broken harness.
-	var exit *exec.ExitError
-	if errors.As(err, &exit) {
+	if _, ok := errors.AsType[*exec.ExitError](err); ok {
 		return false, nil
 	}
 	return false, err

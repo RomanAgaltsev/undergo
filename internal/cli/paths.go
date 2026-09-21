@@ -26,6 +26,15 @@ type Env struct {
 	// The detector needs cgo, so a machine with no C toolchain cannot honour
 	// this. `undergo doctor` reports whether this one can.
 	Race bool
+
+	// CI says the reader of a grading is a maintainer rather than a solver.
+	//
+	// It reaches a task's test through predict.CIEnv, where it decides whether
+	// the grading may name the slots that were wrong. A solver must not be told:
+	// with per-slot feedback an all-boolean task falls in two runs by flipping
+	// whatever came back wrong. A maintainer must be told, because gate 2
+	// captures everything else and a bare "did not pass" is undiagnosable.
+	CI bool
 }
 
 // TasksDir is the task catalogue.

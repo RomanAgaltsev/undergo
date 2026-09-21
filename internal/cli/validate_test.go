@@ -110,3 +110,32 @@ func TestValidateRejectsACommandInAShellFence(t *testing.T) {
 		t.Fatal("expected validate to reject a command in a ```sh fence")
 	}
 }
+
+// Spec §13 answers its top risk — solved work leaking into the public etalon —
+// with "CI gate 3 rejects a committed plaintext solution/". It did not: the
+// check named _solution/ alone, and so did .gitignore, while `solution/` is the
+// name the overlay actually carries inside every seal. Both spellings now fail,
+// and this is the test that says so.
+func TestValidateRejectsPlaintextSolutionDirectories(t *testing.T) {
+	for _, name := range []string{AuthoringDir, SolutionSubdir} {
+		t.Run(name, func(t *testing.T) {
+			e := withReadme(t, "predict", "# t\n\nPredict the size.\n")
+			dir := filepath.Join(e.TaskDir("layout/01-struct-padding"), name)
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, "answer.go"),
+				[]byte("package answer\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+
+			err := Validate(e, nil)
+			if err == nil {
+				t.Fatalf("validate accepted a committed plaintext %s/", name)
+			}
+			if !strings.Contains(err.Error(), name) {
+				t.Errorf("error does not name %s/: %v", name, err)
+			}
+		})
+	}
+}

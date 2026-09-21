@@ -14,9 +14,11 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"maps"
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -136,20 +138,66 @@ func File(blob, name string) ([]byte, error) {
 }
 
 // Extract writes every entry under dest, refusing any path that escapes it.
+//
+// A blob is untrusted input. Spec §13 answers "sealed blobs are unreviewable in
+// a PR diff" with "maintainers undergo reveal locally on the branch" — which is
+// to say the documented way to review a stranger's contribution is to run this
+// over an archive that stranger wrote. Containment has to hold against a hostile
+// entry name, not only a well-formed one.
+//
+// os.Root does the refusing, and the hand-rolled predecessor is why. It cleaned
+// the name with path.Clean("/"+name), which is the slash-only cleaner: it reads a
+// backslash as an ordinary filename character, so `..\..\x` survived it intact
+// and filepath.Join — which does treat a backslash as a separator on Windows —
+// then resolved the escape. A blob wrote two directories above dest on the
+// maintainer's own platform. os.Root applies the operating system's real path
+// semantics instead, and refuses a symlink out of the tree as well.
 func Extract(blob, dest string) error {
 	entries, err := Entries(blob)
 	if err != nil {
 		return err
 	}
-	for name, body := range entries {
-		clean := path.Clean("/" + name)
-		target := filepath.Join(dest, filepath.FromSlash(strings.TrimPrefix(clean, "/")))
-		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-			return err
-		}
-		if err := os.WriteFile(target, body, 0o644); err != nil {
-			return err
+	if err := os.MkdirAll(dest, 0o755); err != nil {
+		return err
+	}
+	root, err := os.OpenRoot(dest)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = root.Close() }()
+
+	// Sorted so that a failure names the same entry on every platform, for the
+	// same reason Seal sorts: a map's order is not a fact about the blob.
+	for _, name := range slices.Sorted(maps.Keys(entries)) {
+		if err := writeEntry(root, name, entries[name]); err != nil {
+			return fmt.Errorf("seal: %s: %w", name, err)
 		}
 	}
 	return nil
+}
+
+// writeEntry creates one file beneath root.
+//
+// Seal writes every name with filepath.ToSlash, so a backslash can only reach
+// here from an archive this package did not produce. Refusing it keeps the
+// meaning of a name identical on every platform — on Windows `a\b` is a nested
+// path and on Linux it is a filename — rather than leaving os.Root to decide.
+func writeEntry(root *os.Root, name string, body []byte) error {
+	if strings.ContainsRune(name, '\\') {
+		return errors.New("a blob path is slash-separated; refusing a backslash")
+	}
+	if dir := path.Dir(name); dir != "." && dir != "/" {
+		if err := root.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
+	}
+	f, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
+	if err != nil {
+		return err
+	}
+	if _, err := f.Write(body); err != nil {
+		_ = f.Close()
+		return err
+	}
+	return f.Close()
 }

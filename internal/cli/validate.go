@@ -23,8 +23,18 @@ func Validate(e Env, _ []string) error {
 		}
 		seen[t.ID] = t.Dir
 
-		if _, err := os.Stat(filepath.Join(t.Dir, AuthoringDir)); err == nil {
-			return fmt.Errorf("%s: %s/ is committed — run: undergo seal %s", t.ID, AuthoringDir, t.ID)
+		// Both spellings, because both are real. AuthoringDir is where an author
+		// works; SolutionSubdir is the overlay's own name *inside* a seal, so
+		// `_solution/solution/` is the ordinary shape on an author's disk and a
+		// stray copy of one at a task root is exactly the leak this repository is
+		// built to prevent. Spec §13 named "CI gate 3 rejects a committed
+		// plaintext solution/" as the mitigation for its top risk; gate 3 only
+		// ever checked the first name, and .gitignore only ever ignored it.
+		for _, plaintext := range []string{AuthoringDir, SolutionSubdir} {
+			if _, err := os.Stat(filepath.Join(t.Dir, plaintext)); err == nil {
+				return fmt.Errorf("%s: plaintext %s/ is present — seal it: undergo seal %s",
+					t.ID, plaintext, t.ID)
+			}
 		}
 		if _, err := os.Stat(filepath.Join(t.Dir, "README.md")); err != nil {
 			return fmt.Errorf("%s: no README.md", t.ID)

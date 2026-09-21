@@ -4,6 +4,10 @@
 /.undergo/
 # Plaintext solutions while authoring. Sealed by `task seal`, never committed.
 _solution/
+# The overlay directory's own name, which is what a seal carries inside it. A
+# stray copy of one at a task root is the leak the repository is shaped around,
+# and it used to be neither ignored here nor rejected by gate 3.
+tasks/**/solution/
 # Build output.
 /bin/
 # A stray root build — the Taskfile builds to bin/, which is ignored above.

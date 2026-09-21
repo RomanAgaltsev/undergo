@@ -72,6 +72,17 @@ tasks:
       - echo "WARNING -- running without -race. This does NOT satisfy the race gate."
       - go test -shuffle=on {{.PKGS}}
 
+  vuln:
+    desc: govulncheck over the machinery — INDICATIVE only, CI is authoritative
+    cmds:
+      # Deliberately not part of `task ci`. govulncheck reports against the
+      # toolchain it runs under, so a machine whose Go is newer than go.mod's
+      # directive is blind to exactly the toolchain-pin advisories this exists to
+      # catch — and would report a cheerful all-clear while CI, running the
+      # pinned toolchain everybody else gets, goes red.
+      - echo "NOTE -- this reports against YOUR toolchain. The ci.yml job runs the pinned one."
+      - go run golang.org/x/vuln/cmd/govulncheck@latest ./cmd/... ./internal/...
+
   stubs:
     desc: Gate 1 — every task builds; machine-graded tasks also vet clean
     cmds:

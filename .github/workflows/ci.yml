@@ -58,6 +58,32 @@ jobs:
       - name: Gate 3 — manifests valid
         run: go run ./cmd/undergo validate
 
+  # govulncheck reports only vulnerabilities in code paths that are actually
+  # reached, so it is quiet by construction — but it is the only thing here that
+  # watches the Go toolchain itself, which matters more for this repository than
+  # for most. There is exactly one third-party dependency, vendored, so almost
+  # every advisory that could affect undergo is a standard-library one.
+  #
+  # It must run in CI to mean anything. Locally, a machine whose Go is newer than
+  # go.mod's directive is blind to exactly the toolchain-pin advisories this is
+  # here to catch: govulncheck reports against the toolchain it runs under, and
+  # the pinned one is the toolchain everybody else gets.
+  #
+  # Scoped to the machinery. ./... would sweep 231 task packages whose oddities
+  # are deliberate and whose dependencies are the standard library.
+  govulncheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: '1.27'
+      - uses: golang/govulncheck-action@032d45514ae346b1db93c04b0c90b841c370344f # v1.1.0
+        with:
+          go-version-input: '1.27'
+          go-package: ./cmd/... ./internal/...
+
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 15

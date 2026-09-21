@@ -1,0 +1,22 @@
+schema: 1
+id: versions/12-generic-alias
+title: "The alias that adds nothing"
+mode: predict
+track: versions
+difficulty: 3
+estimate: 30m
+tags: [versions, toolchain, generics, aliases, reflect, go1.24]
+requires:
+  go: "1.27"
+  toolchains: [go1.23.12]
+verify: "go test ./..."
+predict:
+  slots:
+    [
+      compiles_on_local,
+      compiles_under_go1_23,
+      diagnostic_names_an_experiment,
+      instantiations_are_identical,
+      alias_type_name,
+    ]
+inspired_by: "radar Go 1.24 — generic type aliases are fully supported"

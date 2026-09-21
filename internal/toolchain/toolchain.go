@@ -12,6 +12,7 @@
 package toolchain
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"go/version"
@@ -20,6 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Local names the installed toolchain — no download, no network.
@@ -70,12 +72,23 @@ func Available(name string) bool {
 	if got, ok := availableBy[name]; ok {
 		return got
 	}
-	cmd := exec.Command("go", "version")
+	ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "go", "version")
 	cmd.Env = append(os.Environ(), "GOTOOLCHAIN="+name)
 	ok := cmd.Run() == nil
 	availableBy[name] = ok
 	return ok
 }
+
+// Timeout bounds a toolchain invocation.
+//
+// These calls are download-bound rather than compute-bound: the first mention of
+// a toolchain fetches it as an ordinary module, so the budget has to cover a
+// cold module cache on a slow link. Without a deadline a stalled proxy hangs
+// gate 2 indefinitely and reports nothing at all.
+const Timeout = 10 * time.Minute
 
 func invoke(name, goLine, src string, env []string, args ...string) (Result, error) {
 	if err := checkToolchain(name, goLine); err != nil {
@@ -100,13 +113,22 @@ func invoke(name, goLine, src string, env []string, args ...string) (Result, err
 		return Result{}, err
 	}
 
-	cmd := exec.Command("go", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Dir = dir
 	cmd.Env = append(append(os.Environ(), "GOTOOLCHAIN="+name), env...)
 
 	out, err := cmd.CombinedOutput()
 	res := Result{Output: strings.TrimRight(string(out), "\r\n"), Exited0: err == nil}
 
+	// A killed process looks like a program that exited non-zero, which here
+	// would be reported as the measured answer rather than as a harness failure.
+	if ctx.Err() != nil {
+		return Result{}, fmt.Errorf("running go %s under %s: timed out after %s",
+			strings.Join(args, " "), name, Timeout)
+	}
 	var exit *exec.ExitError
 	if err != nil && !errors.As(err, &exit) {
 		return Result{}, fmt.Errorf("running go %s under %s: %w", strings.Join(args, " "), name, err)

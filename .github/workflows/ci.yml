@@ -8,12 +8,20 @@ on:
 permissions:
   contents: read
 
+# Actions are pinned to a commit, not a tag. A tag is mutable, and these run
+# with the repository's token; Renovate keeps the digests current and the
+# trailing comment is the human-readable anchor.
 jobs:
   build:
+    # The job id is the check name, and the `main` ruleset requires it by that
+    # exact name. Renaming it — including by adding a matrix, which appends the
+    # matrix value to the context — silently disarms the requirement rather than
+    # failing loudly, so the amd64 job keeps its name and arm64 gets its own.
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: '1.27'
       - name: Unit tests
@@ -24,19 +32,41 @@ jobs:
         run: go run ./cmd/undergo validate
       - name: Radar is well formed
         run: go run ./cmd/undergo radar-check
-      - name: Vendor is in sync
+      - name: go.mod is tidy and vendor is in sync
         run: |
+          go mod tidy
           go mod vendor
-          git diff --exit-code -- vendor go.mod go.sum
+          git diff --exit-code -- go.mod go.sum vendor
+
+  # Gate 1 skips a task this host cannot build and reports the skip. That is only
+  # safe if some runner builds every task, and until now no arm64 runner ran gate
+  # 1 at all: ci.yml was ubuntu-only and the two-arch matrix lives in tasks.yml,
+  # which runs gate 2. An arm64- or darwin-pinned task would have been built
+  # nowhere and nobody would have been told.
+  build-arm64:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: '1.27'
+      - name: Unit tests
+        run: go test ./cmd/... ./internal/...
+      - name: Gate 1 — stubs build and vet clean
+        run: go run ./cmd/undergo ci-stubs
+      - name: Gate 3 — manifests valid
+        run: go run ./cmd/undergo validate
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: '1.27'
-      - uses: golangci/golangci-lint-action@v9
+      - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
         with:
           # Must be built with Go >= the go directive in go.mod, or the linter
           # refuses to load the config.

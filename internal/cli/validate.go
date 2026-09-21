@@ -50,6 +50,10 @@ func Validate(e Env, _ []string) error {
 			}
 		}
 
+		if err := checkPlatformIsReachable(t); err != nil {
+			return err
+		}
+
 		entries, err := os.ReadDir(t.Dir)
 		if err != nil {
 			return err
@@ -74,6 +78,41 @@ func Validate(e Env, _ []string) error {
 
 	fmt.Fprintf(e.Out, "%d manifests valid\n", len(tasks))
 	return nil
+}
+
+// ciPlatforms are the platforms some CI runner builds: ubuntu-latest is
+// linux/amd64 and macos-latest is darwin/arm64.
+//
+// Gate 1 skips a task the host cannot build and says so, which is only safe if
+// some host builds every task. Gate 1 cannot check that itself — it sees one
+// platform — so gate 3 does, because it runs on all of them and reaches every
+// manifest. Without it a task pinned to a platform no runner has is built
+// nowhere and skipped everywhere, and a skip nobody is told about is
+// indistinguishable from success.
+//
+// Keep this in step with the runners in .github/workflows/.
+var ciPlatforms = []manifest.Env{
+	{GOOS: "linux", GOARCH: "amd64"},
+	{GOOS: "darwin", GOARCH: "arm64"},
+}
+
+// checkPlatformIsReachable refuses a task that no CI runner could build.
+func checkPlatformIsReachable(t *manifest.Task) error {
+	if len(t.Requires.Arch) == 0 && len(t.Requires.OS) == 0 {
+		return nil
+	}
+	for _, p := range ciPlatforms {
+		if ok, _ := manifest.Buildable(t, p); ok {
+			return nil
+		}
+	}
+	var covered []string
+	for _, p := range ciPlatforms {
+		covered = append(covered, p.GOOS+"/"+p.GOARCH)
+	}
+	return fmt.Errorf("%s: requires arch %v and os %v, which no CI runner has (%s) — "+
+		"it would be built nowhere and skipped everywhere; widen the pin or add a runner",
+		t.ID, t.Requires.Arch, t.Requires.OS, strings.Join(covered, ", "))
 }
 
 // QuestionsHeading opens the written-questions section, which every predict

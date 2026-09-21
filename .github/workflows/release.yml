@@ -7,6 +7,14 @@ permissions:
   contents: write
   pull-requests: write
 
+# Two pushes to main in quick succession — a PR merge followed by a docs commit,
+# which is how several milestones here have shipped — would otherwise start two
+# runs that read and write the same release PR and the same manifest. Queued
+# rather than cancelled: a half-finished release run should complete.
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
 jobs:
   # release-please keeps a release PR open, accumulating Conventional Commits
   # since the last tag. Merging that PR creates the tag, so cutting a release is
@@ -16,5 +24,8 @@ jobs:
   # `go run ./cmd/undergo`, so a release is the tag and the changelog.
   release-please:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: googleapis/release-please-action@v5
+      # Pinned to a commit rather than a tag. A tag is mutable, and this is the
+      # one workflow that runs with contents: write and pull-requests: write.
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5

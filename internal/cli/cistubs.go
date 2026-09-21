@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -89,9 +90,20 @@ func hasGoFiles(dir string) bool {
 }
 
 func runGo(e Env, args []string) error {
-	cmd := exec.Command("go", args...)
+	// Gate 1 hands the go tool every task package at once, so this is the
+	// longest-running child process in the harness. Bounded for the same reason
+	// as RunTests: a compiler that never returns should be a named failure
+	// rather than a runner held until the job's own limit.
+	ctx, cancel := context.WithTimeout(context.Background(), TaskTimeout*2)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Dir = e.Root
 	cmd.Stdout = e.Out
 	cmd.Stderr = e.Err
-	return cmd.Run()
+	err := cmd.Run()
+	if ctx.Err() != nil {
+		return fmt.Errorf("timed out after %s", TaskTimeout*2)
+	}
+	return err
 }

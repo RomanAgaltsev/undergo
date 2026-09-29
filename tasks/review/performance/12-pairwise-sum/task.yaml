@@ -1,0 +1,10 @@
+schema: 1
+id: review/performance/12-pairwise-sum
+title: "Pairwise sum"
+mode: review
+track: review/performance
+difficulty: 4
+estimate: 45m
+tags: [review, performance, multi-bug]
+inspired_by: "https://pkg.go.dev/testing#B.Loop"
+deprecated: false

@@ -1,0 +1,12 @@
+schema: 1
+id: alloc/06-variable-make
+title: "A make whose length is not a constant"
+mode: predict
+track: alloc
+difficulty: 4
+estimate: 35m
+tags: [allocation, escape-analysis, compiler, go1.25]
+predict:
+  slots: [m_says_escapes, bytes_32_allocs, bytes_33_allocs, words_4_allocs, words_5_allocs, bytes_1_allocs_hash_off, m_says_escapes_hash_off]
+inspired_by: "https://go.dev/doc/go1.25#compiler"
+deprecated: false

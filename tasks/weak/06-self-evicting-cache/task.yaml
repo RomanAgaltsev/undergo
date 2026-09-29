@@ -1,0 +1,10 @@
+schema: 1
+id: weak/06-self-evicting-cache
+title: "A cache that forgets on its own"
+mode: build
+track: weak
+difficulty: 4
+estimate: 45m
+tags: [weak, cleanup, gc, concurrency, caching, go1.24]
+inspired_by: "https://go.dev/blog/cleanups-and-weak"
+deprecated: false

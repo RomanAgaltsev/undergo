@@ -1,0 +1,12 @@
+schema: 1
+id: gc/06-what-the-collector-scans
+title: "Where the collector looks for pointers"
+mode: predict
+track: gc
+difficulty: 4
+estimate: 35m
+tags: [gc, unsafe, pointers, weak, noscan]
+predict:
+  slots: [in_bytes_survives, through_view_survives, in_pointers_survives, in_words_survives, in_anys_survives, vet_flags_a_store]
+inspired_by: "https://pkg.go.dev/unsafe#Pointer"
+deprecated: false

@@ -3,15 +3,15 @@
 ## Tracks
 
 Shipped: all sixteen internals tracks, **every one of them at five tasks or more**.
-Memory — `layout` (5 tasks), `alloc` (5),
+Memory — `layout` (5 tasks), `alloc` (6),
 `types` (5). Language surface — `generics` (5), `iter` (5), `reflect` (5). Lifetime
-and collection — `weak` (5), `gc` (5). The machine — `iface` (5), `compiler` (5),
+and collection — `weak` (6), `gc` (6). The machine — `iface` (5), `compiler` (5),
 `asm` (5), `edges` (10). Scheduling and memory — `sched` (5), `memmodel` (5),
 `concurrency` (8). Versions — `versions` (13). Alongside the 15 `review/*`
-categories (135 drills, imported from loupe) and `design` (36 katas, imported from
+categories (138 drills; 135 imported from loupe) and `design` (36 katas, imported from
 keystone).
 
-**267 tasks ship today, 96 machine-graded.** `undergo validate` checks that
+**273 tasks ship today, 99 machine-graded.** `undergo validate` checks that
 sentence against the catalogue, the same way it checks `README.md`'s — the two
 documents share one vocabulary for counts precisely so that one check can read
 both. This paragraph drifted from M16 until somebody happened to read it, which
@@ -148,7 +148,7 @@ count should say whether it is counting rows or leads.
 | Candidate | Track | Source | Built |
 |---|---|---|---|
 | Size-specialized allocation routines make small allocations (<80 bytes) up to 30% cheaper — A/B it with `GOEXPERIMENT=nosizespecializedmalloc` | `alloc` | [Go 1.27](https://go.dev/doc/go1.27) | — |
-| Slice backing stores are stack-allocated in more cases — predict which `make` calls reach the heap, with `-d=variablemakehash=n` as the control | `alloc` | [Go 1.25](https://go.dev/doc/go1.25), extended in [1.26](https://go.dev/doc/go1.26) | `alloc/03-what-escapes`, `types/01-cap-growth` |
+| Slice backing stores are stack-allocated in more cases — predict which `make` calls reach the heap, with `-d=variablemakehash=n` as the control | `alloc` | [Go 1.25](https://go.dev/doc/go1.25), extended in [1.26](https://go.dev/doc/go1.26) | `alloc/03-what-escapes`, `types/01-cap-growth`, `alloc/06-variable-make` |
 | Heap metadata moved next to the object and allocation alignment fell from 16 bytes to 8 — which size classes changed, and by how much. **Probed thin 2026-09-21:** effective bytes per allocation are identical under 1.21 and 1.22 at every size from 1 to 128, so the answer as asked is "none of them". Not visible through `TotalAlloc`. Same lead as the `layout` row below; strike both or neither | `alloc` | [Go 1.22](https://go.dev/doc/go1.22) | — |
 | A goroutine's starting stack is sized from the average of its predecessors, not from a constant — so a function's first allocation depends on program history | `alloc` | [Go 1.19](https://go.dev/doc/go1.19) | — |
 | `strings.Trim` and friends became allocation-free for the no-op case — predict `AllocsPerRun` before and after | `alloc` | [Go 1.18](https://go.dev/doc/go1.18) | — |

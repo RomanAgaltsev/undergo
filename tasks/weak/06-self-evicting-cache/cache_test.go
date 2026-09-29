@@ -104,6 +104,37 @@ func TestPutNilRemoves(t *testing.T) {
 	runtime.KeepAlive(v)
 }
 
+// liveHeap collects and returns the bytes the heap still holds.
+func liveHeap() uint64 {
+	runtime.GC()
+	runtime.GC()
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	return m.HeapAlloc
+}
+
+// TestRePutDoesNotAccumulate refreshes one key with the same live value many
+// times, as a cache does. Each Put registers a cleanup; one that never undoes
+// the previous registration keeps every earlier one — and whatever it captured
+// — alive for as long as the value lives. A correct cache holds one per entry.
+func TestRePutDoesNotAccumulate(t *testing.T) {
+	const puts = 200_000
+	const allowed = 1 << 20
+
+	c := New[string, Payload]()
+	v := &Payload{}
+	c.Put("a", v)
+	before := liveHeap()
+	for range puts {
+		c.Put("a", v)
+	}
+	grown := int64(liveHeap()) - int64(before)
+	if grown > allowed {
+		t.Errorf("the live heap grew by %d bytes over %d re-Puts of one live value — does Put leave the previous cleanup registered?", grown, puts)
+	}
+	runtime.KeepAlive(v)
+}
+
 // TestConcurrentUse gives the race detector something to find: Put, Get and
 // Len from several goroutines while earlier values are collected and their
 // cleanups run on goroutines of their own. Without -race it can only trip the

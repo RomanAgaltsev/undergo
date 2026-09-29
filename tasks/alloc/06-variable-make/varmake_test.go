@@ -43,10 +43,15 @@ func TestReport(t *testing.T) {
 
 var reportLine = regexp.MustCompile(`^([a-z0-9_]+)=([0-9]+)$`)
 
-// childEnv is the environment for every child process. GOFLAGS is cleared so
+// childEnv is the environment for every child process. GOFLAGS is replaced so
 // that a solver's own GOFLAGS=-gcflags=... cannot change the answers.
+//
+// Not with an empty value: the go command treats an empty variable as unset
+// and falls back to the go env file, so a `go env -w GOFLAGS=...` would still
+// apply. -buildvcs=auto is that flag's own default — a no-op every one of
+// build, vet and test accepts — and being non-empty, it wins.
 func childEnv(extra ...string) []string {
-	return append(append(os.Environ(), "GOFLAGS="), extra...)
+	return append(append(os.Environ(), "GOFLAGS=-buildvcs=auto"), extra...)
 }
 
 // measure runs TestReport in a fresh `go test` of this package, compiled with

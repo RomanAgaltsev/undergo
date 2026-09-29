@@ -40,7 +40,7 @@ rather than pretending to grade prose.
 
 Review drills are grouped by category under `tasks/review/`, so a task id carries
 one extra segment: `review/concurrency/01-request-counter`. `--track review`
-lists all 135, `--track review/concurrency` lists the nine in one category.
+lists every review drill, `--track review/concurrency` lists the nine in one category.
 
 `predict` stores no answer anywhere. The truth is computed when you verify, so
 the task cannot be cheated and cannot rot when Go changes. Grading tells you

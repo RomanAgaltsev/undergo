@@ -83,7 +83,8 @@ func InAnys() bool {
 // package, the stores above included.
 func VetFlags() (bool, error) {
 	cmd := exec.Command("go", "vet", ".")
-	cmd.Env = append(os.Environ(), "GOFLAGS=")
+	// Non-empty on purpose: an empty GOFLAGS falls back to the go env file.
+	cmd.Env = append(os.Environ(), "GOFLAGS=-buildvcs=auto")
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		return false, nil

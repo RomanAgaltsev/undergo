@@ -53,7 +53,7 @@ and an `_solution/` directory. Then:
 ## Difficulty
 
 `difficulty` is 1–5, and it is the only ordering signal a newcomer has for
-choosing among 267 tasks — so it is worth calibrating rather than guessing.
+choosing among hundreds of tasks — so it is worth calibrating rather than guessing.
 
 | | Meaning |
 |---|---|

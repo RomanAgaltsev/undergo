@@ -36,7 +36,7 @@ Planned, in rough order:
 | `compiler` | predict/optimize | inlining budget, bounds-check elimination, PGO, loop lowering |
 | `asm` | build/optimize | Plan9 syntax, register ABI, `//go:noescape`, SIMD |
 | `edges` | mixed | cgo cost, `defer` tiers, panic/recover, `unsafe.Pointer` rules |
-| `review/*` | review | 15 categories × 3 tiers × 3 drills — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
+| `review/*` | review | 15 categories × 3 tiers × 3 drills (performance has 4 per tier) — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
 | `design` | design | 36 system-design katas across 8 tracks |
 | `concurrency` | predict/build | channel handoff, abandoned results, `Cond`, the `Once` contract, `Pool` clearing, `RWMutex` admission, cancellability, close cascades — derived from `go-concurrency` |
 | `versions` | predict | the `go.mod` line as a behaviour switch: GODEBUG defaults, loop variables, language legality, and the edge where a removed switch stops answering; and its second half, where the toolchain changes instead and reaches what no go line can |

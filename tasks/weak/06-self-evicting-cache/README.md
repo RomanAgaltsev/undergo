@@ -22,6 +22,8 @@ got, ok := c.Get("a")  // -> v2, true — v's cleanup must not remove v2's entry
   **A later `Put` under the same key survives the earlier value's removal.**
 - `Get` returns the value while it is reachable elsewhere, `(nil, false)` otherwise.
 - `Len` counts entries; a dead entry may be counted until it has removed itself.
+- Putting a key again — even with the same value — must not accumulate anything
+  per call: a replaced entry leaves nothing registered behind it.
 - The cache is **safe for concurrent use**.
 
 ```
@@ -31,16 +33,27 @@ undergo verify weak/06-self-evicting-cache
 The tests poll for up to five seconds for entries to disappear; a correct cache
 takes milliseconds. Concurrency safety is checked two ways: the concurrent test
 usually trips the runtime's own map check, but only the race detector is
-reliable, and it needs a C toolchain. Without one, run the race gate in Docker:
+reliable. Run it on your own code, from the repository root:
 
 ```
-task race:docker
+go test -race ./work/weak/06-self-evicting-cache/
 ```
+
+The race detector needs a C toolchain. Without one, run the same command in a
+container:
+
+```
+docker run --rm -v "$PWD":/src -w /src golang:1.27 go test -race ./work/weak/06-self-evicting-cache/
+```
+
+(`task race:docker` is not a substitute: it races the reference solutions, not
+yours.)
 
 ## Questions to answer in writing
 
 1. Describe exactly how an old value's cleanup could remove a newer entry, and
-   why checking the *value* at cleanup time cannot prevent it.
+   why comparing against the dead value is impossible. Then name two things the
+   cleanup *can* check instead, and the trade-off of each.
 2. Your cleanup almost certainly captures the cache. Say what that keeps alive,
    for how long, and whether it matters.
 3. The documentation says cleanups may run concurrently with one another, unlike

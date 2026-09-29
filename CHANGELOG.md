@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.23.0](https://github.com/RomanAgaltsev/undergo/compare/v0.22.0...v0.23.0) (2026-09-29)
+
+
+### Features
+
+* **tasks:** Balun batch — variable make, collector scanning, self-evicting cache, benchmark drills ([#50](https://github.com/RomanAgaltsev/undergo/issues/50)) ([7715eb5](https://github.com/RomanAgaltsev/undergo/commit/7715eb553e1297cbd07698285314cf41046cf4d0))
+
 ## [0.22.0](https://github.com/RomanAgaltsev/undergo/compare/v0.21.1...v0.22.0) (2026-09-21)
 
 

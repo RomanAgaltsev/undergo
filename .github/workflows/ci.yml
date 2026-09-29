@@ -100,4 +100,4 @@ jobs:
         with:
           # Must be built with Go >= the go directive in go.mod, or the linter
           # refuses to load the config.
-          version: v2.13.2
+          version: v2.14.0

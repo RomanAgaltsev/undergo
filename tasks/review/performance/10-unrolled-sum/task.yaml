@@ -1,0 +1,10 @@
+schema: 1
+id: review/performance/10-unrolled-sum
+title: "Unrolled sum"
+mode: review
+track: review/performance
+difficulty: 2
+estimate: 20m
+tags: [review, performance, obvious]
+inspired_by: "https://pkg.go.dev/testing#B.Loop"
+deprecated: false

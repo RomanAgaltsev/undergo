@@ -1,0 +1,10 @@
+schema: 1
+id: review/performance/11-fast-parse
+title: "Fast parse"
+mode: review
+track: review/performance
+difficulty: 3
+estimate: 30m
+tags: [review, performance, subtle]
+inspired_by: "https://pkg.go.dev/testing#B.Loop"
+deprecated: false

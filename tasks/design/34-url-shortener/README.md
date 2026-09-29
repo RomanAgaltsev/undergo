@@ -37,6 +37,9 @@ a custom alias that collides with an existing code is rejected.
 - Whether identical URLs collapse to one code (dedup) or each shorten mints a new code.
 - Sharding the counter across nodes without collisions (cf. k2 Snowflake / a per-node range).
 - Custom-alias namespace sharing the same code space; reserved words; expiry/TTL as an extension.
+- The horizon your capacity estimate covers — a year, or the system's life — stated once and carried through every number that depends on it.
+- The arithmetic from alphabet to code length: how many codes your length buys in your alphabet, and how much headroom that leaves over your horizon's count.
+- Which redirect status `Resolve` answers with (301 or 302/307), and what that choice does to click analytics and to caching.
 
 ## Workflow
 Write `DESIGN.md` → have it graded against `../../../rubric/design-rubric.md` → build the

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.23.1](https://github.com/RomanAgaltsev/undergo/compare/v0.23.0...v0.23.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* isolate every go command from the caller's environment ([#54](https://github.com/RomanAgaltsev/undergo/issues/54)) ([c107fa2](https://github.com/RomanAgaltsev/undergo/commit/c107fa2982b76628ef0b4edef71f254fd36f3b82))
+
 ## [0.23.0](https://github.com/RomanAgaltsev/undergo/compare/v0.22.0...v0.23.0) (2026-09-29)
 
 

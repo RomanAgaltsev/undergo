@@ -1,0 +1,12 @@
+schema: 1
+id: sched/06-goroutine-size
+title: "What a waiting goroutine costs"
+mode: predict
+track: sched
+difficulty: 1
+estimate: 20m
+tags: [sched, goroutines, stacks, memory, gc]
+predict:
+  slots: [stack_kib_per_goroutine, grows_with_stack_depth, shrinks_after_return, parked_reclaimed_by_gc]
+inspired_by: "https://go.dev/doc/faq#goroutines"
+deprecated: false

@@ -52,7 +52,7 @@ rather than kept out of politeness. Ideas may be borrowed; code may not.
 The historical sweep (M12) added 158 rows at once. That is a pool, not a
 backlog: a row is a lead with a citation, and most will never become tasks.
 
-193 of these rows come from the radar, against its 194 candidates. The one
+194 of these rows come from the radar, against its 195 candidates. The one
 difference is deliberate: "slice backing stores are stack-allocated in more
 cases" is a `→ candidate` in both 1.25 and 1.26 because the change was extended,
 and it is one lead, so it gets one row. Any other gap between the radar and this
@@ -337,6 +337,7 @@ count should say whether it is counting rows or leads.
 | `bytes.Split` and `Fields` clip returned subslices to capacity so appending cannot overwrite the input | `types` | [Go 1.10](https://go.dev/doc/go1.10) | `types/02-aliasing` |
 | Type aliases: `reflect.TypeOf` cannot tell `T1 = T2` apart, and `case byte:` with `case uint8:` is a compile error | `types` | [Go 1.9](https://go.dev/doc/go1.9) | — |
 | Three-index slicing `a[2:4:7]` — the only way to hand out a window without handing out the room behind it | `types` | [Go 1.2](https://go.dev/doc/go1.2) | `types/02-aliasing` |
+| `AddCleanup` panics at registration on a closure over `ptr`, or an `arg` pointing into it — undocumented; a closure over a holder of `ptr` still passes | `weak` | [Go 1.26](https://go.dev/doc/go1.26) (`runtime/mcleanup.go`, not the notes) | — |
 | `runtime.AddCleanup` vs `SetFinalizer` — four enumerated differences, four predictions | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | `weak/02-cleanup-vs-finalizer` |
 | The `weak` package — the floor for the whole track | `weak` | [Go 1.24](https://go.dev/doc/go1.24) | `weak/01-weak-cache` |
 | `AddCleanup` runs concurrently and `unique` handles reclaim in a single GC cycle — every pre-1.25 measurement is stale | `weak` | [Go 1.25](https://go.dev/doc/go1.25) | `weak/02-cleanup-vs-finalizer` + `weak/05-single-cycle-reclaim` |
@@ -358,12 +359,12 @@ whole history, because a behaviour that *changed* is the best kind of task —
 "this was true in 1.21; is it still?"
 
 Sweep order, most actionable first. **The sweep is complete: every Go release
-from 1.0 to 1.27 is triaged**, 271 entries across 19 files, 194 candidates and
+from 1.0 to 1.27 is triaged**, 272 entries across 19 files, 195 candidates and
 1 invalidation.
 
 | Era | Versions | Status |
 |---|---|---|
-| E1 | 1.23 – 1.27 | **done** — 60 entries across 5 releases: 36 candidates, 1 invalidation. Swept twice: the first pass (2026-09-11) read the runtime, toolchain and library sections and caught three language changes but missed six; the second (2026-09-13) read every release's "Changes to the language" section on its own. |
+| E1 | 1.23 – 1.27 | **done** — 61 entries across 5 releases: 37 candidates, 1 invalidation. Swept twice: the first pass (2026-09-11) read the runtime, toolchain and library sections and caught three language changes but missed six; the second (2026-09-13) read every release's "Changes to the language" section on its own. |
 | E2 | 1.18 – 1.22 | **done** — 80 entries across 5 releases: 59 candidates, 0 invalidations. |
 | E3 | 1.10 – 1.17 | **done** — 114 entries across 8 releases: 85 candidates, 0 invalidations. The densest era: the SSA optimisations, the escape-analysis rewrite, async preemption and `checkptr` all land here. |
 | E4 | 1.0 – 1.9 | **done** — harvested rather than swept, into one file: 17 entries, 14 candidates. Ten thin files would have misrepresented the yield. |

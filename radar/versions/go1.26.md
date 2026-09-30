@@ -47,6 +47,17 @@ requirement.
 feature: which observations about pointer values stop being reproducible across
 runs, and which were never reproducible in the first place.
 
+## AddCleanup rejects two more cleanups that could never run
+→ candidate | weak
+Not in the release notes, and not in `AddCleanup`'s doc comment, which still names
+only `arg == ptr`: Go 1.26's `runtime/mcleanup.go` adds two registration-time
+panics — "cleanup function closes over ptr" and "ptr is within arg" (an `arg`
+pointing into `ptr`'s own object). go1.25.7 has neither. The closure check reads
+the closure's own pointer words, so a closure capturing a *holder* of `ptr` still
+registers silently — `weak/06` met exactly that while building its mutants. A
+toolchain pair can grade which of three near-identical mistakes each release
+catches, and which neither does.
+
 ## The goroutineleak profile arrives as an experiment
 → no action
 Behind `GOEXPERIMENT=goroutineleakprofile` here and generally available in 1.27,

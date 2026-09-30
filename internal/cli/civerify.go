@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/RomanAgaltsev/undergo/internal/childenv"
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 	"github.com/RomanAgaltsev/undergo/internal/seal"
 )
@@ -26,7 +27,9 @@ const SolutionSubdir = "solution"
 // compiler, and the gate would be measuring the environment instead of the
 // solutions.
 func preflightRace() error {
-	if out, err := exec.Command("go", "env", "CGO_ENABLED").Output(); err == nil {
+	cgo := exec.Command("go", "env", "CGO_ENABLED")
+	cgo.Env = childenv.Environ()
+	if out, err := cgo.Output(); err == nil {
 		if strings.TrimSpace(string(out)) == "0" {
 			return fmt.Errorf("ci-verify --race: CGO_ENABLED=0, and the race detector is built on cgo; " +
 				"set CGO_ENABLED=1, or run `task race:docker`")
@@ -205,6 +208,7 @@ func vetSolution(work string, sink *bytes.Buffer) error {
 
 	cmd := exec.CommandContext(ctx, "go", "vet", ".")
 	cmd.Dir = work
+	cmd.Env = childenv.Environ()
 	cmd.Stdout, cmd.Stderr = sink, sink
 	if err := cmd.Run(); err != nil {
 		if ctx.Err() != nil {

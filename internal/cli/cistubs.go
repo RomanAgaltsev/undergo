@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"slices"
 
+	"github.com/RomanAgaltsev/undergo/internal/childenv"
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 )
 
@@ -121,6 +122,7 @@ func runGo(e Env, args []string) error {
 	// built from its own catalogue, never anything a user typed.
 	cmd := exec.CommandContext(ctx, "go", args...) //nolint:gosec // G204: fixed binary, catalogue-derived args
 	cmd.Dir = e.Root
+	cmd.Env = childenv.Environ()
 	cmd.Stdout = e.Out
 	cmd.Stderr = e.Err
 	err := cmd.Run()

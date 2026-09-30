@@ -1,0 +1,10 @@
+schema: 1
+id: review/testing/10-benchmark-wrong-type
+title: "Benchmark wrong type"
+mode: review
+track: review/testing
+difficulty: 2
+estimate: 20m
+tags: [review, testing, obvious]
+inspired_by: "https://pkg.go.dev/testing#hdr-Benchmarks"
+deprecated: false

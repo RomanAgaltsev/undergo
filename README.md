@@ -32,15 +32,15 @@ it cannot grade **skips with a reason** rather than marking you wrong.
 | **review** | findings | you, against the sealed key |
 | **design** | a design document | you, against the sealed rubric |
 
-273 tasks ship today: 99 machine-graded tasks across all sixteen internals tracks,
-138 review drills across 15 categories, and 36 system-design katas. The
+282 tasks ship today: 103 machine-graded tasks across all sixteen internals tracks,
+143 review drills across 15 categories, and 36 system-design katas. The
 review and design tracks are **self-graded** — the seal holds an answer key or a
 grading checklist, and you score yourself against it. `undergo verify` says so
 rather than pretending to grade prose.
 
 Review drills are grouped by category under `tasks/review/`, so a task id carries
 one extra segment: `review/concurrency/01-request-counter`. `--track review`
-lists every review drill, `--track review/concurrency` lists the nine in one category.
+lists every review drill, `--track review/concurrency` lists the drills in one category.
 
 `predict` stores no answer anywhere. The truth is computed when you verify, so
 the task cannot be cheated and cannot rot when Go changes. Grading tells you

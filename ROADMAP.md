@@ -6,12 +6,12 @@ Shipped: all sixteen internals tracks, **every one of them at five tasks or more
 Memory — `layout` (5 tasks), `alloc` (6),
 `types` (5). Language surface — `generics` (5), `iter` (5), `reflect` (5). Lifetime
 and collection — `weak` (6), `gc` (6). The machine — `iface` (5), `compiler` (5),
-`asm` (5), `edges` (10). Scheduling and memory — `sched` (5), `memmodel` (5),
-`concurrency` (8). Versions — `versions` (13). Alongside the 15 `review/*`
-categories (138 drills; 135 imported from loupe) and `design` (36 katas, imported from
+`asm` (5), `edges` (10). Scheduling and memory — `sched` (6), `memmodel` (5),
+`concurrency` (11). Versions — `versions` (13). Alongside the 15 `review/*`
+categories (143 drills; 135 imported from loupe) and `design` (36 katas, imported from
 keystone).
 
-**273 tasks ship today, 99 machine-graded.** `undergo validate` checks that
+**282 tasks ship today, 103 machine-graded.** `undergo validate` checks that
 sentence against the catalogue, the same way it checks `README.md`'s — the two
 documents share one vocabulary for counts precisely so that one check can read
 both. This paragraph drifted from M16 until somebody happened to read it, which
@@ -36,9 +36,9 @@ Planned, in rough order:
 | `compiler` | predict/optimize | inlining budget, bounds-check elimination, PGO, loop lowering |
 | `asm` | build/optimize | Plan9 syntax, register ABI, `//go:noescape`, SIMD |
 | `edges` | mixed | cgo cost, `defer` tiers, panic/recover, `unsafe.Pointer` rules |
-| `review/*` | review | 15 categories × 3 tiers × 3 drills (performance has 4 per tier) — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
+| `review/*` | review | 15 categories × 3 tiers, at least 3 drills per tier (concurrency, performance and testing carry more) — concurrency, nil-safety, error-handling, context, resource-leaks, api-design, performance, security, correctness, testing, generics, json, time, http-client, typed-nil |
 | `design` | design | 36 system-design katas across 8 tracks |
-| `concurrency` | predict/build | channel handoff, abandoned results, `Cond`, the `Once` contract, `Pool` clearing, `RWMutex` admission, cancellability, close cascades — derived from `go-concurrency` |
+| `concurrency` | predict/build | channel handoff, abandoned results, `Cond`, the `Once` contract, `Pool` clearing, `RWMutex` admission, cancellability, close cascades, what an atomic costs, the Once early return, a spin lock — derived from `go-concurrency` |
 | `versions` | predict | the `go.mod` line as a behaviour switch: GODEBUG defaults, loop variables, language legality, and the edge where a removed switch stops answering; and its second half, where the toolchain changes instead and reaches what no go line can |
 
 ## Candidate pool
@@ -162,7 +162,7 @@ count should say whether it is counting rows or leads.
 | The `allocs` profile: bytes allocated ever against bytes live now, and why both are true of one program | `alloc` | [Go 1.11](https://go.dev/doc/go1.11) | `alloc/05-size-classes` uses the quantity |
 | The heap became sparse and lost its 512 GiB ceiling, fixing address-space conflicts under `-race` and cgo | `alloc` | [Go 1.11](https://go.dev/doc/go1.11) | — |
 | `strings.Builder` avoids `bytes.Buffer`'s copy in `String()` because its API forbids writing afterwards — the restriction *is* the optimisation | `alloc` | [Go 1.10](https://go.dev/doc/go1.10) | `alloc/01-zero-alloc-join` |
-| Contiguous growable stacks replaced segmented ones, and the starting size fell to 2048 bytes — where the "2 KB goroutine" number comes from | `alloc` | [Go 1.3](https://go.dev/doc/go1.3), [1.4](https://go.dev/doc/go1.4) | — |
+| Contiguous growable stacks replaced segmented ones, and the starting size fell to 2048 bytes — where the "2 KB goroutine" number comes from | `alloc` | [Go 1.3](https://go.dev/doc/go1.3), [1.4](https://go.dev/doc/go1.4) | `sched/06-goroutine-size` |
 | The experimental portable `simd` package against a pure-Go baseline | `asm` | [Go 1.27](https://go.dev/doc/go1.27) | — |
 | Frameless `NOSPLIT` assembly is no longer automatically `NOFRAME` on amd64 — what a frame costs and what it buys | `asm` | [Go 1.21](https://go.dev/doc/go1.21) | `asm/03-register-abi` |
 | The register ABI reached arm64 and ppc64 — the same function, two calling conventions, one `-S` dump | `asm` | [Go 1.18](https://go.dev/doc/go1.18) | `asm/03-register-abi` |

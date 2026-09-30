@@ -1,0 +1,12 @@
+schema: 1
+id: concurrency/09-atomic-cost
+title: "What an atomic costs"
+mode: predict
+track: concurrency
+difficulty: 1
+estimate: 20m
+tags: [concurrency, atomics, sync, mutex, cache-coherence]
+predict:
+  slots: [atomic_costs_more_than_plain, mutex_costs_more_than_atomic, sharing_slows_atomic]
+inspired_by: "https://pkg.go.dev/sync/atomic"
+deprecated: false

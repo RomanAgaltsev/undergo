@@ -1,0 +1,10 @@
+schema: 1
+id: review/performance/13-sharded-unpadded
+title: "Sharded unpadded"
+mode: review
+track: review/performance
+difficulty: 3
+estimate: 30m
+tags: [review, performance, subtle]
+inspired_by: "https://en.wikipedia.org/wiki/False_sharing"
+deprecated: false

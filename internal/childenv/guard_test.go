@@ -3,7 +3,6 @@ package childenv_test
 import (
 	"io/fs"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -21,16 +20,21 @@ const lookahead = 10
 // in. This walks the machinery's own source, not the tasks: tasks inherit a
 // clean environment from RunTests.
 func TestEveryGoLaunchUsesEnviron(t *testing.T) {
-	root := filepath.Join("..")
+	root, err := os.OpenRoot("..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = root.Close() }()
+	src := root.FS()
 	var missing []string
-	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(src, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if d.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") {
 			return nil
 		}
-		data, err := os.ReadFile(path)
+		data, err := fs.ReadFile(src, path)
 		if err != nil {
 			return err
 		}

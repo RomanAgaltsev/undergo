@@ -22,6 +22,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/RomanAgaltsev/undergo/internal/childenv"
 )
 
 // Local names the installed toolchain — no download, no network.
@@ -76,7 +78,7 @@ func Available(name string) bool {
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "go", "version")
-	cmd.Env = append(os.Environ(), "GOTOOLCHAIN="+name)
+	cmd.Env = childenv.Environ("GOTOOLCHAIN=" + name)
 	ok := cmd.Run() == nil
 	availableBy[name] = ok
 	return ok
@@ -120,7 +122,7 @@ func invoke(name, goLine, src string, env []string, args ...string) (Result, err
 	// name is checked by checkToolchain before reaching here.
 	cmd := exec.CommandContext(ctx, "go", args...) //nolint:gosec // G204: fixed binary, validated args
 	cmd.Dir = dir
-	cmd.Env = append(append(os.Environ(), "GOTOOLCHAIN="+name), env...)
+	cmd.Env = childenv.Environ(append([]string{"GOTOOLCHAIN=" + name}, env...)...)
 
 	out, err := cmd.CombinedOutput()
 	res := Result{Output: strings.TrimRight(string(out), "\r\n"), Exited0: err == nil}

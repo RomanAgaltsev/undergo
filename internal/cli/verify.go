@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/RomanAgaltsev/undergo/internal/childenv"
 	"github.com/RomanAgaltsev/undergo/internal/manifest"
 	"github.com/RomanAgaltsev/undergo/internal/predict"
 	"github.com/RomanAgaltsev/undergo/internal/progress"
@@ -92,8 +93,10 @@ func RunTests(e Env, dir string) (bool, error) {
 	cmd.Dir = dir
 	cmd.Stdout = e.Out
 	cmd.Stderr = e.Err
-	cmd.Env = append(os.Environ(),
-		"UNDERGO_PREDICTION="+filepath.Join(dir, predict.DefaultFile))
+	// A clean environment for the frozen tests, and so for every go command
+	// they start in turn: a caller's GOFLAGS or GODEBUG must not move an answer.
+	cmd.Env = childenv.Environ(
+		"UNDERGO_PREDICTION=" + filepath.Join(dir, predict.DefaultFile))
 	if e.CI {
 		cmd.Env = append(cmd.Env, predict.CIEnv+"=1")
 	}

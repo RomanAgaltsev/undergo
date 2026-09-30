@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.24.0](https://github.com/RomanAgaltsev/undergo/compare/v0.23.1...v0.24.0) (2026-09-30)
+
+
+### Features
+
+* **tasks:** M17 concurrency harvest — atomic cost, goroutine size, Once early return, spin lock, five drills ([#56](https://github.com/RomanAgaltsev/undergo/issues/56)) ([7db22c6](https://github.com/RomanAgaltsev/undergo/commit/7db22c600f5e2d40b8d54f4f84bce8c7dabc59fe))
+
 ## [0.23.1](https://github.com/RomanAgaltsev/undergo/compare/v0.23.0...v0.23.1) (2026-09-30)
 
 

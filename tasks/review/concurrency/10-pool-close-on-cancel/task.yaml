@@ -1,0 +1,10 @@
+schema: 1
+id: review/concurrency/10-pool-close-on-cancel
+title: "Pool close on cancel"
+mode: review
+track: review/concurrency
+difficulty: 3
+estimate: 30m
+tags: [review, concurrency, subtle]
+inspired_by: "https://go.dev/ref/spec#Close"
+deprecated: false

@@ -1,0 +1,10 @@
+schema: 1
+id: review/concurrency/11-lost-signal
+title: "Lost signal"
+mode: review
+track: review/concurrency
+difficulty: 3
+estimate: 30m
+tags: [review, concurrency, subtle]
+inspired_by: "https://pkg.go.dev/sync#Cond"
+deprecated: false

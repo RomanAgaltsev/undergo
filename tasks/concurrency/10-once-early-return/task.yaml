@@ -1,0 +1,12 @@
+schema: 1
+id: concurrency/10-once-early-return
+title: "Once, and the second caller"
+mode: predict
+track: concurrency
+difficulty: 2
+estimate: 25m
+tags: [concurrency, sync, once, atomics, happens-before]
+predict:
+  slots: [naive_runs_f_once, naive_second_returns_early, once_second_returns_early]
+inspired_by: "https://go.dev/src/sync/once.go"
+deprecated: false

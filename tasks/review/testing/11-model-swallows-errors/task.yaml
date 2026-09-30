@@ -1,0 +1,10 @@
+schema: 1
+id: review/testing/11-model-swallows-errors
+title: "Model swallows errors"
+mode: review
+track: review/testing
+difficulty: 3
+estimate: 30m
+tags: [review, testing, subtle]
+inspired_by: "https://en.wikipedia.org/wiki/Model-based_testing"
+deprecated: false

@@ -65,8 +65,10 @@ choosing among hundreds of tasks — so it is worth calibrating rather than gues
 
 Two things this scale does not yet say honestly, worth knowing before you trust it:
 
-- **No task is a 1.** The floor in practice is 2, which matches §14's "assumes you
-  already write Go". Do not reach for 1 to make a track look approachable.
+- **Two tasks are a 1:** `concurrency/09-atomic-cost` and `sched/06-goroutine-size`,
+  the first two questions anyone asks about Go concurrency, each answered by one
+  rule. Everywhere else the floor is 2, which matches §14's "assumes you already
+  write Go". Do not reach for 1 to make a track look approachable.
 - **All 36 design katas are 4**, because the importer assigned a constant. A rate
   limiter and an LSM-tree KV are not the same exercise, and spreading them is an
   open editorial job.
